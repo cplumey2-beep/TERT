@@ -317,7 +317,7 @@ function sendBroadcast(body, onlyDisponibles) {
   window.location.href = `sms:${phones.join(",")}?body=${encodeURIComponent(body)}`;
 }
 
-function broadcastIncidente(codigo, emergencia) {
+function broadcastIncidente(codigo, descripcion, emergencia) {
   const direccion = prompt("Dirección del incidente, incluye el pueblo (ej. Carretera #2 KM 60, Barceloneta):", "");
   if (direccion === null || !direccion.trim()) return;
 
@@ -325,14 +325,7 @@ function broadcastIncidente(codigo, emergencia) {
   const cierre = emergencia
     ? "Proceda en 10-50 a la zona con precaución. Debidamente autorizado."
     : "Proceda a la zona con precaución de manera regular. Debidamente autorizado.";
-  sendBroadcast(`${circulo} A todas las unidades Disponibles, se reporta ${codigo}, ${direccion.trim()}. ${cierre}`, true);
-}
-
-function broadcastInundacion() {
-  const direccion = prompt("Zona/dirección de la inundación, incluye el pueblo:", "");
-  if (direccion === null || !direccion.trim()) return;
-  const cierre = "Proceda a la zona con precaución de manera regular. Debidamente autorizado.";
-  sendBroadcast(`🟢 A todas las unidades Disponibles, se reporta inundación (10-47), ${direccion.trim()}. ${cierre}`, true);
+  sendBroadcast(`${circulo} A todas las unidades Disponibles, se reporta ${descripcion} (${codigo}), ${direccion.trim()}. ${cierre}`, true);
 }
 
 function broadcastCustom() {
@@ -346,15 +339,15 @@ function broadcastPrueba() {
   sendBroadcast(mensaje, false);
 }
 
-$("#btnBroadcast1042_1050").addEventListener("click", () => broadcastIncidente("10-42", true));
-$("#btnBroadcast1042_no1050").addEventListener("click", () => broadcastIncidente("10-42", false));
-$("#btnBroadcast1044_1050").addEventListener("click", () => broadcastIncidente("10-44", true));
-$("#btnBroadcast1044_no1050").addEventListener("click", () => broadcastIncidente("10-44", false));
-$("#btnBroadcast1043_1050").addEventListener("click", () => broadcastIncidente("10-43", true));
-$("#btnBroadcast1043_no1050").addEventListener("click", () => broadcastIncidente("10-43", false));
-$("#btnBroadcast1045_1050").addEventListener("click", () => broadcastIncidente("10-45", true));
-$("#btnBroadcast1045_no1050").addEventListener("click", () => broadcastIncidente("10-45", false));
-$("#btnBroadcastInundacion").addEventListener("click", broadcastInundacion);
+$("#btnBroadcast1042_1050").addEventListener("click", () => broadcastIncidente("10-42", "Accidente", true));
+$("#btnBroadcast1042_no1050").addEventListener("click", () => broadcastIncidente("10-42", "Accidente", false));
+$("#btnBroadcast1044_1050").addEventListener("click", () => broadcastIncidente("10-44", "Fuego", true));
+$("#btnBroadcast1044_no1050").addEventListener("click", () => broadcastIncidente("10-44", "Fuego", false));
+$("#btnBroadcast1043_1050").addEventListener("click", () => broadcastIncidente("10-43", "Accidente Aéreo", true));
+$("#btnBroadcast1043_no1050").addEventListener("click", () => broadcastIncidente("10-43", "Accidente Aéreo", false));
+$("#btnBroadcast1045_1050").addEventListener("click", () => broadcastIncidente("10-45", "Explosión", true));
+$("#btnBroadcast1045_no1050").addEventListener("click", () => broadcastIncidente("10-45", "Explosión", false));
+$("#btnBroadcastInundacion").addEventListener("click", () => broadcastIncidente("10-47", "Inundación", false));
 $("#btnBroadcastCustom").addEventListener("click", broadcastCustom);
 $("#btnBroadcastPrueba").addEventListener("click", broadcastPrueba);
 

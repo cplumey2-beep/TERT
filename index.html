@@ -37,10 +37,22 @@
       <div class="unit-grid" id="unitBoard"></div>
 
       <h2>Difusión a Miembros (SMS)</h2>
-      <p class="hint">10-42 / 10-50 y NO 10-50 solo se envían a unidades con estatus <strong>Disponible</strong> y celular configurado (✎ en el Tablero de Unidades). Prueba de Sistema llega a todos sin importar su estatus. Se abre tu app de Mensajes con el mensaje ya armado — solo falta tocar Enviar.</p>
+      <p class="hint">10-50 = con sirena y bombillos · NO 10-50 = sin sirena. Los códigos de incidente solo se envían a unidades con estatus <strong>Disponible</strong> y celular configurado (✎ en el Tablero de Unidades). Prueba de Sistema llega a todos sin importar su estatus. Se abre tu app de Mensajes con el mensaje ya armado — solo falta tocar Enviar.</p>
+
+      <h3 class="quickdial-group-title">Accidente (10-42)</h3>
       <div class="grid-buttons">
-        <button class="danger-btn" id="btnBroadcast1050">🔴 10-42 / 10-50 (sirena y bombillos)</button>
-        <button class="secondary-btn" id="btnBroadcastNo1050">🟢 10-42 / NO 10-50 (sin sirena)</button>
+        <button class="danger-btn" id="btnBroadcast1042_1050">🔴 10-42 / 10-50</button>
+        <button class="secondary-btn" id="btnBroadcast1042_no1050">🟢 10-42 / NO 10-50</button>
+      </div>
+
+      <h3 class="quickdial-group-title">Fuego (10-44)</h3>
+      <div class="grid-buttons">
+        <button class="danger-btn" id="btnBroadcast1044_1050">🔴 10-44 / 10-50</button>
+        <button class="secondary-btn" id="btnBroadcast1044_no1050">🟢 10-44 / NO 10-50</button>
+      </div>
+
+      <h3 class="quickdial-group-title">Sistema</h3>
+      <div class="grid-buttons">
         <button class="secondary-btn" id="btnBroadcastPrueba">🟡 Prueba de Sistema</button>
       </div>
 

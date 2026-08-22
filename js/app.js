@@ -317,7 +317,7 @@ function sendBroadcast(body, onlyDisponibles) {
   window.location.href = `sms:${phones.join(",")}?body=${encodeURIComponent(body)}`;
 }
 
-function broadcastIncidente(emergencia) {
+function broadcastIncidente(codigo, emergencia) {
   const direccion = prompt("Dirección del incidente, incluye el pueblo (ej. Carretera #2 KM 60, Barceloneta):", "");
   if (direccion === null || !direccion.trim()) return;
 
@@ -325,7 +325,7 @@ function broadcastIncidente(emergencia) {
   const cierre = emergencia
     ? "Proceda en 10-50 a la zona con precaución. Debidamente autorizado."
     : "Proceda a la zona con precaución de manera regular. Debidamente autorizado.";
-  sendBroadcast(`${circulo} A todas las unidades Disponibles, se reporta 10-42, ${direccion.trim()}. ${cierre}`, true);
+  sendBroadcast(`${circulo} A todas las unidades Disponibles, se reporta ${codigo}, ${direccion.trim()}. ${cierre}`, true);
 }
 
 function broadcastPrueba() {
@@ -333,8 +333,10 @@ function broadcastPrueba() {
   sendBroadcast(mensaje, false);
 }
 
-$("#btnBroadcast1050").addEventListener("click", () => broadcastIncidente(true));
-$("#btnBroadcastNo1050").addEventListener("click", () => broadcastIncidente(false));
+$("#btnBroadcast1042_1050").addEventListener("click", () => broadcastIncidente("10-42", true));
+$("#btnBroadcast1042_no1050").addEventListener("click", () => broadcastIncidente("10-42", false));
+$("#btnBroadcast1044_1050").addEventListener("click", () => broadcastIncidente("10-44", true));
+$("#btnBroadcast1044_no1050").addEventListener("click", () => broadcastIncidente("10-44", false));
 $("#btnBroadcastPrueba").addEventListener("click", broadcastPrueba);
 
 // ===== Mapas y ubicación =====

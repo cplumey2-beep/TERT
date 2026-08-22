@@ -1,24 +1,24 @@
 // ===== Configuración de contactos de marcado rápido (sede TERT: Barceloneta, PR) =====
-// Edita este arreglo si algún número cambia. Los marcados "sin confirmar" no tenían
-// un número público verificable al momento de configurarlos — confírmalos y complétalos.
+// Valores por defecto — el nombre y número de cada botón se pueden editar directamente
+// desde la app (clic en el lápiz ✎). Los cambios se guardan en este navegador.
 const QUICK_DIAL = [
-  { label: "🚨 Emergencias 911", number: "911" },
-  { label: "👮 Policía Estatal Barceloneta (sin confirmar)", number: "" },
-  { label: "🏙️ Policía Municipal Barceloneta", number: "7878462915" },
-  { label: "🚒 Bomberos Barceloneta (Carr. 2)", number: "7878462330" },
-  { label: "🚒 Bomberos Arecibo", number: "7878782330" },
-  { label: "🚒 Bomberos Manatí", number: "7878542330" },
-  { label: "🚑 Rescate / Emergencias Barceloneta (OMME)", number: "7878463210" },
-  { label: "🚑 Ambulancia / Cruz Roja (065 número Respaldo general)", number: "065" },
-  { label: "🚑 Atenas Ambulance — Barceloneta", number: "7878462220" },
-  { label: "🚑 Continental EMT — Florida", number: "7879696444" },
-  { label: "🚑 Harrison Ramos Ambulance — Arecibo", number: "7872102128" },
-  { label: "🚑 Health Medical Ambulance — Manatí", number: "7879491024" },
-  { label: "🚔 Comandancia PPR Arecibo", number: "7878784000" },
-  { label: "🚦 Tránsito Arecibo (sin confirmar)", number: "" },
-  { label: "🛣️ Metro Pistas (Asistencia PR-22)", number: "7877058699" },
-  { label: "🛟 Protección Civil", number: "911" },
-  { label: "📻 Base TERT", number: "" }
+  { id: "qd-911", label: "🚨 Emergencias 911", number: "911" },
+  { id: "qd-policia-estatal-bc", label: "👮 Policía Estatal Barceloneta (sin confirmar)", number: "" },
+  { id: "qd-policia-municipal-bc", label: "🏙️ Policía Municipal Barceloneta", number: "7878462915" },
+  { id: "qd-bomberos-bc", label: "🚒 Bomberos Barceloneta (Carr. 2)", number: "7878462330" },
+  { id: "qd-bomberos-arecibo", label: "🚒 Bomberos Arecibo", number: "7878782330" },
+  { id: "qd-bomberos-manati", label: "🚒 Bomberos Manatí", number: "7878542330" },
+  { id: "qd-rescate-omme-bc", label: "🚑 Rescate / Emergencias Barceloneta (OMME)", number: "7878463210" },
+  { id: "qd-cruz-roja", label: "🚑 Ambulancia / Cruz Roja (065 número Respaldo general)", number: "065" },
+  { id: "qd-atenas-bc", label: "🚑 Atenas Ambulance — Barceloneta", number: "7878462220" },
+  { id: "qd-continental-florida", label: "🚑 Continental EMT — Florida", number: "7879696444" },
+  { id: "qd-harrison-arecibo", label: "🚑 Harrison Ramos Ambulance — Arecibo", number: "7872102128" },
+  { id: "qd-health-manati", label: "🚑 Health Medical Ambulance — Manatí", number: "7879491024" },
+  { id: "qd-comandancia-arecibo", label: "🚔 Comandancia PPR Arecibo", number: "7878784000" },
+  { id: "qd-transito-arecibo", label: "🚦 Tránsito Arecibo (sin confirmar)", number: "" },
+  { id: "qd-metro-pistas", label: "🛣️ Metro Pistas (Asistencia PR-22)", number: "7877058699" },
+  { id: "qd-proteccion-civil", label: "🛟 Protección Civil", number: "911" },
+  { id: "qd-base-tert", label: "📻 Base TERT", number: "" },
 ];
 
 // ===== Configuración del tablero de unidades (miembros TERT por rango) =====
@@ -73,6 +73,7 @@ const STORAGE_KEY = "tert_bitacora";
 const NOTES_KEY = "tert_notas";
 const UNIT_STATUS_KEY = "tert_unit_status";
 const UNIT_LABEL_KEY = "tert_unit_labels";
+const QUICK_DIAL_OVERRIDES_KEY = "tert_quickdial_overrides";
 
 // ===== Utilidades =====
 const $ = (sel) => document.querySelector(sel);
@@ -116,21 +117,50 @@ $all(".tab-btn").forEach((btn) => {
 });
 
 // ===== Marcado rápido =====
+function getQuickDialOverrides() {
+  return JSON.parse(localStorage.getItem(QUICK_DIAL_OVERRIDES_KEY) || "{}");
+}
+function saveQuickDialOverrides(overrides) {
+  localStorage.setItem(QUICK_DIAL_OVERRIDES_KEY, JSON.stringify(overrides));
+}
 function renderQuickDial() {
+  const overrides = getQuickDialOverrides();
   const container = $("#quickDial");
   container.innerHTML = "";
   QUICK_DIAL.forEach((c) => {
-    const btn = document.createElement("button");
-    btn.textContent = c.label;
-    btn.addEventListener("click", () => {
-      if (!c.number) {
-        alert("Configura el número de esta línea en QUICK_DIAL dentro de js/app.js");
+    const o = overrides[c.id] || {};
+    const label = o.label || c.label;
+    const number = o.number !== undefined ? o.number : c.number;
+
+    const card = document.createElement("div");
+    card.className = "quickdial-card";
+    card.innerHTML = `
+      <button type="button" class="quickdial-edit" title="Editar nombre y número">✎</button>
+      <button type="button" class="quickdial-dial">${escapeHtml(label)}</button>
+    `;
+    card.querySelector(".quickdial-edit").addEventListener("click", () => editQuickDial(c.id, label, number));
+    card.querySelector(".quickdial-dial").addEventListener("click", () => {
+      if (!number) {
+        alert("Este botón no tiene número configurado. Clic en ✎ para agregarlo.");
         return;
       }
-      window.location.href = `tel:${c.number}`;
+      window.location.href = `tel:${number}`;
     });
-    container.appendChild(btn);
+    container.appendChild(card);
   });
+}
+function editQuickDial(id, currentLabel, currentNumber) {
+  const newLabel = prompt("Nombre / descripción del botón:", currentLabel);
+  if (newLabel === null) return;
+  const newNumber = prompt("Número de teléfono (solo dígitos, sin guiones):", currentNumber);
+  if (newNumber === null) return;
+  const overrides = getQuickDialOverrides();
+  overrides[id] = {
+    label: newLabel.trim() || currentLabel,
+    number: newNumber.replace(/[^0-9]/g, ""),
+  };
+  saveQuickDialOverrides(overrides);
+  renderQuickDial();
 }
 renderQuickDial();
 

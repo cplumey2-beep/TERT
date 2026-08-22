@@ -101,6 +101,35 @@ h2 { border-left: 4px solid var(--accent); padding-left: 10px; margin-top: 26px;
 
 .map-btn { background: var(--panel-alt); }
 
+.quickdial-card { position: relative; }
+.quickdial-card .quickdial-dial { width: 100%; }
+.quickdial-card .quickdial-edit {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: none;
+}
+.quickdial-card .quickdial-edit:hover {
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--accent);
+  border-color: var(--accent);
+  transform: none;
+}
+
 .hint { color: var(--muted); font-size: 0.82rem; margin: -6px 0 12px; }
 
 .unit-grid {

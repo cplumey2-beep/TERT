@@ -1,12 +1,16 @@
-// ===== Configuración de contactos de marcado rápido =====
-// Edita este arreglo para ajustar los números reales de tu localidad/estado.
+// ===== Configuración de contactos de marcado rápido (sede TERT: Barceloneta, PR) =====
+// Edita este arreglo si algún número cambia. Los marcados "sin confirmar" no tenían
+// un número público verificable al momento de configurarlos — confírmalos y complétalos.
 const QUICK_DIAL = [
   { label: "🚨 Emergencias 911", number: "911" },
-  { label: "👮 Policía Estatal", number: "911" },
-  { label: "🏙️ Policía Municipal", number: "911" },
-  { label: "🚒 Bomberos", number: "911" },
+  { label: "👮 Policía Estatal Barceloneta (sin confirmar)", number: "" },
+  { label: "🏙️ Policía Municipal Barceloneta", number: "7878462915" },
+  { label: "🚒 Bomberos Barceloneta (Carr. 2)", number: "7878462330" },
+  { label: "🚑 Rescate / Emergencias Barceloneta (OMME)", number: "7878463210" },
   { label: "🚑 Ambulancia / Cruz Roja", number: "065" },
-  { label: "🚦 Tránsito y Vialidad", number: "911" },
+  { label: "🚔 Comandancia PPR Arecibo", number: "7878784000" },
+  { label: "🚦 Tránsito Arecibo (sin confirmar)", number: "" },
+  { label: "🛣️ Metro Pistas (Asistencia PR-22)", number: "7877058699" },
   { label: "🛟 Protección Civil", number: "911" },
   { label: "📻 Base TERT", number: "" }
 ];

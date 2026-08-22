@@ -2,16 +2,17 @@
 // Valores por defecto — el nombre y número de cada botón se pueden editar directamente
 // desde la app (clic en el lápiz ✎). Los cambios se guardan en este navegador.
 // Agrupados por tipo de servicio; cada nombre termina con el pueblo entre paréntesis.
-const QUICK_DIAL_CATEGORIES = ["General", "Policía", "Bomberos", "Rescate", "Ambulancia", "Otros"];
+const QUICK_DIAL_CATEGORIES = ["General", "Policía Estatal", "Policía Municipal", "Bomberos", "Rescate", "Ambulancia", "Otros"];
 const QUICK_DIAL = [
   { id: "qd-911", category: "General", label: "🚨 Emergencias 911", number: "911" },
 
-  { id: "qd-policia-estatal-bc", category: "Policía", label: "👮 Policía Estatal (Barceloneta, sin confirmar)", number: "" },
-  { id: "qd-policia-municipal-bc", category: "Policía", label: "🏙️ Policía Municipal (Barceloneta)", number: "7878462915" },
-  { id: "qd-policia-estatal-florida", category: "Policía", label: "👮 Policía Estatal (Florida)", number: "7878222020" },
-  { id: "qd-policia-municipal-florida", category: "Policía", label: "🏙️ Policía Municipal (Florida, línea gral. municipio)", number: "7878222600" },
-  { id: "qd-comandancia-arecibo", category: "Policía", label: "🚔 Comandancia PPR (Arecibo)", number: "7878784000" },
-  { id: "qd-transito-arecibo", category: "Policía", label: "🚦 Policía Estatal — Tránsito (Arecibo, vía Comandancia)", number: "7878784000" },
+  { id: "qd-policia-estatal-bc", category: "Policía Estatal", label: "👮 Policía Estatal (Barceloneta, sin confirmar)", number: "" },
+  { id: "qd-policia-estatal-florida", category: "Policía Estatal", label: "👮 Policía Estatal (Florida)", number: "7878222020" },
+  { id: "qd-comandancia-arecibo", category: "Policía Estatal", label: "🚔 Comandancia PPR (Arecibo)", number: "7878784000" },
+  { id: "qd-transito-arecibo", category: "Policía Estatal", label: "🚦 Policía Estatal — Tránsito (Arecibo, vía Comandancia)", number: "7878784000" },
+
+  { id: "qd-policia-municipal-bc", category: "Policía Municipal", label: "🏙️ Policía Municipal (Barceloneta)", number: "7878462915" },
+  { id: "qd-policia-municipal-florida", category: "Policía Municipal", label: "🏙️ Policía Municipal (Florida, línea gral. municipio)", number: "7878222600" },
 
   { id: "qd-bomberos-bc", category: "Bomberos", label: "🚒 Bomberos (Barceloneta, Carr. 2)", number: "7878462330" },
   { id: "qd-bomberos-arecibo", category: "Bomberos", label: "🚒 Bomberos (Arecibo)", number: "7878782330" },

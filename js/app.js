@@ -11,6 +11,7 @@ const QUICK_DIAL = [
   { id: "qd-policia-estatal-florida", category: "Policía", label: "👮 Policía Estatal (Florida)", number: "7878222020" },
   { id: "qd-policia-municipal-florida", category: "Policía", label: "🏙️ Policía Municipal (Florida, línea gral. municipio)", number: "7878222600" },
   { id: "qd-comandancia-arecibo", category: "Policía", label: "🚔 Comandancia PPR (Arecibo)", number: "7878784000" },
+  { id: "qd-transito-arecibo", category: "Policía", label: "🚦 Policía Estatal — Tránsito (Arecibo, vía Comandancia)", number: "7878784000" },
 
   { id: "qd-bomberos-bc", category: "Bomberos", label: "🚒 Bomberos (Barceloneta, Carr. 2)", number: "7878462330" },
   { id: "qd-bomberos-arecibo", category: "Bomberos", label: "🚒 Bomberos (Arecibo)", number: "7878782330" },
@@ -28,7 +29,6 @@ const QUICK_DIAL = [
   { id: "qd-health-manati", category: "Ambulancia", label: "🚑 Health Medical Ambulance (Manatí)", number: "7879491024" },
 
   { id: "qd-drna-arecibo", category: "Otros", label: "🌊 DRNA Oficina Regional (Arecibo)", number: "7878787279" },
-  { id: "qd-transito-arecibo", category: "Otros", label: "🚦 Tránsito (Arecibo, sin confirmar)", number: "" },
   { id: "qd-metro-pistas", category: "Otros", label: "🛣️ Metro Pistas (Asistencia PR-22)", number: "7877058699" },
   { id: "qd-proteccion-civil", category: "Otros", label: "🛟 Protección Civil", number: "911" },
   { id: "qd-base-tert", category: "Otros", label: "📻 Base TERT", number: "" },

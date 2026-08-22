@@ -1,7 +1,7 @@
 // ===== Candado de acceso (deterrente, NO seguridad real — ver nota en el chat) =====
 // Para cambiar la contraseña: calcula el SHA-256 en hex del nuevo valor y reemplaza
 // LOCK_PASSWORD_HASH. Pídele a Claude que lo haga y publique el cambio si prefieres.
-const LOCK_PASSWORD_HASH = "1d09f48dc9a828b66ff5c6ef27b94795e436f9eea93d42b840f80a671112f2db"; // "TERT-temporal-2026"
+const LOCK_PASSWORD_HASH = "b841cc4653c031b8ef37f7418f93b053119de4dff29bae51e0efa694bf22acbc";
 const LOCK_KEY = "tert_unlocked";
 
 async function sha256Hex(text) {

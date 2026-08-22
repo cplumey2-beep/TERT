@@ -328,6 +328,19 @@ function broadcastIncidente(codigo, emergencia) {
   sendBroadcast(`${circulo} A todas las unidades Disponibles, se reporta ${codigo}, ${direccion.trim()}. ${cierre}`, true);
 }
 
+function broadcastInundacion() {
+  const direccion = prompt("Zona/dirección de la inundación, incluye el pueblo:", "");
+  if (direccion === null || !direccion.trim()) return;
+  const cierre = "Proceda a la zona con precaución de manera regular. Debidamente autorizado.";
+  sendBroadcast(`🟢 A todas las unidades Disponibles, se reporta inundación (10-47), ${direccion.trim()}. ${cierre}`, true);
+}
+
+function broadcastCustom() {
+  const mensaje = prompt("Escribe el mensaje a difundir a las unidades Disponibles:", "");
+  if (mensaje === null || !mensaje.trim()) return;
+  sendBroadcast(`⚪ A todas las unidades Disponibles: ${mensaje.trim()}`, true);
+}
+
 function broadcastPrueba() {
   const mensaje = "🟡 >>> Esto es una prueba del nuevo sistema de difusión automatizada inteligente de despacho de TERT. Si recibe este mensaje, por favor conteste. Gracias. Mensaje de prueba enviado por Ing. Plumey. <<< 🟡";
   sendBroadcast(mensaje, false);
@@ -337,6 +350,10 @@ $("#btnBroadcast1042_1050").addEventListener("click", () => broadcastIncidente("
 $("#btnBroadcast1042_no1050").addEventListener("click", () => broadcastIncidente("10-42", false));
 $("#btnBroadcast1044_1050").addEventListener("click", () => broadcastIncidente("10-44", true));
 $("#btnBroadcast1044_no1050").addEventListener("click", () => broadcastIncidente("10-44", false));
+$("#btnBroadcast1043_1050").addEventListener("click", () => broadcastIncidente("10-43", true));
+$("#btnBroadcast1043_no1050").addEventListener("click", () => broadcastIncidente("10-43", false));
+$("#btnBroadcastInundacion").addEventListener("click", broadcastInundacion);
+$("#btnBroadcastCustom").addEventListener("click", broadcastCustom);
 $("#btnBroadcastPrueba").addEventListener("click", broadcastPrueba);
 
 // ===== Mapas y ubicación =====

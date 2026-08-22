@@ -347,7 +347,11 @@ $("#btnBroadcast1043_1050").addEventListener("click", () => broadcastIncidente("
 $("#btnBroadcast1043_no1050").addEventListener("click", () => broadcastIncidente("10-43", "Accidente Aéreo", false));
 $("#btnBroadcast1045_1050").addEventListener("click", () => broadcastIncidente("10-45", "Explosión", true));
 $("#btnBroadcast1045_no1050").addEventListener("click", () => broadcastIncidente("10-45", "Explosión", false));
+$("#btnBroadcast1046_1050").addEventListener("click", () => broadcastIncidente("10-46", "Naufragio / Ahogamiento", true));
+$("#btnBroadcast1046_no1050").addEventListener("click", () => broadcastIncidente("10-46", "Naufragio / Ahogamiento", false));
 $("#btnBroadcastInundacion").addEventListener("click", () => broadcastIncidente("10-47", "Inundación", false));
+$("#btnBroadcast1049_1050").addEventListener("click", () => broadcastIncidente("10-49", "Deslizamiento", true));
+$("#btnBroadcast1049_no1050").addEventListener("click", () => broadcastIncidente("10-49", "Deslizamiento", false));
 $("#btnBroadcastCustom").addEventListener("click", broadcastCustom);
 $("#btnBroadcastPrueba").addEventListener("click", broadcastPrueba);
 

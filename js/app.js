@@ -276,9 +276,11 @@ function renderUnitBoard() {
     container.appendChild(card);
   });
 }
-function getMemberPhones() {
+function getMemberPhones(onlyDisponibles) {
   const labels = getUnitLabels();
+  const statuses = getUnitStatuses();
   return UNITS
+    .filter((u) => !onlyDisponibles || (statuses[u.id] || "Disponible") === "Disponible")
     .map((u) => normalizeUnitOverride(labels[u.id]).phone)
     .filter((phone) => phone);
 }
@@ -303,10 +305,13 @@ $("#btnResetAllUnits").addEventListener("click", () => {
 // ===== Difusión a miembros (SMS) =====
 // Círculo de color al inicio del mensaje para identificar el tipo de un vistazo:
 // 🔴 = 10-50 emergencia (sirenas) · 🟢 = NO 10-50 (sin sirenas) · 🟡 = prueba del sistema
-function sendBroadcast(body) {
-  const phones = getMemberPhones();
+function sendBroadcast(body, onlyDisponibles) {
+  const phones = getMemberPhones(onlyDisponibles);
   if (!phones.length) {
-    alert("No hay celulares configurados. Clic en el nombre de cada miembro en el Tablero de Unidades para agregar su número.");
+    const msg = onlyDisponibles
+      ? "No hay unidades con estatus Disponible que tengan celular configurado en este momento."
+      : "No hay celulares configurados. Clic en ✎ en cada miembro del Tablero de Unidades para agregar su número.";
+    alert(msg);
     return;
   }
   window.location.href = `sms:${phones.join(",")}?body=${encodeURIComponent(body)}`;
@@ -320,12 +325,12 @@ function broadcastIncidente(emergencia) {
   const cierre = emergencia
     ? "Proceda en 10-50 a la zona con precaución. Debidamente autorizado."
     : "Proceda a la zona con precaución de manera regular. Debidamente autorizado.";
-  sendBroadcast(`${circulo} A todas las unidades Disponibles, se reporta 10-42, ${direccion.trim()}. ${cierre}`);
+  sendBroadcast(`${circulo} A todas las unidades Disponibles, se reporta 10-42, ${direccion.trim()}. ${cierre}`, true);
 }
 
 function broadcastPrueba() {
   const mensaje = "🟡 >>> Esto es una prueba del nuevo sistema de difusión automatizada inteligente de despacho de TERT. Si recibe este mensaje, por favor conteste. Gracias. Mensaje de prueba enviado por Ing. Plumey. <<< 🟡";
-  sendBroadcast(mensaje);
+  sendBroadcast(mensaje, false);
 }
 
 $("#btnBroadcast1050").addEventListener("click", () => broadcastIncidente(true));

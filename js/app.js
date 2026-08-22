@@ -416,7 +416,8 @@ function broadcastIncidente(codigo, descripcion, emergencia) {
   const cierre = emergencia
     ? "Proceda en 10-50 a la zona con precaución. Debidamente autorizado."
     : "Proceda a la zona con precaución de manera regular. Debidamente autorizado.";
-  sendBroadcast(`${circulo} A todas las unidades Disponibles, se reporta ${descripcion} (${codigo}), ${direccion.trim()}. ${cierre}`, true);
+  const recordatorio = "Favor de reportar su participación a través de Zello o por aquí por texto para activarlo y para récord. Gracias.";
+  sendBroadcast(`${circulo} A todas las unidades Disponibles, se reporta ${descripcion} (${codigo}), ${direccion.trim()}. ${cierre} ${recordatorio}`, true);
 }
 
 function broadcastCustom() {

@@ -10,6 +10,17 @@
 <link rel="stylesheet" href="css/style.css?v=20260822">
 </head>
 <body>
+  <div class="lock-overlay" id="lockOverlay">
+    <div class="lock-box">
+      <span class="brand-badge">TERT</span>
+      <h2>Acceso Restringido</h2>
+      <p class="hint">Sistema de Despacho — solo personal autorizado.</p>
+      <input type="password" id="lockPasswordInput" placeholder="Contraseña" autocomplete="off">
+      <button class="primary-btn" id="lockSubmit">🔓 Entrar</button>
+      <p id="lockError" class="lock-error"></p>
+    </div>
+  </div>
+
   <header class="topbar">
     <div class="brand">
       <span class="brand-badge">TERT</span>

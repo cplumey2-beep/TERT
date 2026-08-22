@@ -52,6 +52,37 @@ body {
   font-weight: 700;
 }
 
+.lock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.lock-overlay.hidden { display: none; }
+.lock-box {
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.lock-box .brand-badge { font-size: 1.4rem; padding: 12px 18px; }
+.lock-box h2 { margin: 4px 0 0; }
+.lock-box input {
+  width: 100%;
+  text-align: center;
+  font-size: 1.1rem;
+  padding: 12px;
+}
+.lock-box button { width: 100%; font-size: 1.05rem; padding: 12px; }
+.lock-error { color: var(--red); font-size: 0.85rem; min-height: 1.2em; margin: 0; }
+
 .turno-bar {
   padding: 8px 20px;
   font-size: 0.9rem;

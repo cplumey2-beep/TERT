@@ -1,3 +1,41 @@
+// ===== Candado de acceso (deterrente, NO seguridad real — ver nota en el chat) =====
+// Para cambiar la contraseña: calcula el SHA-256 en hex del nuevo valor y reemplaza
+// LOCK_PASSWORD_HASH. Pídele a Claude que lo haga y publique el cambio si prefieres.
+const LOCK_PASSWORD_HASH = "1d09f48dc9a828b66ff5c6ef27b94795e436f9eea93d42b840f80a671112f2db"; // "TERT-temporal-2026"
+const LOCK_KEY = "tert_unlocked";
+
+async function sha256Hex(text) {
+  const bytes = new TextEncoder().encode(text);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+(function initLock() {
+  const overlay = document.getElementById("lockOverlay");
+  if (localStorage.getItem(LOCK_KEY) === "1") {
+    overlay.classList.add("hidden");
+    return;
+  }
+  const input = document.getElementById("lockPasswordInput");
+  const error = document.getElementById("lockError");
+  async function tryUnlock() {
+    const hash = await sha256Hex(input.value);
+    if (hash === LOCK_PASSWORD_HASH) {
+      localStorage.setItem(LOCK_KEY, "1");
+      overlay.classList.add("hidden");
+    } else {
+      error.textContent = "Contraseña incorrecta.";
+      input.value = "";
+      input.focus();
+    }
+  }
+  document.getElementById("lockSubmit").addEventListener("click", tryUnlock);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") tryUnlock();
+  });
+  input.focus();
+})();
+
 // ===== Configuración de contactos de marcado rápido (sede TERT: Barceloneta, PR) =====
 // Valores por defecto — el nombre y número de cada botón se pueden editar directamente
 // desde la app (clic en el lápiz ✎). Los cambios se guardan en este navegador.

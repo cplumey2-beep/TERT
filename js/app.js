@@ -13,6 +13,8 @@ const QUICK_DIAL = [
 
   { id: "qd-policia-municipal-bc", category: "Policía Municipal", label: "🏙️ Policía Municipal (Barceloneta)", number: "7878462915" },
   { id: "qd-policia-municipal-florida", category: "Policía Municipal", label: "🏙️ Policía Municipal (Florida, línea gral. municipio)", number: "7878222600" },
+  { id: "qd-policia-municipal-arecibo", category: "Policía Municipal", label: "🏙️ Policía Municipal (Arecibo)", number: "7879302949" },
+  { id: "qd-policia-municipal-manati", category: "Policía Municipal", label: "🏙️ Policía Municipal (Manatí)", number: "7878546720" },
 
   { id: "qd-bomberos-bc", category: "Bomberos", label: "🚒 Bomberos (Barceloneta, Carr. 2)", number: "7878462330" },
   { id: "qd-bomberos-arecibo", category: "Bomberos", label: "🚒 Bomberos (Arecibo)", number: "7878782330" },

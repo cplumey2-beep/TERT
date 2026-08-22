@@ -21,6 +21,8 @@
     <div class="clock" id="clock">--:--:--</div>
   </header>
 
+  <div class="turno-bar" id="turnoBar"></div>
+
   <nav class="tabs">
     <button class="tab-btn active" data-tab="despacho">📡 Despacho</button>
     <button class="tab-btn" data-tab="bitacora">📝 Bitácora</button>
@@ -224,7 +226,7 @@
       <div class="table-wrap">
         <table id="reportTable">
           <thead>
-            <tr><th>Folio</th><th>Fecha</th><th>Tipo</th><th>Prioridad</th><th>Ubicación</th><th>Unidad</th><th>Agencias</th><th>Estatus</th><th>Descripción</th><th></th></tr>
+            <tr><th>Folio</th><th>Fecha</th><th>Tipo</th><th>Prioridad</th><th>Ubicación</th><th>Unidad</th><th>Agencias</th><th>Estatus</th><th>Despachador</th><th>Descripción</th><th></th></tr>
           </thead>
           <tbody></tbody>
         </table>
@@ -236,6 +238,29 @@
     <section id="info" class="tab-panel">
       <h2>Información y Protocolos</h2>
       <div class="info-grid">
+        <div class="info-card full">
+          <h3>Despachador en Turno</h3>
+          <p class="hint">Registra quién está a cargo del despacho y cuándo entró/salió — queda guardado como historial de turnos y se anota en cada incidente de la Bitácora. Es tu respaldo legal ante cualquier situación.</p>
+          <div id="turnoActualBox" class="turno-actual-box"></div>
+          <div class="form-row">
+            <label>Nombre del despachador
+              <input type="text" id="turnoNombreInput" placeholder="Ej. Sgto. Pérez">
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="primary-btn" id="btnIniciarTurno">🟢 Iniciar Turno</button>
+            <button class="danger-btn" id="btnTerminarTurno">🔴 Terminar Turno</button>
+          </div>
+          <h3 class="turno-historial-title">Historial de Turnos</h3>
+          <div class="table-wrap">
+            <table id="turnoHistorialTable">
+              <thead>
+                <tr><th>Despachador</th><th>Entrada</th><th>Salida</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
         <div class="info-card">
           <h3>Números Clave — Sede Barceloneta</h3>
           <ul>

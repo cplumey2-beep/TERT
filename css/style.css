@@ -52,6 +52,26 @@ body {
   font-weight: 700;
 }
 
+.turno-bar {
+  padding: 8px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.turno-bar.turno-activo { background: rgba(46, 160, 67, 0.15); color: var(--green); }
+.turno-bar.turno-vacio { background: rgba(215, 58, 73, 0.15); color: var(--red); }
+
+.turno-actual-box {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 0.9rem;
+}
+.turno-historial-title { margin-top: 20px; font-size: 1rem; }
+
 .tabs {
   display: flex;
   gap: 6px;

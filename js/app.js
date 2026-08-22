@@ -90,6 +90,8 @@ const NOTES_KEY = "tert_notas";
 const UNIT_STATUS_KEY = "tert_unit_status";
 const UNIT_LABEL_KEY = "tert_unit_labels";
 const QUICK_DIAL_OVERRIDES_KEY = "tert_quickdial_overrides";
+const TURNO_KEY = "tert_turno_actual";
+const TURNOS_HISTORIAL_KEY = "tert_turnos_historial";
 
 // ===== Utilidades =====
 const $ = (sel) => document.querySelector(sel);
@@ -111,6 +113,11 @@ function escapeHtml(str) {
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[c]));
 }
+function formatFechaLarga(iso) {
+  return new Date(iso).toLocaleString("es-MX", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
+  });
+}
 
 // ===== Reloj =====
 function tickClock() {
@@ -131,6 +138,90 @@ $all(".tab-btn").forEach((btn) => {
     if (btn.dataset.tab === "bitacora") renderRecentTable();
   });
 });
+
+// ===== Despachador en Turno (documentación / responsabilidad legal) =====
+function getTurnoActual() {
+  return JSON.parse(localStorage.getItem(TURNO_KEY) || "null");
+}
+function saveTurnoActual(turno) {
+  if (turno) localStorage.setItem(TURNO_KEY, JSON.stringify(turno));
+  else localStorage.removeItem(TURNO_KEY);
+}
+function getTurnosHistorial() {
+  return JSON.parse(localStorage.getItem(TURNOS_HISTORIAL_KEY) || "[]");
+}
+function saveTurnosHistorial(historial) {
+  localStorage.setItem(TURNOS_HISTORIAL_KEY, JSON.stringify(historial));
+}
+
+function renderTurnoBar() {
+  const turno = getTurnoActual();
+  const bar = $("#turnoBar");
+  if (turno) {
+    bar.textContent = `Despachador en Turno: ${turno.nombre} — desde ${formatFechaLarga(turno.inicio)}`;
+    bar.className = "turno-bar turno-activo";
+  } else {
+    bar.textContent = "⚠️ Sin despachador en turno registrado — configúralo en Información";
+    bar.className = "turno-bar turno-vacio";
+  }
+}
+
+function renderTurnoInfo() {
+  renderTurnoBar();
+  const turno = getTurnoActual();
+  $("#turnoActualBox").innerHTML = turno
+    ? `<strong>${escapeHtml(turno.nombre)}</strong> en turno desde ${escapeHtml(formatFechaLarga(turno.inicio))}`
+    : "Nadie tiene un turno activo registrado.";
+
+  const historial = getTurnosHistorial();
+  const tbody = $("#turnoHistorialTable tbody");
+  tbody.innerHTML = "";
+  historial.slice().reverse().forEach((t) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${escapeHtml(t.nombre)}</td>
+      <td>${escapeHtml(formatFechaLarga(t.inicio))}</td>
+      <td>${escapeHtml(formatFechaLarga(t.fin))}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function iniciarTurno() {
+  const nombre = $("#turnoNombreInput").value.trim();
+  if (!nombre) {
+    alert("Escribe el nombre del despachador antes de iniciar el turno.");
+    return;
+  }
+  const actual = getTurnoActual();
+  if (actual) {
+    if (!confirm(`Ya hay un turno activo de ${actual.nombre} desde ${formatFechaLarga(actual.inicio)}. ¿Cerrarlo y comenzar el turno de ${nombre}?`)) return;
+    const historial = getTurnosHistorial();
+    historial.push({ nombre: actual.nombre, inicio: actual.inicio, fin: new Date().toISOString() });
+    saveTurnosHistorial(historial);
+  }
+  saveTurnoActual({ nombre, inicio: new Date().toISOString() });
+  $("#turnoNombreInput").value = "";
+  renderTurnoInfo();
+}
+
+function terminarTurno() {
+  const actual = getTurnoActual();
+  if (!actual) {
+    alert("No hay ningún turno activo.");
+    return;
+  }
+  if (!confirm(`¿Terminar el turno de ${actual.nombre}?`)) return;
+  const historial = getTurnosHistorial();
+  historial.push({ nombre: actual.nombre, inicio: actual.inicio, fin: new Date().toISOString() });
+  saveTurnosHistorial(historial);
+  saveTurnoActual(null);
+  renderTurnoInfo();
+}
+
+$("#btnIniciarTurno").addEventListener("click", iniciarTurno);
+$("#btnTerminarTurno").addEventListener("click", terminarTurno);
+renderTurnoInfo();
 
 // ===== Marcado rápido =====
 function getQuickDialOverrides() {
@@ -433,6 +524,7 @@ $("#logForm").addEventListener("submit", (e) => {
     descripcion: $("#descripcion").value,
     estatus: estatusInicial,
     eventos: [{ estatus: estatusInicial, hora: new Date().toISOString() }],
+    despachador: (getTurnoActual() || {}).nombre || "Sin turno registrado",
   };
   logs.push(entry);
   saveLogs(logs);
@@ -544,6 +636,7 @@ function renderReportTable() {
       <td>${escapeHtml(log.unidad)}</td>
       <td>${escapeHtml(agencias)}</td>
       <td>${escapeHtml(log.estatus)}</td>
+      <td>${escapeHtml(log.despachador || "-")}</td>
       <td>${escapeHtml(log.descripcion)}</td>
       <td><button class="secondary-btn" data-detalle="${escapeHtml(log.folio)}">🖨️ Detalle</button></td>
     `;
@@ -574,6 +667,7 @@ function printIncidentReport(folio) {
       <tr><td class="label">Ubicación</td><td>${escapeHtml(log.ubicacion)}</td></tr>
       <tr><td class="label">Unidad Asignada</td><td>${escapeHtml(log.unidad || "-")}</td></tr>
       <tr><td class="label">Agencias de Apoyo</td><td>${escapeHtml(agenciasHtml)}</td></tr>
+      <tr><td class="label">Despachador en Turno</td><td>${escapeHtml(log.despachador || "-")}</td></tr>
       <tr><td class="label">Estatus Actual</td><td>${escapeHtml(log.estatus)}</td></tr>
       <tr><td class="label">Descripción</td><td>${escapeHtml(log.descripcion)}</td></tr>
       <tr><td class="label">Línea de Tiempo</td><td>${timelineHtml}</td></tr>
@@ -601,8 +695,8 @@ $("#btnExportCSV").addEventListener("click", () => {
     alert("No hay registros para exportar.");
     return;
   }
-  const headers = ["Folio", "Fecha", "Tipo", "Prioridad", "Ubicacion", "Unidad", "Agencias", "Estatus", "Descripcion"];
-  const rows = logs.map((l) => [l.folio, l.fecha, l.tipo, l.prioridad, l.ubicacion, l.unidad, (l.agencias || []).join("; "), l.estatus, l.descripcion]);
+  const headers = ["Folio", "Fecha", "Tipo", "Prioridad", "Ubicacion", "Unidad", "Agencias", "Estatus", "Despachador", "Descripcion"];
+  const rows = logs.map((l) => [l.folio, l.fecha, l.tipo, l.prioridad, l.ubicacion, l.unidad, (l.agencias || []).join("; "), l.estatus, l.despachador || "-", l.descripcion]);
   const csv = [headers, ...rows]
     .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
     .join("\n");

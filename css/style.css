@@ -101,6 +101,18 @@ h2 { border-left: 4px solid var(--accent); padding-left: 10px; margin-top: 26px;
 
 .map-btn { background: var(--panel-alt); }
 
+.quickdial-group-title {
+  margin: 16px 0 8px;
+  padding-left: 8px;
+  border-left: 3px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.quickdial-group-title:first-child { margin-top: 0; }
+.quickdial-grid { margin-bottom: 4px; }
+
 .quickdial-card { position: relative; }
 .quickdial-card .quickdial-dial { width: 100%; }
 .quickdial-card .quickdial-edit {

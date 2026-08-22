@@ -138,7 +138,7 @@ function renderQuickDial() {
       <button type="button" class="quickdial-edit" title="Editar nombre y número">✎</button>
       <button type="button" class="quickdial-dial">${escapeHtml(label)}</button>
     `;
-    card.querySelector(".quickdial-edit").addEventListener("click", () => editQuickDial(c.id, label, number));
+    card.querySelector(".quickdial-edit").addEventListener("click", () => openQdModal(c.id, label, number));
     card.querySelector(".quickdial-dial").addEventListener("click", () => {
       if (!number) {
         alert("Este botón no tiene número configurado. Clic en ✎ para agregarlo.");
@@ -149,19 +149,37 @@ function renderQuickDial() {
     container.appendChild(card);
   });
 }
-function editQuickDial(id, currentLabel, currentNumber) {
-  const newLabel = prompt("Nombre / descripción del botón:", currentLabel);
-  if (newLabel === null) return;
-  const newNumber = prompt("Número de teléfono (solo dígitos, sin guiones):", currentNumber);
-  if (newNumber === null) return;
-  const overrides = getQuickDialOverrides();
-  overrides[id] = {
-    label: newLabel.trim() || currentLabel,
-    number: newNumber.replace(/[^0-9]/g, ""),
-  };
-  saveQuickDialOverrides(overrides);
-  renderQuickDial();
+
+let qdEditingId = null;
+function openQdModal(id, currentLabel, currentNumber) {
+  qdEditingId = id;
+  $("#qdModalLabel").value = currentLabel;
+  $("#qdModalNumber").value = currentNumber;
+  $("#qdModalOverlay").classList.add("open");
+  $("#qdModalLabel").focus();
 }
+function closeQdModal() {
+  $("#qdModalOverlay").classList.remove("open");
+  qdEditingId = null;
+}
+$("#qdModalCancel").addEventListener("click", closeQdModal);
+$("#qdModalOverlay").addEventListener("click", (e) => {
+  if (e.target.id === "qdModalOverlay") closeQdModal();
+});
+$("#qdModalSave").addEventListener("click", () => {
+  if (!qdEditingId) return;
+  const newLabel = $("#qdModalLabel").value.trim();
+  const newNumber = $("#qdModalNumber").value.replace(/[^0-9]/g, "");
+  if (!newLabel) {
+    alert("El nombre no puede quedar vacío.");
+    return;
+  }
+  const overrides = getQuickDialOverrides();
+  overrides[qdEditingId] = { label: newLabel, number: newNumber };
+  saveQuickDialOverrides(overrides);
+  closeQdModal();
+  renderQuickDial();
+});
 renderQuickDial();
 
 // ===== Tablero de unidades =====

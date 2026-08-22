@@ -667,6 +667,15 @@ $("#importConfigFile").addEventListener("change", (e) => {
   reader.readAsText(file);
 });
 
+// ===== Forzar actualización (recargar sin usar copia guardada) =====
+$("#btnForceRefresh").addEventListener("click", async () => {
+  if ("caches" in window) {
+    const keys = await caches.keys();
+    await Promise.all(keys.map((k) => caches.delete(k)));
+  }
+  window.location.href = window.location.pathname + "?_refresh=" + Date.now();
+});
+
 // ===== Inicialización general =====
 renderRecentTable();
 renderReportTable();

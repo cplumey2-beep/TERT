@@ -118,13 +118,32 @@ h2 { border-left: 4px solid var(--accent); padding-left: 10px; margin-top: 26px;
   border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--panel-alt);
-  cursor: pointer;
   transition: transform .1s;
 }
 .unit-card:hover { transform: translateY(-2px); }
 
-.unit-label { font-weight: 700; font-size: 1rem; color: var(--text); }
-.unit-status { font-size: 0.8rem; font-weight: 600; padding: 2px 10px; border-radius: 20px; }
+.unit-label {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+}
+.unit-label:hover { color: var(--accent); text-decoration: underline dotted; }
+
+.unit-status {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
 
 .status-disponible .unit-status { background: var(--green); color: #06210c; }
 .status-disponible { border-color: var(--green); }
@@ -175,6 +194,12 @@ h2 { border-left: 4px solid var(--accent); padding-left: 10px; margin-top: 26px;
 .form-row { display: flex; gap: 14px; flex-wrap: wrap; }
 .form-row label, .log-form .full { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--muted); }
 
+.agencia-fieldset { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+.agencia-fieldset legend { padding: 0 6px; color: var(--muted); font-size: 0.85rem; }
+.agencia-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+.agencia-grid label { flex-direction: row !important; align-items: center; gap: 6px !important; color: var(--text) !important; font-size: 0.9rem !important; }
+.agencia-grid input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
+
 input, select, textarea {
   background: var(--panel-alt);
   border: 1px solid var(--border);
@@ -193,6 +218,31 @@ table { width: 100%; border-collapse: collapse; background: var(--panel); border
 
 th, td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.85rem; }
 th { background: var(--panel-alt); color: var(--accent); }
+
+.estatus-btn {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.estatus-despachado { background: var(--muted); color: #10151c; }
+.estatus-en-ruta { background: var(--accent); color: #2a1400; }
+.estatus-en-sitio { background: var(--blue); color: #041226; }
+.estatus-concluido { background: var(--green); color: #06210c; }
+.estatus-cancelado { background: var(--red); color: #2a0709; }
+
+.row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.row-actions button { padding: 4px 8px; font-size: 0.78rem; }
+
+.timeline-row td { background: var(--panel-alt); padding: 10px 14px; }
+.timeline-list { margin: 0; padding-left: 18px; color: var(--muted); font-size: 0.85rem; }
+.timeline-list li { margin-bottom: 3px; }
+.timeline-list strong { color: var(--text); }
+
+#printSingle { display: none; }
 
 .filters { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 10px; }
 .filters label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--muted); }
@@ -223,3 +273,17 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 0.8r
   body { background: #fff; color: #000; }
   table, th, td { border-color: #000; }
 }
+
+body.printing-single > *:not(#printSingle) { display: none !important; }
+body.printing-single #printSingle {
+  display: block;
+  max-width: 700px;
+  margin: 30px auto;
+  color: #000;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+body.printing-single #printSingle h2 { border-left: 4px solid #ff6a00; padding-left: 10px; margin-bottom: 4px; }
+body.printing-single #printSingle table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+body.printing-single #printSingle td { border: 1px solid #999; padding: 6px 10px; vertical-align: top; }
+body.printing-single #printSingle td.label { font-weight: 700; width: 160px; background: #f0f0f0; }
+body.printing-single #printSingle ul { margin: 4px 0; padding-left: 18px; }

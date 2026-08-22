@@ -89,13 +89,18 @@
             <input type="text" id="unidad" placeholder="Ej. TERT-01">
           </label>
         </div>
+        <fieldset class="full agencia-fieldset">
+          <legend>Agencias de Apoyo</legend>
+          <div class="agencia-grid" id="agenciaGrid"></div>
+        </fieldset>
         <label class="full">Descripción
           <textarea id="descripcion" rows="3" placeholder="Detalles del incidente..." required></textarea>
         </label>
         <div class="form-row">
-          <label>Estatus
+          <label>Estatus Inicial
             <select id="estatus" required>
-              <option value="En Curso">En Curso</option>
+              <option value="Despachado">Despachado</option>
+              <option value="En Ruta">En Ruta</option>
               <option value="En Sitio">En Sitio</option>
               <option value="Concluido">Concluido</option>
               <option value="Cancelado">Cancelado</option>
@@ -109,10 +114,11 @@
       </form>
 
       <h2>Registros Recientes</h2>
+      <p class="hint">Clic en el estatus para avanzarlo. Clic en "Línea de tiempo" para ver el historial.</p>
       <div class="table-wrap">
         <table id="recentTable">
           <thead>
-            <tr><th>Folio</th><th>Fecha</th><th>Tipo</th><th>Ubicación</th><th>Estatus</th><th></th></tr>
+            <tr><th>Folio</th><th>Fecha</th><th>Tipo</th><th>Ubicación</th><th>Estatus</th><th>Acciones</th></tr>
           </thead>
           <tbody></tbody>
         </table>
@@ -140,7 +146,8 @@
         <label>Estatus
           <select id="filtroEstatus">
             <option value="">Todos</option>
-            <option value="En Curso">En Curso</option>
+            <option value="Despachado">Despachado</option>
+            <option value="En Ruta">En Ruta</option>
             <option value="En Sitio">En Sitio</option>
             <option value="Concluido">Concluido</option>
             <option value="Cancelado">Cancelado</option>
@@ -159,7 +166,7 @@
       <div class="table-wrap">
         <table id="reportTable">
           <thead>
-            <tr><th>Folio</th><th>Fecha</th><th>Tipo</th><th>Prioridad</th><th>Ubicación</th><th>Unidad</th><th>Estatus</th><th>Descripción</th></tr>
+            <tr><th>Folio</th><th>Fecha</th><th>Tipo</th><th>Prioridad</th><th>Ubicación</th><th>Unidad</th><th>Agencias</th><th>Estatus</th><th>Descripción</th><th></th></tr>
           </thead>
           <tbody></tbody>
         </table>
@@ -202,6 +209,8 @@
   <footer>
     <p>TERT &mdash; Sistema de Despacho Local | Los datos se guardan solo en este navegador (localStorage)</p>
   </footer>
+
+  <div id="printSingle"></div>
 
   <script src="js/app.js"></script>
 </body>

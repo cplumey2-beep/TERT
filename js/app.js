@@ -11,14 +11,28 @@ const QUICK_DIAL = [
   { label: "📻 Base TERT", number: "" }
 ];
 
-// ===== Configuración del tablero de unidades =====
-// Edita este arreglo con los identificadores reales de tus unidades TERT.
+// ===== Configuración del tablero de unidades (miembros TERT por rango) =====
+// El nombre de cada tarjeta se puede editar directamente en la app (clic en el nombre).
+// Este arreglo solo define los rangos/slots por defecto y su orden inicial.
 const UNITS = [
-  { id: "TERT-01", label: "TERT-01" },
-  { id: "TERT-02", label: "TERT-02" },
-  { id: "TERT-03", label: "TERT-03" },
-  { id: "TERT-04", label: "TERT-04" },
-  { id: "TERT-05", label: "TERT-05" },
+  { id: "unit-01", label: "Comandante - J. Rodríguez" },
+  { id: "unit-02", label: "Capitán - Zapata" },
+  { id: "unit-03", label: "Teniente 1 - Martí" },
+  { id: "unit-04", label: "Teniente 2" },
+  { id: "unit-05", label: "Sargento 1" },
+  { id: "unit-06", label: "Sargento 2" },
+  { id: "unit-07", label: "Sargento 3" },
+  { id: "unit-08", label: "Inspector" },
+  { id: "unit-09", label: "Miembro 09" },
+  { id: "unit-10", label: "Miembro 10" },
+  { id: "unit-11", label: "Miembro 11" },
+  { id: "unit-12", label: "Miembro 12" },
+  { id: "unit-13", label: "Miembro 13" },
+  { id: "unit-14", label: "Miembro 14" },
+  { id: "unit-15", label: "Miembro 15" },
+  { id: "unit-16", label: "Miembro 16" },
+  { id: "unit-17", label: "Miembro 17" },
+  { id: "unit-18", label: "Miembro 18" },
 ];
 
 const UNIT_STATUSES = ["Disponible", "En Ruta", "En Sitio", "Fuera de Servicio"];
@@ -29,9 +43,26 @@ const UNIT_STATUS_CLASS = {
   "Fuera de Servicio": "status-fuera",
 };
 
+// ===== Agencias de apoyo disponibles en el formulario de incidente =====
+const AGENCIAS = [
+  "Policía Estatal", "Policía Municipal", "Bomberos", "Emergencia Médica",
+  "Rescate", "Tránsito", "Ambulancia / Cruz Roja", "Protección Civil", "Otro",
+];
+
+// ===== Estatus de incidente (línea de tiempo) =====
+const ESTADOS_INCIDENTE = ["Despachado", "En Ruta", "En Sitio", "Concluido", "Cancelado"];
+const ESTADO_CLASS = {
+  "Despachado": "estatus-despachado",
+  "En Ruta": "estatus-en-ruta",
+  "En Sitio": "estatus-en-sitio",
+  "Concluido": "estatus-concluido",
+  "Cancelado": "estatus-cancelado",
+};
+
 const STORAGE_KEY = "tert_bitacora";
 const NOTES_KEY = "tert_notas";
 const UNIT_STATUS_KEY = "tert_unit_status";
+const UNIT_LABEL_KEY = "tert_unit_labels";
 
 // ===== Utilidades =====
 const $ = (sel) => document.querySelector(sel);
@@ -100,19 +131,39 @@ function getUnitStatuses() {
 function saveUnitStatuses(statuses) {
   localStorage.setItem(UNIT_STATUS_KEY, JSON.stringify(statuses));
 }
+function getUnitLabels() {
+  return JSON.parse(localStorage.getItem(UNIT_LABEL_KEY) || "{}");
+}
+function saveUnitLabels(labels) {
+  localStorage.setItem(UNIT_LABEL_KEY, JSON.stringify(labels));
+}
 function renderUnitBoard() {
   const statuses = getUnitStatuses();
+  const labels = getUnitLabels();
   const container = $("#unitBoard");
   container.innerHTML = "";
   UNITS.forEach((u) => {
+    const label = labels[u.id] || u.label;
     const current = statuses[u.id] || "Disponible";
-    const card = document.createElement("button");
-    card.type = "button";
+    const card = document.createElement("div");
     card.className = "unit-card " + UNIT_STATUS_CLASS[current];
-    card.innerHTML = `<span class="unit-label">${escapeHtml(u.label)}</span><span class="unit-status">${escapeHtml(current)}</span>`;
-    card.addEventListener("click", () => cycleUnitStatus(u.id));
+    card.innerHTML = `
+      <button type="button" class="unit-label" title="Clic para editar nombre/cargo">${escapeHtml(label)}</button>
+      <button type="button" class="unit-status" title="Clic para cambiar estatus">${escapeHtml(current)}</button>
+    `;
+    card.querySelector(".unit-label").addEventListener("click", () => editUnitLabel(u.id, label));
+    card.querySelector(".unit-status").addEventListener("click", () => cycleUnitStatus(u.id));
     container.appendChild(card);
   });
+}
+function editUnitLabel(id, current) {
+  const next = prompt("Nombre / cargo para esta unidad:", current);
+  if (next === null) return;
+  const labels = getUnitLabels();
+  const trimmed = next.trim();
+  if (trimmed) labels[id] = trimmed; else delete labels[id];
+  saveUnitLabels(labels);
+  renderUnitBoard();
 }
 function cycleUnitStatus(id) {
   const statuses = getUnitStatuses();
@@ -164,18 +215,33 @@ $("#btnQuickIncident").addEventListener("click", () => {
 });
 
 // ===== Bitácora =====
+function renderAgenciaCheckboxes() {
+  const container = $("#agenciaGrid");
+  container.innerHTML = "";
+  AGENCIAS.forEach((nombre) => {
+    const label = document.createElement("label");
+    const id = "agencia-" + nombre.replace(/[^a-zA-Z0-9]+/g, "-").toLowerCase();
+    label.innerHTML = `<input type="checkbox" class="agencia-check" value="${escapeHtml(nombre)}" id="${id}"> ${escapeHtml(nombre)}`;
+    container.appendChild(label);
+  });
+}
+renderAgenciaCheckboxes();
+
 function initForm() {
   const logs = getLogs();
   $("#folio").value = nextFolio(logs);
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   $("#fecha").value = now.toISOString().slice(0, 16);
+  $all(".agencia-check").forEach((cb) => (cb.checked = false));
 }
 initForm();
 
 $("#logForm").addEventListener("submit", (e) => {
   e.preventDefault();
   const logs = getLogs();
+  const estatusInicial = $("#estatus").value;
+  const agencias = Array.from($all(".agencia-check")).filter((cb) => cb.checked).map((cb) => cb.value);
   const entry = {
     folio: $("#folio").value,
     fecha: $("#fecha").value,
@@ -183,8 +249,10 @@ $("#logForm").addEventListener("submit", (e) => {
     prioridad: $("#prioridad").value,
     ubicacion: $("#ubicacion").value,
     unidad: $("#unidad").value,
+    agencias,
     descripcion: $("#descripcion").value,
-    estatus: $("#estatus").value,
+    estatus: estatusInicial,
+    eventos: [{ estatus: estatusInicial, hora: new Date().toISOString() }],
   };
   logs.push(entry);
   saveLogs(logs);
@@ -204,20 +272,56 @@ function renderRecentTable() {
   const tbody = $("#recentTable tbody");
   tbody.innerHTML = "";
   logs.forEach((log) => {
+    const eventos = log.eventos || [];
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${escapeHtml(log.folio)}</td>
       <td>${escapeHtml(log.fecha.replace("T", " "))}</td>
       <td>${escapeHtml(log.tipo)}</td>
       <td>${escapeHtml(log.ubicacion)}</td>
-      <td>${escapeHtml(log.estatus)}</td>
-      <td><button class="secondary-btn" data-del="${escapeHtml(log.folio)}">Eliminar</button></td>
+      <td><button class="estatus-btn ${ESTADO_CLASS[log.estatus] || ""}" data-avanzar="${escapeHtml(log.folio)}" title="Clic para avanzar estatus">${escapeHtml(log.estatus)}</button></td>
+      <td class="row-actions">
+        <button class="secondary-btn" data-timeline="${escapeHtml(log.folio)}">🕒 Línea de tiempo</button>
+        <button class="secondary-btn" data-del="${escapeHtml(log.folio)}">Eliminar</button>
+      </td>
     `;
     tbody.appendChild(tr);
+
+    const timelineTr = document.createElement("tr");
+    timelineTr.className = "timeline-row";
+    timelineTr.dataset.timelineFor = log.folio;
+    timelineTr.style.display = "none";
+    const items = eventos
+      .map((ev) => `<li><strong>${escapeHtml(ev.estatus)}</strong> &mdash; ${escapeHtml(new Date(ev.hora).toLocaleString("es-MX"))}</li>`)
+      .join("");
+    timelineTr.innerHTML = `<td colspan="6"><ul class="timeline-list">${items || "<li>Sin eventos registrados.</li>"}</ul></td>`;
+    tbody.appendChild(timelineTr);
   });
   tbody.querySelectorAll("[data-del]").forEach((btn) => {
     btn.addEventListener("click", () => deleteLog(btn.dataset.del));
   });
+  tbody.querySelectorAll("[data-avanzar]").forEach((btn) => {
+    btn.addEventListener("click", () => advanceIncidentStatus(btn.dataset.avanzar));
+  });
+  tbody.querySelectorAll("[data-timeline]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const row = tbody.querySelector(`.timeline-row[data-timeline-for="${btn.dataset.timeline}"]`);
+      if (row) row.style.display = row.style.display === "none" ? "" : "none";
+    });
+  });
+}
+
+function advanceIncidentStatus(folio) {
+  const logs = getLogs();
+  const log = logs.find((l) => l.folio === folio);
+  if (!log) return;
+  const next = ESTADOS_INCIDENTE[(ESTADOS_INCIDENTE.indexOf(log.estatus) + 1) % ESTADOS_INCIDENTE.length];
+  log.estatus = next;
+  log.eventos = log.eventos || [];
+  log.eventos.push({ estatus: next, hora: new Date().toISOString() });
+  saveLogs(logs);
+  renderRecentTable();
+  renderReportTable();
 }
 
 function deleteLog(folio) {
@@ -249,6 +353,7 @@ function renderReportTable() {
   tbody.innerHTML = "";
   logs.slice().reverse().forEach((log) => {
     const prClass = log.prioridad === "Alta" ? "badge-alta" : log.prioridad === "Media" ? "badge-media" : "badge-baja";
+    const agencias = (log.agencias || []).join(", ");
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${escapeHtml(log.folio)}</td>
@@ -257,14 +362,49 @@ function renderReportTable() {
       <td class="${prClass}">${escapeHtml(log.prioridad)}</td>
       <td>${escapeHtml(log.ubicacion)}</td>
       <td>${escapeHtml(log.unidad)}</td>
+      <td>${escapeHtml(agencias)}</td>
       <td>${escapeHtml(log.estatus)}</td>
       <td>${escapeHtml(log.descripcion)}</td>
+      <td><button class="secondary-btn" data-detalle="${escapeHtml(log.folio)}">🖨️ Detalle</button></td>
     `;
     tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll("[data-detalle]").forEach((btn) => {
+    btn.addEventListener("click", () => printIncidentReport(btn.dataset.detalle));
   });
   $("#statLine").textContent = `Total de registros mostrados: ${logs.length}`;
   return logs;
 }
+
+function printIncidentReport(folio) {
+  const log = getLogs().find((l) => l.folio === folio);
+  if (!log) return;
+  const eventos = log.eventos || [];
+  const timelineHtml = eventos.length
+    ? `<ul>${eventos.map((ev) => `<li><strong>${escapeHtml(ev.estatus)}</strong> &mdash; ${escapeHtml(new Date(ev.hora).toLocaleString("es-MX"))}</li>`).join("")}</ul>`
+    : "<p>Sin eventos registrados.</p>";
+  const agenciasHtml = (log.agencias || []).length ? (log.agencias || []).join(", ") : "Ninguna registrada";
+
+  $("#printSingle").innerHTML = `
+    <h2>Reporte de Incidente &mdash; ${escapeHtml(log.folio)}</h2>
+    <table>
+      <tr><td class="label">Fecha / Hora</td><td>${escapeHtml(log.fecha.replace("T", " "))}</td></tr>
+      <tr><td class="label">Tipo de Incidente</td><td>${escapeHtml(log.tipo)}</td></tr>
+      <tr><td class="label">Prioridad</td><td>${escapeHtml(log.prioridad)}</td></tr>
+      <tr><td class="label">Ubicación</td><td>${escapeHtml(log.ubicacion)}</td></tr>
+      <tr><td class="label">Unidad Asignada</td><td>${escapeHtml(log.unidad || "-")}</td></tr>
+      <tr><td class="label">Agencias de Apoyo</td><td>${escapeHtml(agenciasHtml)}</td></tr>
+      <tr><td class="label">Estatus Actual</td><td>${escapeHtml(log.estatus)}</td></tr>
+      <tr><td class="label">Descripción</td><td>${escapeHtml(log.descripcion)}</td></tr>
+      <tr><td class="label">Línea de Tiempo</td><td>${timelineHtml}</td></tr>
+    </table>
+  `;
+  document.body.classList.add("printing-single");
+  window.print();
+}
+window.addEventListener("afterprint", () => {
+  document.body.classList.remove("printing-single");
+});
 
 $("#btnFiltrar").addEventListener("click", renderReportTable);
 $("#btnLimpiarFiltro").addEventListener("click", () => {
@@ -281,8 +421,8 @@ $("#btnExportCSV").addEventListener("click", () => {
     alert("No hay registros para exportar.");
     return;
   }
-  const headers = ["Folio", "Fecha", "Tipo", "Prioridad", "Ubicacion", "Unidad", "Estatus", "Descripcion"];
-  const rows = logs.map((l) => [l.folio, l.fecha, l.tipo, l.prioridad, l.ubicacion, l.unidad, l.estatus, l.descripcion]);
+  const headers = ["Folio", "Fecha", "Tipo", "Prioridad", "Ubicacion", "Unidad", "Agencias", "Estatus", "Descripcion"];
+  const rows = logs.map((l) => [l.folio, l.fecha, l.tipo, l.prioridad, l.ubicacion, l.unidad, (l.agencias || []).join("; "), l.estatus, l.descripcion]);
   const csv = [headers, ...rows]
     .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
     .join("\n");

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TERT - Sistema de Despacho</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-badge">TERT</span>
+      <div>
+        <h1>Sistema de Despacho</h1>
+        <p class="subtitle">Tactical Emergency Response Team &mdash; Apoyo a Policía Estatal, Municipal, Bomberos, Emergencias, Rescate, Tránsito y Ambulancias</p>
+      </div>
+    </div>
+    <div class="clock" id="clock">--:--:--</div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="despacho">📡 Despacho</button>
+    <button class="tab-btn" data-tab="bitacora">📝 Bitácora</button>
+    <button class="tab-btn" data-tab="reportes">📊 Reportes</button>
+    <button class="tab-btn" data-tab="info">ℹ️ Información</button>
+  </nav>
+
+  <main>
+    <!-- DESPACHO -->
+    <section id="despacho" class="tab-panel active">
+      <h2>Tablero de Unidades</h2>
+      <p class="hint">Clic en una unidad para cambiar su estatus.</p>
+      <div class="unit-grid" id="unitBoard"></div>
+
+      <h2>Marcado Rápido</h2>
+      <div class="grid-buttons" id="quickDial"></div>
+
+      <h2>Mapas y Ubicación</h2>
+      <div class="grid-buttons">
+        <button class="map-btn" id="btnMyLocation">📍 Mi Ubicación</button>
+        <button class="map-btn" id="btnGoogleMaps">🗺️ Abrir Google Maps</button>
+        <button class="map-btn" id="btnWaze">🚗 Abrir Waze</button>
+        <button class="map-btn" id="btnCoordSearch">🔎 Buscar Dirección</button>
+      </div>
+      <div class="location-result" id="locationResult"></div>
+
+      <h2>Crear Incidente Rápido</h2>
+      <button class="primary-btn" id="btnQuickIncident">➕ Nuevo Incidente (ir a Bitácora)</button>
+    </section>
+
+    <!-- BITACORA -->
+    <section id="bitacora" class="tab-panel">
+      <h2>Nuevo Registro de Bitácora</h2>
+      <form id="logForm" class="log-form">
+        <div class="form-row">
+          <label>Folio
+            <input type="text" id="folio" readonly>
+          </label>
+          <label>Fecha / Hora
+            <input type="datetime-local" id="fecha" required>
+          </label>
+        </div>
+        <div class="form-row">
+          <label>Tipo de Incidente
+            <select id="tipo" required>
+              <option value="">Seleccione...</option>
+              <option>Accidente Vial</option>
+              <option>Incendio</option>
+              <option>Emergencia Médica</option>
+              <option>Rescate</option>
+              <option>Apoyo Policial</option>
+              <option>Tránsito</option>
+              <option>Otro</option>
+            </select>
+          </label>
+          <label>Prioridad
+            <select id="prioridad" required>
+              <option value="Alta">Alta</option>
+              <option value="Media" selected>Media</option>
+              <option value="Baja">Baja</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-row">
+          <label>Ubicación
+            <input type="text" id="ubicacion" placeholder="Calle, colonia, referencia" required>
+          </label>
+          <label>Unidad Asignada
+            <input type="text" id="unidad" placeholder="Ej. TERT-01">
+          </label>
+        </div>
+        <label class="full">Descripción
+          <textarea id="descripcion" rows="3" placeholder="Detalles del incidente..." required></textarea>
+        </label>
+        <div class="form-row">
+          <label>Estatus
+            <select id="estatus" required>
+              <option value="En Curso">En Curso</option>
+              <option value="En Sitio">En Sitio</option>
+              <option value="Concluido">Concluido</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="primary-btn">💾 Guardar Registro</button>
+          <button type="button" class="secondary-btn" id="btnClearForm">Limpiar</button>
+        </div>
+      </form>
+
+      <h2>Registros Recientes</h2>
+      <div class="table-wrap">
+        <table id="recentTable">
+          <thead>
+            <tr><th>Folio</th><th>Fecha</th><th>Tipo</th><th>Ubicación</th><th>Estatus</th><th></th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- REPORTES -->
+    <section id="reportes" class="tab-panel">
+      <h2>Reportes de Incidentes</h2>
+      <div class="filters">
+        <label>Desde <input type="date" id="filtroDesde"></label>
+        <label>Hasta <input type="date" id="filtroHasta"></label>
+        <label>Tipo
+          <select id="filtroTipo">
+            <option value="">Todos</option>
+            <option>Accidente Vial</option>
+            <option>Incendio</option>
+            <option>Emergencia Médica</option>
+            <option>Rescate</option>
+            <option>Apoyo Policial</option>
+            <option>Tránsito</option>
+            <option>Otro</option>
+          </select>
+        </label>
+        <label>Estatus
+          <select id="filtroEstatus">
+            <option value="">Todos</option>
+            <option value="En Curso">En Curso</option>
+            <option value="En Sitio">En Sitio</option>
+            <option value="Concluido">Concluido</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </label>
+        <button class="secondary-btn" id="btnFiltrar">Filtrar</button>
+        <button class="secondary-btn" id="btnLimpiarFiltro">Limpiar</button>
+      </div>
+
+      <div class="report-actions">
+        <button class="primary-btn" id="btnExportCSV">⬇️ Exportar CSV</button>
+        <button class="primary-btn" id="btnPrint">🖨️ Imprimir</button>
+        <button class="danger-btn" id="btnBorrarTodo">🗑️ Borrar Todos los Registros</button>
+      </div>
+
+      <div class="table-wrap">
+        <table id="reportTable">
+          <thead>
+            <tr><th>Folio</th><th>Fecha</th><th>Tipo</th><th>Prioridad</th><th>Ubicación</th><th>Unidad</th><th>Estatus</th><th>Descripción</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="stat-line" id="statLine"></p>
+    </section>
+
+    <!-- INFO -->
+    <section id="info" class="tab-panel">
+      <h2>Información y Protocolos</h2>
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>Números Clave</h3>
+          <ul>
+            <li>Emergencias Nacional: <strong>911</strong></li>
+            <li>Denuncia Anónima: <strong>089</strong></li>
+            <li>Cruz Roja: <strong>065</strong></li>
+            <li>Protección Civil: <strong>Editar en config</strong></li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h3>Códigos de Radio Sugeridos</h3>
+          <ul>
+            <li>10-4: Recibido</li>
+            <li>10-20: Ubicación</li>
+            <li>10-23: Llegando al lugar</li>
+            <li>10-97: En el lugar</li>
+            <li>10-98: Servicio concluido</li>
+          </ul>
+        </div>
+        <div class="info-card full">
+          <h3>Notas Internas</h3>
+          <textarea id="notasInternas" rows="6" placeholder="Escribe protocolos, recordatorios o notas del turno..."></textarea>
+          <button class="secondary-btn" id="btnGuardarNotas">Guardar Notas</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>TERT &mdash; Sistema de Despacho Local | Los datos se guardan solo en este navegador (localStorage)</p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

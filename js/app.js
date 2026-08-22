@@ -292,23 +292,36 @@ function cycleUnitStatus(id) {
 renderUnitBoard();
 
 // ===== Difusión a miembros (SMS) =====
-function broadcastMessage(emergencia) {
+// Círculo de color al inicio del mensaje para identificar el tipo de un vistazo:
+// 🔴 = 10-50 emergencia (sirenas) · 🟢 = NO 10-50 (sin sirenas) · 🟡 = prueba del sistema
+function sendBroadcast(body) {
   const phones = getMemberPhones();
   if (!phones.length) {
     alert("No hay celulares configurados. Clic en el nombre de cada miembro en el Tablero de Unidades para agregar su número.");
     return;
   }
+  window.location.href = `sms:${phones.join(",")}?body=${encodeURIComponent(body)}`;
+}
+
+function broadcastIncidente(emergencia) {
   const detalle = prompt("Código y ubicación del incidente (ej. 10-42 en Carretera #2 KM 60):", "");
   if (detalle === null || !detalle.trim()) return;
 
+  const circulo = emergencia ? "🔴" : "🟢";
   const cierre = emergencia
     ? "Proceda con precaución. 10-50 (EMERGENCIA - sirenas). Debidamente autorizado."
     : "Proceda con precaución. NO 10-50 (sin sirenas). Debidamente autorizado.";
-  const body = `${detalle.trim()}. ${cierre}`;
-  window.location.href = `sms:${phones.join(",")}?body=${encodeURIComponent(body)}`;
+  sendBroadcast(`${circulo} ${detalle.trim()}. ${cierre}`);
 }
-$("#btnBroadcast1050").addEventListener("click", () => broadcastMessage(true));
-$("#btnBroadcastNo1050").addEventListener("click", () => broadcastMessage(false));
+
+function broadcastPrueba() {
+  const mensaje = "🟡 >>> Esto es una prueba del nuevo sistema de difusión automatizada inteligente de despacho de TERT. Si recibe este mensaje, por favor conteste. Gracias. Mensaje de prueba enviado por Ing. Plumey. <<< 🟡";
+  sendBroadcast(mensaje);
+}
+
+$("#btnBroadcast1050").addEventListener("click", () => broadcastIncidente(true));
+$("#btnBroadcastNo1050").addEventListener("click", () => broadcastIncidente(false));
+$("#btnBroadcastPrueba").addEventListener("click", broadcastPrueba);
 
 // ===== Mapas y ubicación =====
 $("#btnMyLocation").addEventListener("click", () => {

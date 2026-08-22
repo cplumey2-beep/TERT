@@ -305,14 +305,14 @@ function sendBroadcast(body) {
 }
 
 function broadcastIncidente(emergencia) {
-  const detalle = prompt("Código y ubicación del incidente (ej. 10-42 en Carretera #2 KM 60):", "");
-  if (detalle === null || !detalle.trim()) return;
+  const direccion = prompt("Dirección del incidente (ej. Carretera #2 KM 60):", "");
+  if (direccion === null || !direccion.trim()) return;
 
   const circulo = emergencia ? "🔴" : "🟢";
   const cierre = emergencia
-    ? "Proceda con precaución. 10-50 (EMERGENCIA - sirenas). Debidamente autorizado."
-    : "Proceda con precaución. NO 10-50 (sin sirenas). Debidamente autorizado.";
-  sendBroadcast(`${circulo} ${detalle.trim()}. ${cierre}`);
+    ? "Proceda en 10-50 a la zona con precaución. Debidamente autorizado."
+    : "Proceda a la zona con precaución, NO 10-50 (sin sirena). Debidamente autorizado.";
+  sendBroadcast(`${circulo} Se reporta 10-42 en Barceloneta, ${direccion.trim()}. ${cierre}`);
 }
 
 function broadcastPrueba() {

@@ -72,6 +72,19 @@ body {
 }
 .turno-historial-title { margin-top: 20px; font-size: 1rem; }
 
+.code10-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 6px 16px;
+}
+.code10-item {
+  font-size: 0.85rem;
+  color: var(--muted);
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+}
+.code10-item strong { color: var(--accent); margin-right: 6px; }
+
 .tabs {
   display: flex;
   gap: 6px;

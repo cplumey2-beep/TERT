@@ -17,6 +17,7 @@ const QUICK_DIAL = [
   { id: "qd-harrison-arecibo", label: "🚑 Harrison Ramos Ambulance — Arecibo", number: "7872102128" },
   { id: "qd-health-manati", label: "🚑 Health Medical Ambulance — Manatí", number: "7879491024" },
   { id: "qd-comandancia-arecibo", label: "🚔 Comandancia PPR Arecibo", number: "7878784000" },
+  { id: "qd-drna-arecibo", label: "🌊 DRNA Oficina Regional Arecibo", number: "7878787279" },
   { id: "qd-transito-arecibo", label: "🚦 Tránsito Arecibo (sin confirmar)", number: "" },
   { id: "qd-metro-pistas", label: "🛣️ Metro Pistas (Asistencia PR-22)", number: "7877058699" },
   { id: "qd-proteccion-civil", label: "🛟 Protección Civil", number: "911" },

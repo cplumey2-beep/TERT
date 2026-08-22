@@ -2,7 +2,8 @@
 // Para cambiar la contraseña: calcula el SHA-256 en hex del nuevo valor y reemplaza
 // LOCK_PASSWORD_HASH. Pídele a Claude que lo haga y publique el cambio si prefieres.
 const LOCK_PASSWORD_HASH = "b841cc4653c031b8ef37f7418f93b053119de4dff29bae51e0efa694bf22acbc";
-const LOCK_KEY = "tert_unlocked";
+const LOCK_KEY = "tert_unlocked_at";
+const LOCK_SESSION_MS = 7 * 24 * 60 * 60 * 1000; // sesión expira sola a los 7 días
 
 async function sha256Hex(text) {
   const bytes = new TextEncoder().encode(text);
@@ -10,18 +11,25 @@ async function sha256Hex(text) {
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+function logout() {
+  localStorage.removeItem(LOCK_KEY);
+  window.location.reload();
+}
+
 (function initLock() {
   const overlay = document.getElementById("lockOverlay");
-  if (localStorage.getItem(LOCK_KEY) === "1") {
+  const unlockedAt = Number(localStorage.getItem(LOCK_KEY) || 0);
+  if (unlockedAt && Date.now() - unlockedAt < LOCK_SESSION_MS) {
     overlay.classList.add("hidden");
     return;
   }
+  localStorage.removeItem(LOCK_KEY);
   const input = document.getElementById("lockPasswordInput");
   const error = document.getElementById("lockError");
   async function tryUnlock() {
     const hash = await sha256Hex(input.value);
     if (hash === LOCK_PASSWORD_HASH) {
-      localStorage.setItem(LOCK_KEY, "1");
+      localStorage.setItem(LOCK_KEY, String(Date.now()));
       overlay.classList.add("hidden");
     } else {
       error.textContent = "Contraseña incorrecta.";
@@ -35,6 +43,10 @@ async function sha256Hex(text) {
   });
   input.focus();
 })();
+
+document.getElementById("btnLogout").addEventListener("click", () => {
+  if (confirm("¿Cerrar sesión? Vas a necesitar la contraseña para volver a entrar.")) logout();
+});
 
 // ===== Configuración de contactos de marcado rápido (sede TERT: Barceloneta, PR) =====
 // Valores por defecto — el nombre y número de cada botón se pueden editar directamente

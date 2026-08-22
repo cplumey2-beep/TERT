@@ -150,7 +150,7 @@ function buildQuickDialCard(c, overrides) {
     <button type="button" class="quickdial-edit" title="Editar nombre y número">✎</button>
     <button type="button" class="quickdial-dial">${escapeHtml(label)}</button>
   `;
-  card.querySelector(".quickdial-edit").addEventListener("click", () => openQdModal(c.id, label, number));
+  card.querySelector(".quickdial-edit").addEventListener("click", () => openContactModal("quickdial", c.id, label, number));
   card.querySelector(".quickdial-dial").addEventListener("click", () => {
     if (!number) {
       alert("Este botón no tiene número configurado. Clic en ✎ para agregarlo.");
@@ -187,9 +187,19 @@ function renderQuickDial() {
   });
 }
 
-let qdEditingId = null;
-function openQdModal(id, currentLabel, currentNumber) {
-  qdEditingId = id;
+// Modal compartido entre Marcado Rápido y Tablero de Unidades (nombre + número).
+let qdEditContext = null; // { type: "quickdial" | "unit", id }
+function openContactModal(type, id, currentLabel, currentNumber) {
+  qdEditContext = { type, id };
+  if (type === "unit") {
+    $("#qdModalTitle").textContent = "Editar Unidad";
+    $("#qdModalLabelWrap").firstChild.textContent = "Nombre / cargo";
+    $("#qdModalNumberWrap").firstChild.textContent = "Celular (para difusión SMS, solo dígitos)";
+  } else {
+    $("#qdModalTitle").textContent = "Editar Botón de Marcado Rápido";
+    $("#qdModalLabelWrap").firstChild.textContent = "Nombre / descripción";
+    $("#qdModalNumberWrap").firstChild.textContent = "Número de teléfono (solo dígitos)";
+  }
   $("#qdModalLabel").value = currentLabel;
   $("#qdModalNumber").value = currentNumber;
   $("#qdModalOverlay").classList.add("open");
@@ -197,25 +207,32 @@ function openQdModal(id, currentLabel, currentNumber) {
 }
 function closeQdModal() {
   $("#qdModalOverlay").classList.remove("open");
-  qdEditingId = null;
+  qdEditContext = null;
 }
 $("#qdModalCancel").addEventListener("click", closeQdModal);
 $("#qdModalOverlay").addEventListener("click", (e) => {
   if (e.target.id === "qdModalOverlay") closeQdModal();
 });
 $("#qdModalSave").addEventListener("click", () => {
-  if (!qdEditingId) return;
+  if (!qdEditContext) return;
   const newLabel = $("#qdModalLabel").value.trim();
   const newNumber = $("#qdModalNumber").value.replace(/[^0-9]/g, "");
   if (!newLabel) {
     alert("El nombre no puede quedar vacío.");
     return;
   }
-  const overrides = getQuickDialOverrides();
-  overrides[qdEditingId] = { label: newLabel, number: newNumber };
-  saveQuickDialOverrides(overrides);
+  if (qdEditContext.type === "unit") {
+    const labels = getUnitLabels();
+    labels[qdEditContext.id] = { label: newLabel, phone: newNumber };
+    saveUnitLabels(labels);
+    renderUnitBoard();
+  } else {
+    const overrides = getQuickDialOverrides();
+    overrides[qdEditContext.id] = { label: newLabel, number: newNumber };
+    saveQuickDialOverrides(overrides);
+    renderQuickDial();
+  }
   closeQdModal();
-  renderQuickDial();
 });
 renderQuickDial();
 
@@ -232,33 +249,37 @@ function getUnitLabels() {
 function saveUnitLabels(labels) {
   localStorage.setItem(UNIT_LABEL_KEY, JSON.stringify(labels));
 }
+function normalizeUnitOverride(raw) {
+  if (!raw) return { label: "", phone: "" };
+  if (typeof raw === "string") return { label: raw, phone: "" }; // formato anterior
+  return { label: raw.label || "", phone: raw.phone || "" };
+}
 function renderUnitBoard() {
   const statuses = getUnitStatuses();
   const labels = getUnitLabels();
   const container = $("#unitBoard");
   container.innerHTML = "";
   UNITS.forEach((u) => {
-    const label = labels[u.id] || u.label;
+    const o = normalizeUnitOverride(labels[u.id]);
+    const label = o.label || u.label;
+    const phone = o.phone;
     const current = statuses[u.id] || "Disponible";
     const card = document.createElement("div");
     card.className = "unit-card " + UNIT_STATUS_CLASS[current];
     card.innerHTML = `
-      <button type="button" class="unit-label" title="Clic para editar nombre/cargo">${escapeHtml(label)}</button>
+      <button type="button" class="unit-label" title="Clic para editar nombre/cargo y celular">${escapeHtml(label)}</button>
       <button type="button" class="unit-status" title="Clic para cambiar estatus">${escapeHtml(current)}</button>
     `;
-    card.querySelector(".unit-label").addEventListener("click", () => editUnitLabel(u.id, label));
+    card.querySelector(".unit-label").addEventListener("click", () => openContactModal("unit", u.id, label, phone));
     card.querySelector(".unit-status").addEventListener("click", () => cycleUnitStatus(u.id));
     container.appendChild(card);
   });
 }
-function editUnitLabel(id, current) {
-  const next = prompt("Nombre / cargo para esta unidad:", current);
-  if (next === null) return;
+function getMemberPhones() {
   const labels = getUnitLabels();
-  const trimmed = next.trim();
-  if (trimmed) labels[id] = trimmed; else delete labels[id];
-  saveUnitLabels(labels);
-  renderUnitBoard();
+  return UNITS
+    .map((u) => normalizeUnitOverride(labels[u.id]).phone)
+    .filter((phone) => phone);
 }
 function cycleUnitStatus(id) {
   const statuses = getUnitStatuses();
@@ -269,6 +290,25 @@ function cycleUnitStatus(id) {
   renderUnitBoard();
 }
 renderUnitBoard();
+
+// ===== Difusión a miembros (SMS) =====
+function broadcastMessage(emergencia) {
+  const phones = getMemberPhones();
+  if (!phones.length) {
+    alert("No hay celulares configurados. Clic en el nombre de cada miembro en el Tablero de Unidades para agregar su número.");
+    return;
+  }
+  const detalle = prompt("Código y ubicación del incidente (ej. 10-42 en Carretera #2 KM 60):", "");
+  if (detalle === null || !detalle.trim()) return;
+
+  const cierre = emergencia
+    ? "Proceda con precaución. 10-50 (EMERGENCIA - sirenas). Debidamente autorizado."
+    : "Proceda con precaución. NO 10-50 (sin sirenas). Debidamente autorizado.";
+  const body = `${detalle.trim()}. ${cierre}`;
+  window.location.href = `sms:${phones.join(",")}?body=${encodeURIComponent(body)}`;
+}
+$("#btnBroadcast1050").addEventListener("click", () => broadcastMessage(true));
+$("#btnBroadcastNo1050").addEventListener("click", () => broadcastMessage(false));
 
 // ===== Mapas y ubicación =====
 $("#btnMyLocation").addEventListener("click", () => {

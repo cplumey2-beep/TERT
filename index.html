@@ -29,8 +29,15 @@
     <!-- DESPACHO -->
     <section id="despacho" class="tab-panel active">
       <h2>Tablero de Unidades</h2>
-      <p class="hint">Clic en una unidad para cambiar su estatus.</p>
+      <p class="hint">Clic en el nombre para editar nombre/cargo y celular. Clic en el estatus para cambiarlo.</p>
       <div class="unit-grid" id="unitBoard"></div>
+
+      <h2>Difusión a Miembros (SMS)</h2>
+      <p class="hint">Se abre tu app de Mensajes con todos los miembros que tengan celular configurado (✎ en el Tablero de Unidades) y el mensaje ya armado — solo falta tocar Enviar.</p>
+      <div class="grid-buttons">
+        <button class="danger-btn" id="btnBroadcast1050">🚨 10-50 (Emergencia, con sirenas)</button>
+        <button class="secondary-btn" id="btnBroadcastNo1050">🚗 NO 10-50 (Precaución, sin sirenas)</button>
+      </div>
 
       <h2>Marcado Rápido</h2>
       <div id="quickDial"></div>
@@ -218,11 +225,11 @@
 
   <div class="modal-overlay" id="qdModalOverlay">
     <div class="modal-box">
-      <h3>Editar Botón de Marcado Rápido</h3>
-      <label>Nombre / descripción
+      <h3 id="qdModalTitle">Editar Botón</h3>
+      <label id="qdModalLabelWrap">Nombre / descripción
         <input type="text" id="qdModalLabel">
       </label>
-      <label>Número de teléfono (solo dígitos)
+      <label id="qdModalNumberWrap">Número de teléfono (solo dígitos)
         <input type="text" id="qdModalNumber" inputmode="numeric" placeholder="Ej. 7871234567">
       </label>
       <div class="modal-actions">

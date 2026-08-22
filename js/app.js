@@ -267,10 +267,11 @@ function renderUnitBoard() {
     const card = document.createElement("div");
     card.className = "unit-card " + UNIT_STATUS_CLASS[current];
     card.innerHTML = `
-      <button type="button" class="unit-label" title="Clic para editar nombre/cargo y celular">${escapeHtml(label)}</button>
+      <button type="button" class="unit-edit" title="Editar nombre/cargo y celular">✎</button>
+      <span class="unit-label">${escapeHtml(label)}</span>
       <button type="button" class="unit-status" title="Clic para cambiar estatus">${escapeHtml(current)}</button>
     `;
-    card.querySelector(".unit-label").addEventListener("click", () => openContactModal("unit", u.id, label, phone));
+    card.querySelector(".unit-edit").addEventListener("click", () => openContactModal("unit", u.id, label, phone));
     card.querySelector(".unit-status").addEventListener("click", () => cycleUnitStatus(u.id));
     container.appendChild(card);
   });

@@ -292,6 +292,14 @@ function cycleUnitStatus(id) {
 }
 renderUnitBoard();
 
+$("#btnResetAllUnits").addEventListener("click", () => {
+  if (!confirm("¿Marcar TODAS las unidades como Disponible?")) return;
+  const statuses = getUnitStatuses();
+  UNITS.forEach((u) => (statuses[u.id] = "Disponible"));
+  saveUnitStatuses(statuses);
+  renderUnitBoard();
+});
+
 // ===== Difusión a miembros (SMS) =====
 // Círculo de color al inicio del mensaje para identificar el tipo de un vistazo:
 // 🔴 = 10-50 emergencia (sirenas) · 🟢 = NO 10-50 (sin sirenas) · 🟡 = prueba del sistema
@@ -312,7 +320,7 @@ function broadcastIncidente(emergencia) {
   const cierre = emergencia
     ? "Proceda en 10-50 a la zona con precaución. Debidamente autorizado."
     : "Proceda a la zona con precaución de manera regular. Debidamente autorizado.";
-  sendBroadcast(`${circulo} Se reporta 10-42, ${direccion.trim()}. ${cierre}`);
+  sendBroadcast(`${circulo} A todas las unidades Disponibles, se reporta 10-42, ${direccion.trim()}. ${cierre}`);
 }
 
 function broadcastPrueba() {

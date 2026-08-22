@@ -311,7 +311,7 @@ function broadcastIncidente(emergencia) {
   const circulo = emergencia ? "🔴" : "🟢";
   const cierre = emergencia
     ? "Proceda en 10-50 a la zona con precaución. Debidamente autorizado."
-    : "Proceda a la zona con precaución, NO 10-50 (sin sirena). Debidamente autorizado.";
+    : "Proceda a la zona con precaución de manera regular. Debidamente autorizado.";
   sendBroadcast(`${circulo} Se reporta 10-42, ${direccion.trim()}. ${cierre}`);
 }
 

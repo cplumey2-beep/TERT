@@ -9,7 +9,7 @@ const QUICK_DIAL = [
   { label: "🚒 Bomberos Arecibo", number: "7878782330" },
   { label: "🚒 Bomberos Manatí", number: "7878542330" },
   { label: "🚑 Rescate / Emergencias Barceloneta (OMME)", number: "7878463210" },
-  { label: "🚑 Ambulancia / Cruz Roja", number: "065" },
+  { label: "🚑 Ambulancia / Cruz Roja (065 número Respaldo general)", number: "065" },
   { label: "🚑 Atenas Ambulance — Barceloneta", number: "7878462220" },
   { label: "🚑 Continental EMT — Florida", number: "7879696444" },
   { label: "🚑 Harrison Ramos Ambulance — Arecibo", number: "7872102128" },

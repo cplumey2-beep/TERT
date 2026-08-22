@@ -605,6 +605,60 @@ $("#btnGuardarNotas").addEventListener("click", () => {
 });
 loadNotes();
 
+// ===== Exportar / Importar configuración (nombres, celulares, marcado rápido, notas) =====
+$("#btnExportConfig").addEventListener("click", () => {
+  const config = {
+    tipo: "tert_config",
+    version: 1,
+    exportado: new Date().toISOString(),
+    unitLabels: getUnitLabels(),
+    quickDialOverrides: getQuickDialOverrides(),
+    notas: localStorage.getItem(NOTES_KEY) || "",
+  };
+  const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `TERT_config_${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+$("#btnImportConfig").addEventListener("click", () => $("#importConfigFile").click());
+$("#importConfigFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let config;
+    try {
+      config = JSON.parse(reader.result);
+    } catch (err) {
+      alert("Archivo inválido: no es un JSON de configuración de TERT.");
+      e.target.value = "";
+      return;
+    }
+    if (config.tipo !== "tert_config") {
+      alert("Archivo inválido: no es un archivo de configuración de TERT.");
+      e.target.value = "";
+      return;
+    }
+    if (!confirm("Esto reemplazará los nombres, celulares, marcado rápido y notas de este dispositivo con los del archivo. ¿Continuar?")) {
+      e.target.value = "";
+      return;
+    }
+    saveUnitLabels(config.unitLabels || {});
+    saveQuickDialOverrides(config.quickDialOverrides || {});
+    localStorage.setItem(NOTES_KEY, config.notas || "");
+    renderUnitBoard();
+    renderQuickDial();
+    loadNotes();
+    e.target.value = "";
+    alert("Configuración importada correctamente.");
+  };
+  reader.readAsText(file);
+});
+
 // ===== Inicialización general =====
 renderRecentTable();
 renderReportTable();

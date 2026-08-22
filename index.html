@@ -214,6 +214,15 @@
           <textarea id="notasInternas" rows="6" placeholder="Escribe protocolos, recordatorios o notas del turno..."></textarea>
           <button class="secondary-btn" id="btnGuardarNotas">Guardar Notas</button>
         </div>
+        <div class="info-card full">
+          <h3>Configuración del Dispositivo</h3>
+          <p class="hint">Pasa nombres, celulares y marcado rápido de un dispositivo a otro sin escribirlos de nuevo. Exporta aquí, envía el archivo (WhatsApp, correo, etc.) y el otro despachador lo importa desde su teléfono.</p>
+          <div class="grid-buttons">
+            <button class="primary-btn" id="btnExportConfig">⬇️ Exportar Configuración</button>
+            <button class="secondary-btn" id="btnImportConfig">⬆️ Importar Configuración</button>
+          </div>
+          <input type="file" id="importConfigFile" accept="application/json" hidden>
+        </div>
       </div>
     </section>
   </main>

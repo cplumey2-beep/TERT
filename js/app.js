@@ -352,6 +352,8 @@ $("#btnBroadcast1044_1050").addEventListener("click", () => broadcastIncidente("
 $("#btnBroadcast1044_no1050").addEventListener("click", () => broadcastIncidente("10-44", false));
 $("#btnBroadcast1043_1050").addEventListener("click", () => broadcastIncidente("10-43", true));
 $("#btnBroadcast1043_no1050").addEventListener("click", () => broadcastIncidente("10-43", false));
+$("#btnBroadcast1045_1050").addEventListener("click", () => broadcastIncidente("10-45", true));
+$("#btnBroadcast1045_no1050").addEventListener("click", () => broadcastIncidente("10-45", false));
 $("#btnBroadcastInundacion").addEventListener("click", broadcastInundacion);
 $("#btnBroadcastCustom").addEventListener("click", broadcastCustom);
 $("#btnBroadcastPrueba").addEventListener("click", broadcastPrueba);

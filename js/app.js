@@ -481,21 +481,36 @@ function broadcastPrueba() {
   sendBroadcast(mensaje, false);
 }
 
-$("#btnBroadcast1042_1050").addEventListener("click", () => broadcastIncidente("10-42", "Accidente", true));
-$("#btnBroadcast1042_no1050").addEventListener("click", () => broadcastIncidente("10-42", "Accidente", false));
-$("#btnBroadcast1044_1050").addEventListener("click", () => broadcastIncidente("10-44", "Fuego", true));
-$("#btnBroadcast1044_no1050").addEventListener("click", () => broadcastIncidente("10-44", "Fuego", false));
-$("#btnBroadcast1043_1050").addEventListener("click", () => broadcastIncidente("10-43", "Accidente Aéreo", true));
-$("#btnBroadcast1043_no1050").addEventListener("click", () => broadcastIncidente("10-43", "Accidente Aéreo", false));
-$("#btnBroadcast1045_1050").addEventListener("click", () => broadcastIncidente("10-45", "Explosión", true));
-$("#btnBroadcast1045_no1050").addEventListener("click", () => broadcastIncidente("10-45", "Explosión", false));
-$("#btnBroadcast1046_1050").addEventListener("click", () => broadcastIncidente("10-46", "Naufragio / Ahogamiento", true));
-$("#btnBroadcast1046_no1050").addEventListener("click", () => broadcastIncidente("10-46", "Naufragio / Ahogamiento", false));
-$("#btnBroadcastInundacion").addEventListener("click", () => broadcastIncidente("10-47", "Inundación", false));
-$("#btnBroadcast1049_1050").addEventListener("click", () => broadcastIncidente("10-49", "Deslizamiento", true));
-$("#btnBroadcast1049_no1050").addEventListener("click", () => broadcastIncidente("10-49", "Deslizamiento", false));
-$("#btnBroadcastCustom").addEventListener("click", broadcastCustom);
-$("#btnBroadcastPrueba").addEventListener("click", broadcastPrueba);
+// Pinta el botón de naranja mientras el prompt()/confirm() está abierto y lo
+// apaga apenas el usuario responde (Aceptar o Cancelar) — feedback intencional,
+// no el "hover pegado" del navegador.
+function withPressed(btn, fn) {
+  btn.classList.add("btn-pressed");
+  try {
+    fn();
+  } finally {
+    btn.classList.remove("btn-pressed");
+  }
+}
+function onPressed(id, fn) {
+  $(id).addEventListener("click", (e) => withPressed(e.currentTarget, fn));
+}
+
+onPressed("#btnBroadcast1042_1050", () => broadcastIncidente("10-42", "Accidente", true));
+onPressed("#btnBroadcast1042_no1050", () => broadcastIncidente("10-42", "Accidente", false));
+onPressed("#btnBroadcast1044_1050", () => broadcastIncidente("10-44", "Fuego", true));
+onPressed("#btnBroadcast1044_no1050", () => broadcastIncidente("10-44", "Fuego", false));
+onPressed("#btnBroadcast1043_1050", () => broadcastIncidente("10-43", "Accidente Aéreo", true));
+onPressed("#btnBroadcast1043_no1050", () => broadcastIncidente("10-43", "Accidente Aéreo", false));
+onPressed("#btnBroadcast1045_1050", () => broadcastIncidente("10-45", "Explosión", true));
+onPressed("#btnBroadcast1045_no1050", () => broadcastIncidente("10-45", "Explosión", false));
+onPressed("#btnBroadcast1046_1050", () => broadcastIncidente("10-46", "Naufragio / Ahogamiento", true));
+onPressed("#btnBroadcast1046_no1050", () => broadcastIncidente("10-46", "Naufragio / Ahogamiento", false));
+onPressed("#btnBroadcastInundacion", () => broadcastIncidente("10-47", "Inundación", false));
+onPressed("#btnBroadcast1049_1050", () => broadcastIncidente("10-49", "Deslizamiento", true));
+onPressed("#btnBroadcast1049_no1050", () => broadcastIncidente("10-49", "Deslizamiento", false));
+onPressed("#btnBroadcastCustom", broadcastCustom);
+onPressed("#btnBroadcastPrueba", broadcastPrueba);
 
 // ===== Mapas y ubicación =====
 $("#btnMyLocation").addEventListener("click", () => {

@@ -461,3 +461,12 @@ body.printing-single #printSingle table { width: 100%; border-collapse: collapse
 body.printing-single #printSingle td { border: 1px solid #999; padding: 6px 10px; vertical-align: top; }
 body.printing-single #printSingle td.label { font-weight: 700; width: 160px; background: #f0f0f0; }
 body.printing-single #printSingle ul { margin: 4px 0; padding-left: 18px; }
+
+/* Estado "presionado" controlado por JS (no CSS :hover) — se activa justo antes de
+   abrir un prompt()/confirm() y se apaga apenas el usuario responde, para dar
+   retroalimentación visual sin el problema de hover pegado en pantallas táctiles. */
+button.btn-pressed {
+  background: var(--accent) !important;
+  color: #111 !important;
+  transform: translateY(-2px);
+}

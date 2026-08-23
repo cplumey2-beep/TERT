@@ -469,4 +469,5 @@ button.btn-pressed {
   background: var(--accent) !important;
   color: #111 !important;
   transform: translateY(-2px);
+  transition: none !important;
 }

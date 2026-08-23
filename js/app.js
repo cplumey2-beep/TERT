@@ -844,6 +844,19 @@ $("#btnForceRefresh").addEventListener("click", async () => {
   window.location.href = window.location.pathname + "?_refresh=" + Date.now();
 });
 
+// ===== Acerca de / Términos y Condiciones =====
+$("#btnOpenAcerca").addEventListener("click", () => $("#acercaModalOverlay").classList.add("open"));
+$("#acercaModalClose").addEventListener("click", () => $("#acercaModalOverlay").classList.remove("open"));
+$("#acercaModalOverlay").addEventListener("click", (e) => {
+  if (e.target.id === "acercaModalOverlay") $("#acercaModalOverlay").classList.remove("open");
+});
+
+$("#btnOpenTerminos").addEventListener("click", () => $("#terminosModalOverlay").classList.add("open"));
+$("#terminosModalClose").addEventListener("click", () => $("#terminosModalOverlay").classList.remove("open"));
+$("#terminosModalOverlay").addEventListener("click", (e) => {
+  if (e.target.id === "terminosModalOverlay") $("#terminosModalOverlay").classList.remove("open");
+});
+
 // ===== Inicialización general =====
 renderRecentTable();
 renderReportTable();

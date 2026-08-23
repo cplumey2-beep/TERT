@@ -392,6 +392,13 @@
           <p class="hint">Si acabas de recibir avisos de cambios pero no los ves en tu teléfono, tu navegador está mostrando una copia guardada. Este botón fuerza a recargar todo de cero.</p>
           <button class="danger-btn" id="btnForceRefresh">🔄 Forzar Actualización</button>
         </div>
+        <div class="info-card full">
+          <h3>Acerca de / Legal</h3>
+          <div class="grid-buttons">
+            <button class="secondary-btn" id="btnOpenAcerca">ℹ️ Acerca de esta Plataforma</button>
+            <button class="secondary-btn" id="btnOpenTerminos">⚖️ Términos y Condiciones</button>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -399,6 +406,45 @@
   <footer>
     <p>TERT &mdash; Sistema de Despacho Local | Los datos se guardan solo en este navegador (localStorage)</p>
   </footer>
+
+  <div class="modal-overlay" id="acercaModalOverlay">
+    <div class="modal-box modal-box-wide">
+      <h3>Acerca de esta Plataforma</h3>
+      <div class="legal-text">
+        <p><strong>Christian Plumey Díaz</strong><br>
+        Miembro activo de TERT — Número de miembro #0009632509<br>
+        Creador y codificador de esta plataforma de despacho.</p>
+        <p>Desarrollada para <strong>Tactical Emergency Response Team Corp.</strong>, corporación registrada en el Departamento de Estado de Puerto Rico bajo el número de registro <strong>#545114</strong>.</p>
+        <p>Puedes verificar el registro directamente en el
+          <a href="https://www.estado.pr.gov/personas-juridicas" target="_blank" rel="noopener" style="color:var(--accent)">Registro de Personas Jurídicas del Departamento de Estado de Puerto Rico</a>.
+        </p>
+        <p><strong>Presidente de la Corporación:</strong> Comandante José Rodríguez<br>
+          Correo: <a href="mailto:jose2007miguel@gmail.com" style="color:var(--accent)">jose2007miguel@gmail.com</a>
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="secondary-btn" id="acercaModalClose">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="terminosModalOverlay">
+    <div class="modal-box modal-box-wide">
+      <h3>Términos y Condiciones — Aviso Legal</h3>
+      <div class="legal-text">
+        <p><em>Este resumen es informativo y no constituye asesoría legal. Para orientación específica, consulte a un abogado licenciado en Puerto Rico.</em></p>
+        <p><strong>1. Naturaleza de la plataforma.</strong> Este Sistema de Despacho es una herramienta interna de comunicación, documentación y coordinación operativa de Tactical Emergency Response Team Corp. ("TERT"). Es de uso exclusivo para miembros activos y autorizados de TERT.</p>
+        <p><strong>2. No es un sistema oficial de emergencias.</strong> Esta plataforma no es un Punto de Acceso de Seguridad Pública (PSAP), no reemplaza el 9-1-1, y no está conectada ni interoperada con los sistemas de despacho de la Policía de Puerto Rico, el Cuerpo de Bomberos, ni ninguna agencia gubernamental. Es un complemento operativo interno de TERT.</p>
+        <p><strong>3. Acceso autorizado únicamente.</strong> El acceso, uso o distribución de la contraseña de esta plataforma a personas que no sean miembros activos y autorizados de TERT está prohibido. El acceso no autorizado a sistemas informáticos puede constituir delito bajo la <strong>Ley de Ciberseguridad del Estado Libre Asociado de Puerto Rico (Ley Núm. 40-2024)</strong>, con penas que varían según la gravedad del hecho.</p>
+        <p><strong>4. Uso indebido de identidad o funciones.</strong> El Código Penal de Puerto Rico (Ley Núm. 146-2012), en su <strong>Artículo 208-A (Impostura Agravada, según enmendado por la Ley Núm. 47-2024)</strong>, tipifica como delito grave hacerse pasar por un agente del orden público para cometer un delito. El Código Penal también contempla penalidades por usurpación de funciones. Ningún miembro de TERT debe representarse como Policía, Bombero, personal de Emergencias Médicas ni ninguna otra agencia gubernamental — TERT es una organización de apoyo, no una agencia con función de ley.</p>
+        <p><strong>5. Responsabilidad del usuario.</strong> Cada despachador es responsable de la exactitud de la información que registra y transmite a través de esta plataforma, incluyendo los mensajes de difusión a unidades. El sistema registra un Despachador en Turno para efectos de documentación y responsabilidad operativa.</p>
+        <p><strong>6. Contacto.</strong> Preguntas sobre autorización de acceso, uso indebido, o este aviso legal deben dirigirse al Presidente de la Corporación, Comandante José Rodríguez: <a href="mailto:jose2007miguel@gmail.com" style="color:var(--accent)">jose2007miguel@gmail.com</a>.</p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="secondary-btn" id="terminosModalClose">Cerrar</button>
+      </div>
+    </div>
+  </div>
 
   <div id="printSingle"></div>
 

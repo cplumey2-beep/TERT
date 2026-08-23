@@ -483,14 +483,21 @@ function broadcastPrueba() {
 
 // Pinta el botón de naranja mientras el prompt()/confirm() está abierto y lo
 // apaga apenas el usuario responde (Aceptar o Cancelar) — feedback intencional,
-// no el "hover pegado" del navegador.
+// no el "hover pegado" del navegador. El prompt()/confirm() congela el hilo
+// principal, así que hay que esperar a que el navegador realmente PINTE el
+// naranja (dos requestAnimationFrame) antes de abrir el diálogo — si no, en
+// algunos Android el color nunca llega a dibujarse porque queda "en cola".
 function withPressed(btn, fn) {
   btn.classList.add("btn-pressed");
-  try {
-    fn();
-  } finally {
-    btn.classList.remove("btn-pressed");
-  }
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      try {
+        fn();
+      } finally {
+        btn.classList.remove("btn-pressed");
+      }
+    });
+  });
 }
 function onPressed(id, fn) {
   $(id).addEventListener("click", (e) => withPressed(e.currentTarget, fn));

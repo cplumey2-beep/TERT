@@ -291,14 +291,16 @@ function buildQuickDialCard(c, overrides) {
     <button type="button" class="quickdial-edit" title="Editar nombre y número">✎</button>
     <button type="button" class="quickdial-dial">${escapeHtml(label)}</button>
   `;
-  card.querySelector(".quickdial-edit").addEventListener("click", () => openContactModal("quickdial", c.id, label, number));
-  card.querySelector(".quickdial-dial").addEventListener("click", () => {
+  const editBtn = card.querySelector(".quickdial-edit");
+  const dialBtn = card.querySelector(".quickdial-dial");
+  editBtn.addEventListener("click", () => withPressed(editBtn, () => openContactModal("quickdial", c.id, label, number)));
+  dialBtn.addEventListener("click", () => withPressed(dialBtn, () => {
     if (!number) {
       alert("Este botón no tiene número configurado. Clic en ✎ para agregarlo.");
       return;
     }
     window.location.href = `tel:${number}`;
-  });
+  }));
   return card;
 }
 

@@ -464,12 +464,14 @@ function broadcastIncidente(codigo, descripcion, emergencia) {
   const direccion = prompt("Dirección del incidente, incluye el pueblo (ej. Carretera #2 KM 60, Barceloneta):", "");
   if (direccion === null || !direccion.trim()) return;
 
-  const circulo = emergencia ? "🔴" : "🟢";
+  // Mensaje corto sin acentos ni emojis a propósito: los acentos/emoji fuerzan
+  // codificación Unicode en SMS (70 caracteres por fragmento en vez de 160),
+  // lo que partía este mensaje en 5 fragmentos y causaba fallos de envío
+  // grupal. Así queda en GSM-7 y cabe en 1-2 fragmentos.
   const cierre = emergencia
-    ? "Proceda en 10-50 a la zona con precaución. Debidamente autorizado."
-    : "Proceda a la zona con precaución de manera regular. Debidamente autorizado.";
-  const recordatorio = "Favor de reportar su participación a través de Zello o por aquí por texto para activarlo y para récord. Gracias.";
-  sendBroadcast(`${circulo} A todas las unidades Disponibles, se reporta ${descripcion} (${codigo}), ${direccion.trim()}. ${cierre} ${recordatorio}`, true);
+    ? "Proceda en 10-50 a la zona con precaucion."
+    : "Proceda a la zona con precaucion de manera regular.";
+  sendBroadcast(`Unidades Disponibles: (${codigo}), ${direccion.trim()}. ${cierre} Reporte su participacion.`, true);
 }
 
 function broadcastCustom() {

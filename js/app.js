@@ -109,6 +109,16 @@ const UNITS = [
   { id: "unit-16", label: "Miembro 16" },
   { id: "unit-17", label: "Miembro 17" },
   { id: "unit-18", label: "Miembro 18" },
+  { id: "unit-19", label: "Miembro 19" },
+  { id: "unit-20", label: "Miembro 20" },
+  { id: "unit-21", label: "Miembro 21" },
+  { id: "unit-22", label: "Miembro 22" },
+  { id: "unit-23", label: "Miembro 23" },
+  { id: "unit-24", label: "Miembro 24" },
+  { id: "unit-25", label: "Miembro 25" },
+  { id: "unit-26", label: "Miembro 26" },
+  { id: "unit-27", label: "Miembro 27" },
+  { id: "unit-28", label: "Miembro 28" },
 ];
 
 const UNIT_STATUSES = ["Disponible", "En Ruta", "En Sitio", "Fuera de Servicio"];

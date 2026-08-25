@@ -138,11 +138,12 @@ const UNITS = [
   { id: "unit-28", label: "Miembro 28" },
 ];
 
-const UNIT_STATUSES = ["Disponible", "En Ruta", "En Sitio", "Fuera de Servicio"];
+const UNIT_STATUSES = ["Disponible", "En Ruta", "En Sitio", "Personal", "Fuera de Servicio"];
 const UNIT_STATUS_CLASS = {
   "Disponible": "status-disponible",
   "En Ruta": "status-enruta",
   "En Sitio": "status-ensitio",
+  "Personal": "status-personal",
   "Fuera de Servicio": "status-fuera",
 };
 

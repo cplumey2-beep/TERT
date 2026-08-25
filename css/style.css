@@ -10,6 +10,7 @@
   --green: #2ea043;
   --red: #d73a49;
   --blue: #2f81f7;
+  --yellow: #f4d03f;
 }
 
 * { box-sizing: border-box; }
@@ -292,6 +293,9 @@ h2 { border-left: 4px solid var(--accent); padding-left: 10px; margin-top: 26px;
 
 .status-ensitio .unit-status { background: var(--blue); color: #041226; }
 .status-ensitio { border-color: var(--blue); }
+
+.status-personal .unit-status { background: var(--yellow); color: #3a2e00; }
+.status-personal { border-color: var(--yellow); }
 
 .status-fuera .unit-status { background: var(--red); color: #2a0709; }
 .status-fuera { border-color: var(--red); opacity: 0.75; }

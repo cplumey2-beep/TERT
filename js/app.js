@@ -71,12 +71,13 @@ const QUICK_DIAL = [
   { id: "qd-bomberos-manati", category: "Bomberos", label: "🚒 Bomberos (Manatí)", number: "7878542330" },
   { id: "qd-bomberos-florida", category: "Bomberos", label: "🚒 Bomberos (Florida)", number: "7878222330" },
 
-  { id: "qd-rescate-omme-bc", category: "Rescate", label: "🆘 Rescate / OMME (Barceloneta)", number: "7878463210" },
-  { id: "qd-rescate-arecibo", category: "Rescate", label: "🆘 Rescate / OMME (Arecibo, verificar)", number: "7878783454" },
-  { id: "qd-rescate-manati", category: "Rescate", label: "🆘 Rescate / OMME (Manatí)", number: "7878542297" },
+  { id: "qd-rescate-omme-bc", category: "Rescate", label: "🆘 Rescate / OMEAD (Barceloneta)", number: "7878006329" },
+  { id: "qd-rescate-arecibo", category: "Rescate", label: "🆘 Rescate / OMEAD (Arecibo, verificar)", number: "7878783454" },
+  { id: "qd-rescate-manati", category: "Rescate", label: "🆘 Rescate / OMEAD (Manatí) (OSCAR)", number: "7878542297" },
 
   { id: "qd-cruz-roja", category: "Ambulancia", label: "🚑 Cruz Roja (065, respaldo general)", number: "065" },
   { id: "qd-atenas-bc", category: "Ambulancia", label: "🚑 Atenas Ambulance (Barceloneta)", number: "7878462220" },
+  { id: "qd-gonzalez-bc", category: "Ambulancia", label: "🚑 Gonzalez Ambulance (Barceloneta)", number: "7879041711" },
   { id: "qd-continental-florida", category: "Ambulancia", label: "🚑 Continental EMT (Florida)", number: "7879696444" },
   { id: "qd-harrison-arecibo", category: "Ambulancia", label: "🚑 Harrison Ramos Ambulance (Arecibo)", number: "7872102128" },
   { id: "qd-health-manati", category: "Ambulancia", label: "🚑 Health Medical Ambulance (Manatí)", number: "7879491024" },

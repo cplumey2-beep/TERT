@@ -545,6 +545,10 @@ onPressed("#btnBroadcast1046_no1050", () => broadcastIncidente("10-46", "Naufrag
 onPressed("#btnBroadcastInundacion", () => broadcastIncidente("10-47", "Inundación", false));
 onPressed("#btnBroadcast1049_1050", () => broadcastIncidente("10-49", "Deslizamiento", true));
 onPressed("#btnBroadcast1049_no1050", () => broadcastIncidente("10-49", "Deslizamiento", false));
+onPressed("#btnBroadcast1062_1050", () => broadcastIncidente("10-62", "Desastre", true));
+onPressed("#btnBroadcast1062_no1050", () => broadcastIncidente("10-62", "Desastre", false));
+onPressed("#btnBroadcast1065_1050", () => broadcastIncidente("10-65", "Emergencia Tóxica", true));
+onPressed("#btnBroadcast1065_no1050", () => broadcastIncidente("10-65", "Emergencia Tóxica", false));
 onPressed("#btnBroadcastCustom", broadcastCustom);
 onPressed("#btnBroadcastPrueba", broadcastPrueba);
 

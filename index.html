@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>TERT - Sistema de Despacho</title>
-<link rel="stylesheet" href="css/style.css?v=20260824f">
+<link rel="stylesheet" href="css/style.css?v=20260825">
 </head>
 <body>
   <div class="lock-overlay" id="lockOverlay">
@@ -215,6 +215,7 @@
     <section id="reportes" class="tab-panel">
       <h2>Reportes de Incidentes</h2>
       <div class="filters">
+        <label class="full">Buscar <input type="text" id="filtroTexto" placeholder="Palabra en ubicación o descripción..."></label>
         <label>Desde <input type="date" id="filtroDesde"></label>
         <label>Hasta <input type="date" id="filtroHasta"></label>
         <label>Tipo
@@ -252,7 +253,7 @@
       <div class="table-wrap">
         <table id="reportTable">
           <thead>
-            <tr><th>Folio</th><th>Fecha</th><th>Tipo</th><th>Prioridad</th><th>Ubicación</th><th>Unidad</th><th>Agencias</th><th>Estatus</th><th>Despachador</th><th>Descripción</th><th></th></tr>
+            <tr><th>Folio</th><th>Fecha</th><th>Tipo</th><th>Prioridad</th><th>Ubicación</th><th>Unidad</th><th>Agencias</th><th>Estatus</th><th>Despachador</th><th>Tiempo Respuesta</th><th>Descripción</th><th></th></tr>
           </thead>
           <tbody></tbody>
         </table>
@@ -476,6 +477,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=20260824f"></script>
+  <script src="js/app.js?v=20260825"></script>
 </body>
 </html>

@@ -424,6 +424,7 @@ th { background: var(--panel-alt); color: var(--accent); }
 
 .filters { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 10px; }
 .filters label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--muted); }
+.filters label.full { flex: 1 1 100%; }
 
 .report-actions { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
 

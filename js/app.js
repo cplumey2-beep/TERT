@@ -712,12 +712,24 @@ function deleteLog(folio) {
 }
 
 // ===== Reportes =====
+function calcularTiempoRespuesta(log) {
+  const eventos = log.eventos || [];
+  if (!eventos.length) return "-";
+  const inicio = new Date(eventos[0].hora).getTime();
+  const enSitio = eventos.find((e) => e.estatus === "En Sitio");
+  if (!enSitio) return "-";
+  const minutos = Math.round((new Date(enSitio.hora).getTime() - inicio) / 60000);
+  if (minutos < 60) return `${minutos} min`;
+  return `${Math.floor(minutos / 60)}h ${minutos % 60}min`;
+}
+
 function renderReportTable() {
   let logs = getLogs();
   const desde = $("#filtroDesde").value;
   const hasta = $("#filtroHasta").value;
   const tipo = $("#filtroTipo").value;
   const estatus = $("#filtroEstatus").value;
+  const texto = $("#filtroTexto").value.trim().toLowerCase();
 
   logs = logs.filter((l) => {
     const fecha = l.fecha.slice(0, 10);
@@ -725,6 +737,11 @@ function renderReportTable() {
     if (hasta && fecha > hasta) return false;
     if (tipo && l.tipo !== tipo) return false;
     if (estatus && l.estatus !== estatus) return false;
+    if (texto) {
+      const enUbicacion = (l.ubicacion || "").toLowerCase().includes(texto);
+      const enDescripcion = (l.descripcion || "").toLowerCase().includes(texto);
+      if (!enUbicacion && !enDescripcion) return false;
+    }
     return true;
   });
 
@@ -744,6 +761,7 @@ function renderReportTable() {
       <td>${escapeHtml(agencias)}</td>
       <td>${escapeHtml(log.estatus)}</td>
       <td>${escapeHtml(log.despachador || "-")}</td>
+      <td>${escapeHtml(calcularTiempoRespuesta(log))}</td>
       <td>${escapeHtml(log.descripcion)}</td>
       <td><button class="secondary-btn" data-detalle="${escapeHtml(log.folio)}">🖨️ Detalle</button></td>
     `;
@@ -776,6 +794,7 @@ function printIncidentReport(folio) {
       <tr><td class="label">Agencias de Apoyo</td><td>${escapeHtml(agenciasHtml)}</td></tr>
       <tr><td class="label">Despachador en Turno</td><td>${escapeHtml(log.despachador || "-")}</td></tr>
       <tr><td class="label">Estatus Actual</td><td>${escapeHtml(log.estatus)}</td></tr>
+      <tr><td class="label">Tiempo de Respuesta</td><td>${escapeHtml(calcularTiempoRespuesta(log))}</td></tr>
       <tr><td class="label">Descripción</td><td>${escapeHtml(log.descripcion)}</td></tr>
       <tr><td class="label">Línea de Tiempo</td><td>${timelineHtml}</td></tr>
     </table>
@@ -788,11 +807,13 @@ window.addEventListener("afterprint", () => {
 });
 
 $("#btnFiltrar").addEventListener("click", renderReportTable);
+$("#filtroTexto").addEventListener("input", renderReportTable);
 $("#btnLimpiarFiltro").addEventListener("click", () => {
   $("#filtroDesde").value = "";
   $("#filtroHasta").value = "";
   $("#filtroTipo").value = "";
   $("#filtroEstatus").value = "";
+  $("#filtroTexto").value = "";
   renderReportTable();
 });
 
@@ -802,8 +823,8 @@ $("#btnExportCSV").addEventListener("click", () => {
     alert("No hay registros para exportar.");
     return;
   }
-  const headers = ["Folio", "Fecha", "Tipo", "Prioridad", "Ubicacion", "Unidad", "Agencias", "Estatus", "Despachador", "Descripcion"];
-  const rows = logs.map((l) => [l.folio, l.fecha, l.tipo, l.prioridad, l.ubicacion, l.unidad, (l.agencias || []).join("; "), l.estatus, l.despachador || "-", l.descripcion]);
+  const headers = ["Folio", "Fecha", "Tipo", "Prioridad", "Ubicacion", "Unidad", "Agencias", "Estatus", "Despachador", "Tiempo Respuesta", "Descripcion"];
+  const rows = logs.map((l) => [l.folio, l.fecha, l.tipo, l.prioridad, l.ubicacion, l.unidad, (l.agencias || []).join("; "), l.estatus, l.despachador || "-", calcularTiempoRespuesta(l), l.descripcion]);
   const csv = [headers, ...rows]
     .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
     .join("\n");

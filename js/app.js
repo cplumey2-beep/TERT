@@ -425,6 +425,15 @@ function normalizeUnitOverride(raw) {
   if (typeof raw === "string") return { label: raw, phone: "" }; // formato anterior
   return { label: raw.label || "", phone: raw.phone || "" };
 }
+// Estatus que se consideran "en algo activo" — si pasan UNIT_ALERT_MINUTES sin
+// cambiar, la tarjeta se resalta para recordar pedir actualización.
+const UNIT_ALERT_STATUSES = ["En Ruta", "En Sitio"];
+const UNIT_ALERT_MINUTES = 20;
+function normalizeUnitStatus(raw) {
+  if (!raw) return { estado: "Disponible", desde: null };
+  if (typeof raw === "string") return { estado: raw, desde: null }; // formato anterior, sin hora
+  return { estado: raw.estado || "Disponible", desde: raw.desde || null };
+}
 function renderUnitBoard() {
   const statuses = getUnitStatuses();
   const labels = getUnitLabels();
@@ -434,11 +443,15 @@ function renderUnitBoard() {
     const o = normalizeUnitOverride(labels[u.id]);
     const label = o.label || u.label;
     const phone = o.phone;
-    const current = statuses[u.id] || "Disponible";
+    const st = normalizeUnitStatus(statuses[u.id]);
+    const current = st.estado;
+    const minutos = st.desde ? Math.round((Date.now() - new Date(st.desde).getTime()) / 60000) : null;
+    const isStale = UNIT_ALERT_STATUSES.includes(current) && minutos !== null && minutos >= UNIT_ALERT_MINUTES;
     const card = document.createElement("div");
-    card.className = "unit-card " + UNIT_STATUS_CLASS[current];
+    card.className = "unit-card " + UNIT_STATUS_CLASS[current] + (isStale ? " unit-stale" : "");
     card.innerHTML = `
       <button type="button" class="unit-edit" title="Editar nombre/cargo y celular">✎</button>
+      ${isStale ? `<span class="unit-alert-badge" title="Sin actualizar hace ${minutos} min">⚠️</span>` : ""}
       <span class="unit-label">${escapeHtml(label)}</span>
       <button type="button" class="unit-status" title="Clic para cambiar estatus">${escapeHtml(current)}</button>
     `;
@@ -451,24 +464,26 @@ function getMemberPhones(onlyDisponibles) {
   const labels = getUnitLabels();
   const statuses = getUnitStatuses();
   return UNITS
-    .filter((u) => !onlyDisponibles || (statuses[u.id] || "Disponible") === "Disponible")
+    .filter((u) => !onlyDisponibles || normalizeUnitStatus(statuses[u.id]).estado === "Disponible")
     .map((u) => normalizeUnitOverride(labels[u.id]).phone)
     .filter((phone) => phone);
 }
 function cycleUnitStatus(id) {
   const statuses = getUnitStatuses();
-  const current = statuses[id] || "Disponible";
+  const current = normalizeUnitStatus(statuses[id]).estado;
   const next = UNIT_STATUSES[(UNIT_STATUSES.indexOf(current) + 1) % UNIT_STATUSES.length];
-  statuses[id] = next;
+  statuses[id] = { estado: next, desde: new Date().toISOString() };
   saveUnitStatuses(statuses);
   renderUnitBoard();
 }
 renderUnitBoard();
+setInterval(renderUnitBoard, 30000); // revisa cada 30s si alguna tarjeta ya paso los 20 min
 
 $("#btnResetAllUnits").addEventListener("click", () => {
   if (!confirm("¿Marcar TODAS las unidades como Disponible?")) return;
   const statuses = getUnitStatuses();
-  UNITS.forEach((u) => (statuses[u.id] = "Disponible"));
+  const ahora = new Date().toISOString();
+  UNITS.forEach((u) => (statuses[u.id] = { estado: "Disponible", desde: ahora }));
   saveUnitStatuses(statuses);
   renderUnitBoard();
 });

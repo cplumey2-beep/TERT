@@ -936,6 +936,19 @@ $("#btnForceRefresh").addEventListener("click", async () => {
   window.location.href = window.location.pathname + "?_refresh=" + Date.now();
 });
 
+// ===== Referencias de códigos (Clave 10 / Claves Alfa) =====
+$("#btnOpenClave10").addEventListener("click", () => $("#clave10ModalOverlay").classList.add("open"));
+$("#clave10ModalClose").addEventListener("click", () => $("#clave10ModalOverlay").classList.remove("open"));
+$("#clave10ModalOverlay").addEventListener("click", (e) => {
+  if (e.target.id === "clave10ModalOverlay") $("#clave10ModalOverlay").classList.remove("open");
+});
+
+$("#btnOpenAlfa").addEventListener("click", () => $("#alfaModalOverlay").classList.add("open"));
+$("#alfaModalClose").addEventListener("click", () => $("#alfaModalOverlay").classList.remove("open"));
+$("#alfaModalOverlay").addEventListener("click", (e) => {
+  if (e.target.id === "alfaModalOverlay") $("#alfaModalOverlay").classList.remove("open");
+});
+
 // ===== Acerca de / Términos y Condiciones =====
 $("#btnOpenAcerca").addEventListener("click", () => $("#acercaModalOverlay").classList.add("open"));
 $("#acercaModalClose").addEventListener("click", () => $("#acercaModalOverlay").classList.remove("open"));

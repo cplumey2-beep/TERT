@@ -435,7 +435,7 @@ th { background: var(--panel-alt); color: var(--accent); }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
 
 .modal-box-wide { max-width: 640px; max-height: 85vh; }
-.legal-text { overflow-y: auto; padding-right: 4px; }
+.legal-text { overflow-y: auto; padding-right: 4px; min-height: 0; }
 .legal-text p { margin: 0 0 12px; font-size: 0.9rem; color: var(--text); line-height: 1.5; }
 .legal-text p:last-child { margin-bottom: 0; }
 .legal-text em { color: var(--muted); }

@@ -55,25 +55,39 @@ document.getElementById("btnLogout").addEventListener("click", () => {
 const QUICK_DIAL_CATEGORIES = ["General", "Policía Estatal", "Policía Municipal", "Bomberos", "Rescate", "Ambulancia", "Otros"];
 const QUICK_DIAL = [
   { id: "qd-911", category: "General", label: "🚨 Emergencias 911", number: "911" },
+  { id: "qd-general-02", category: "General", label: "➕ Agregar Contacto", number: "" },
+  { id: "qd-general-03", category: "General", label: "➕ Agregar Contacto", number: "" },
+  { id: "qd-general-04", category: "General", label: "➕ Agregar Contacto", number: "" },
+  { id: "qd-general-05", category: "General", label: "➕ Agregar Contacto", number: "" },
+  { id: "qd-general-06", category: "General", label: "➕ Agregar Contacto", number: "" },
 
   { id: "qd-policia-estatal-bc", category: "Policía Estatal", label: "👮 Policía Estatal (Barceloneta, sin confirmar)", number: "" },
   { id: "qd-policia-estatal-florida", category: "Policía Estatal", label: "👮 Policía Estatal (Florida)", number: "7878222020" },
   { id: "qd-comandancia-arecibo", category: "Policía Estatal", label: "🚔 Comandancia PPR (Arecibo)", number: "7878784000" },
   { id: "qd-transito-arecibo", category: "Policía Estatal", label: "🚦 Policía Estatal — Tránsito (Arecibo, vía Comandancia)", number: "7878784000" },
+  { id: "qd-policia-estatal-05", category: "Policía Estatal", label: "➕ Agregar Contacto", number: "" },
+  { id: "qd-policia-estatal-06", category: "Policía Estatal", label: "➕ Agregar Contacto", number: "" },
 
   { id: "qd-policia-municipal-bc", category: "Policía Municipal", label: "🏙️ Policía Municipal (Barceloneta)", number: "7878462915" },
   { id: "qd-policia-municipal-florida", category: "Policía Municipal", label: "🏙️ Policía Municipal (Florida, línea gral. municipio)", number: "7878222600" },
   { id: "qd-policia-municipal-arecibo", category: "Policía Municipal", label: "🏙️ Policía Municipal (Arecibo)", number: "7879302949" },
   { id: "qd-policia-municipal-manati", category: "Policía Municipal", label: "🏙️ Policía Municipal (Manatí)", number: "7878546720" },
+  { id: "qd-policia-municipal-05", category: "Policía Municipal", label: "➕ Agregar Contacto", number: "" },
+  { id: "qd-policia-municipal-06", category: "Policía Municipal", label: "➕ Agregar Contacto", number: "" },
 
   { id: "qd-bomberos-bc", category: "Bomberos", label: "🚒 Bomberos (Barceloneta, Carr. 2)", number: "7878462330" },
   { id: "qd-bomberos-arecibo", category: "Bomberos", label: "🚒 Bomberos (Arecibo)", number: "7878782330" },
   { id: "qd-bomberos-manati", category: "Bomberos", label: "🚒 Bomberos (Manatí)", number: "7878542330" },
   { id: "qd-bomberos-florida", category: "Bomberos", label: "🚒 Bomberos (Florida)", number: "7878222330" },
+  { id: "qd-bomberos-05", category: "Bomberos", label: "➕ Agregar Contacto", number: "" },
+  { id: "qd-bomberos-06", category: "Bomberos", label: "➕ Agregar Contacto", number: "" },
 
   { id: "qd-rescate-omme-bc", category: "Rescate", label: "🆘 Rescate / OMEAD (Barceloneta)", number: "7878006329" },
   { id: "qd-rescate-arecibo", category: "Rescate", label: "🆘 Rescate / OMEAD (Arecibo, verificar)", number: "7878783454" },
   { id: "qd-rescate-manati", category: "Rescate", label: "🆘 Rescate / OMEAD (Manatí) (OSCAR)", number: "7878542297" },
+  { id: "qd-rescate-04", category: "Rescate", label: "➕ Agregar Contacto", number: "" },
+  { id: "qd-rescate-05", category: "Rescate", label: "➕ Agregar Contacto", number: "" },
+  { id: "qd-rescate-06", category: "Rescate", label: "➕ Agregar Contacto", number: "" },
 
   { id: "qd-cruz-roja", category: "Ambulancia", label: "🚑 Cruz Roja (065, respaldo general)", number: "065" },
   { id: "qd-atenas-bc", category: "Ambulancia", label: "🚑 Atenas Ambulance (Barceloneta)", number: "7878462220" },
@@ -86,6 +100,8 @@ const QUICK_DIAL = [
   { id: "qd-metro-pistas", category: "Otros", label: "🛣️ Metro Pistas (Asistencia PR-22)", number: "7877058699" },
   { id: "qd-proteccion-civil", category: "Otros", label: "🛟 Protección Civil", number: "911" },
   { id: "qd-base-tert", category: "Otros", label: "📻 Base TERT", number: "" },
+  { id: "qd-otros-05", category: "Otros", label: "➕ Agregar Contacto", number: "" },
+  { id: "qd-otros-06", category: "Otros", label: "➕ Agregar Contacto", number: "" },
 ];
 
 // ===== Configuración del tablero de unidades (miembros TERT por rango) =====

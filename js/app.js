@@ -871,6 +871,11 @@ $("#btnGuardarNotas").addEventListener("click", () => {
   localStorage.setItem(NOTES_KEY, $("#notasInternas").value);
   alert("Notas guardadas.");
 });
+$("#btnLimpiarNotas").addEventListener("click", () => {
+  if (!confirm("¿Borrar todas las notas internas? Esta acción no se puede deshacer.")) return;
+  localStorage.removeItem(NOTES_KEY);
+  loadNotes();
+});
 loadNotes();
 
 // ===== Exportar / Importar respaldo completo (nombres, celulares, marcado rápido, notas, bitácora, turnos) =====

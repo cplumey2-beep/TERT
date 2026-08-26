@@ -430,9 +430,9 @@ function normalizeUnitOverride(raw) {
 const UNIT_ALERT_STATUSES = ["En Ruta", "En Sitio"];
 const UNIT_ALERT_MINUTES = 15;
 function normalizeUnitStatus(raw) {
-  if (!raw) return { estado: "Disponible", desde: null };
-  if (typeof raw === "string") return { estado: raw, desde: null }; // formato anterior, sin hora
-  return { estado: raw.estado || "Disponible", desde: raw.desde || null };
+  if (!raw) return { estado: "Disponible", desde: null, activoDesde: null };
+  if (typeof raw === "string") return { estado: raw, desde: null, activoDesde: null }; // formato anterior, sin hora
+  return { estado: raw.estado || "Disponible", desde: raw.desde || null, activoDesde: raw.activoDesde || null };
 }
 function renderUnitBoard() {
   const statuses = getUnitStatuses();
@@ -447,6 +447,8 @@ function renderUnitBoard() {
     const current = st.estado;
     const minutos = st.desde ? Math.round((Date.now() - new Date(st.desde).getTime()) / 60000) : null;
     const isStale = UNIT_ALERT_STATUSES.includes(current) && minutos !== null && minutos >= UNIT_ALERT_MINUTES;
+    const minutosActivo = st.activoDesde ? Math.round((Date.now() - new Date(st.activoDesde).getTime()) / 60000) : null;
+    const showActivo = UNIT_ALERT_STATUSES.includes(current) && minutosActivo !== null;
     const card = document.createElement("div");
     card.className = "unit-card " + UNIT_STATUS_CLASS[current] + (isStale ? " unit-stale" : "");
     card.innerHTML = `
@@ -454,6 +456,7 @@ function renderUnitBoard() {
       ${isStale ? `<span class="unit-alert-badge" title="Sin actualizar hace ${minutos} min">⚠️</span>` : ""}
       <span class="unit-label">${escapeHtml(label)}</span>
       <button type="button" class="unit-status" title="Clic para cambiar estatus">${escapeHtml(current)}</button>
+      ${showActivo ? `<span class="unit-activo-timer" title="Tiempo activo desde que salió de Disponible">⏱ ${minutosActivo} min</span>` : ""}
     `;
     card.querySelector(".unit-edit").addEventListener("click", () => openContactModal("unit", u.id, label, phone));
     card.querySelector(".unit-status").addEventListener("click", () => cycleUnitStatus(u.id));
@@ -478,9 +481,13 @@ function getMemberPhonesByEstados(estados) {
 }
 function cycleUnitStatus(id) {
   const statuses = getUnitStatuses();
-  const current = normalizeUnitStatus(statuses[id]).estado;
-  const next = UNIT_STATUSES[(UNIT_STATUSES.indexOf(current) + 1) % UNIT_STATUSES.length];
-  statuses[id] = { estado: next, desde: new Date().toISOString() };
+  const prev = normalizeUnitStatus(statuses[id]);
+  const next = UNIT_STATUSES[(UNIT_STATUSES.indexOf(prev.estado) + 1) % UNIT_STATUSES.length];
+  const wasActivo = UNIT_ALERT_STATUSES.includes(prev.estado);
+  const isActivo = UNIT_ALERT_STATUSES.includes(next);
+  let activoDesde = null;
+  if (isActivo) activoDesde = wasActivo ? prev.activoDesde : new Date().toISOString();
+  statuses[id] = { estado: next, desde: new Date().toISOString(), activoDesde };
   saveUnitStatuses(statuses);
   renderUnitBoard();
 }
@@ -491,7 +498,7 @@ $("#btnResetAllUnits").addEventListener("click", () => {
   if (!confirm("¿Marcar TODAS las unidades como Disponible?")) return;
   const statuses = getUnitStatuses();
   const ahora = new Date().toISOString();
-  UNITS.forEach((u) => (statuses[u.id] = { estado: "Disponible", desde: ahora }));
+  UNITS.forEach((u) => (statuses[u.id] = { estado: "Disponible", desde: ahora, activoDesde: null }));
   saveUnitStatuses(statuses);
   renderUnitBoard();
 });

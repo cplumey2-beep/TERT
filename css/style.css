@@ -324,6 +324,12 @@ h2 { border-left: 4px solid var(--accent); padding-left: 10px; margin-top: 26px;
 .status-fuera .unit-status { background: var(--red); color: #2a0709; }
 .status-fuera { border-color: var(--red); opacity: 0.75; }
 
+.unit-activo-timer {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
 .location-result {
   margin-top: 10px;
   color: var(--muted);

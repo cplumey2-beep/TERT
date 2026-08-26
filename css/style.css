@@ -35,6 +35,15 @@
   --accent-dark: #0f5bc4;
   --blue: #8b5cf6; /* En Escena pasa a violeta para no chocar con el nuevo acento azul */
 }
+[data-theme="rosa"] {
+  --accent: #f472b6;
+  --accent-dark: #db2777;
+}
+[data-theme="rojo"] {
+  --accent: #ef4444;
+  --accent-dark: #b91c1c;
+  --red: #6b7280; /* Fuera de Servicio/Cancelado/botones de peligro pasan a gris para no chocar con el nuevo acento rojo */
+}
 
 * { box-sizing: border-box; }
 

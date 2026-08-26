@@ -154,11 +154,11 @@ const AGENCIAS = [
 ];
 
 // ===== Estatus de incidente (línea de tiempo) =====
-const ESTADOS_INCIDENTE = ["Despachado", "En Ruta", "En Sitio", "Concluido", "Cancelado"];
+const ESTADOS_INCIDENTE = ["Despachado", "En Ruta", "En Escena", "Concluido", "Cancelado"];
 const ESTADO_CLASS = {
   "Despachado": "estatus-despachado",
   "En Ruta": "estatus-en-ruta",
-  "En Sitio": "estatus-en-sitio",
+  "En Escena": "estatus-en-escena",
   "Concluido": "estatus-concluido",
   "Cancelado": "estatus-cancelado",
 };
@@ -763,9 +763,9 @@ function calcularTiempoRespuesta(log) {
   const eventos = log.eventos || [];
   if (!eventos.length) return "-";
   const inicio = new Date(eventos[0].hora).getTime();
-  const enSitio = eventos.find((e) => e.estatus === "En Sitio");
-  if (!enSitio) return "-";
-  const minutos = Math.round((new Date(enSitio.hora).getTime() - inicio) / 60000);
+  const enEscena = eventos.find((e) => e.estatus === "En Escena");
+  if (!enEscena) return "-";
+  const minutos = Math.round((new Date(enEscena.hora).getTime() - inicio) / 60000);
   if (minutos < 60) return `${minutos} min`;
   return `${Math.floor(minutos / 60)}h ${minutos % 60}min`;
 }

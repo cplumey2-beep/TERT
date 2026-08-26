@@ -406,7 +406,7 @@ th { background: var(--panel-alt); color: var(--accent); }
 }
 .estatus-despachado { background: var(--muted); color: #10151c; }
 .estatus-en-ruta { background: var(--accent); color: #2a1400; }
-.estatus-en-sitio { background: var(--blue); color: #041226; }
+.estatus-en-escena { background: var(--blue); color: #041226; }
 .estatus-concluido { background: var(--green); color: #06210c; }
 .estatus-cancelado { background: var(--red); color: #2a0709; }
 

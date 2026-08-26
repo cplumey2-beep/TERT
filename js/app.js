@@ -165,6 +165,7 @@ const ESTADO_CLASS = {
 
 const STORAGE_KEY = "tert_bitacora";
 const NOTES_KEY = "tert_notas";
+const THEME_KEY = "tert_theme";
 const UNIT_STATUS_KEY = "tert_unit_status";
 const UNIT_LABEL_KEY = "tert_unit_labels";
 const QUICK_DIAL_OVERRIDES_KEY = "tert_quickdial_overrides";
@@ -909,6 +910,20 @@ $("#btnLimpiarNotas").addEventListener("click", () => {
   loadNotes();
 });
 loadNotes();
+
+// ===== Tema de color =====
+function setActiveThemeButton(theme) {
+  $all(".theme-btn").forEach((b) => b.classList.toggle("active", b.dataset.themeId === theme));
+}
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem(THEME_KEY, theme);
+  setActiveThemeButton(theme);
+}
+$all(".theme-btn").forEach((btn) => {
+  btn.addEventListener("click", () => applyTheme(btn.dataset.themeId));
+});
+setActiveThemeButton(localStorage.getItem(THEME_KEY) || "naranja");
 
 // ===== Exportar / Importar respaldo completo (nombres, celulares, marcado rápido, notas, bitácora, turnos) =====
 $("#btnExportConfig").addEventListener("click", () => {

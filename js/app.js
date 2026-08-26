@@ -528,6 +528,11 @@ function broadcastPrueba() {
   sendBroadcast(mensaje, false);
 }
 
+function broadcastCancelacion() {
+  const codigo = $("#cancelCodigoSelect").value;
+  sendBroadcast(`CANCELE (${codigo}): el mensaje anterior queda SIN EFECTO. Disculpen la confusion.`, false);
+}
+
 // Pinta el botón de naranja mientras el prompt()/confirm() está abierto y lo
 // apaga apenas el usuario responde (Aceptar o Cancelar) — feedback intencional,
 // no el "hover pegado" del navegador. El prompt()/confirm() congela el hilo
@@ -567,6 +572,7 @@ onPressed("#btnBroadcast1065_1050", () => broadcastIncidente("10-65", "Emergenci
 onPressed("#btnBroadcast1065_no1050", () => broadcastIncidente("10-65", "Emergencia Tóxica", false));
 onPressed("#btnBroadcastCustom", broadcastCustom);
 onPressed("#btnBroadcastPrueba", broadcastPrueba);
+onPressed("#btnBroadcastCancelar", broadcastCancelacion);
 
 // ===== Mapas y ubicación =====
 $("#btnMyLocation").addEventListener("click", () => {

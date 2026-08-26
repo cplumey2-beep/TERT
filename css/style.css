@@ -173,6 +173,12 @@ h2 { border-left: 4px solid var(--accent); padding-left: 10px; margin-top: 26px;
   .grid-buttons button:hover { background: var(--accent); color: #111; transform: translateY(-2px); }
 }
 
+.cancel-select {
+  padding: 16px 10px;
+  border-radius: 10px;
+  font-size: 1rem;
+}
+
 .map-btn { background: var(--panel-alt); }
 
 .quickdial-group-title {

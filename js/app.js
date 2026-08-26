@@ -468,6 +468,14 @@ function getMemberPhones(onlyDisponibles) {
     .map((u) => normalizeUnitOverride(labels[u.id]).phone)
     .filter((phone) => phone);
 }
+function getMemberPhonesByEstados(estados) {
+  const labels = getUnitLabels();
+  const statuses = getUnitStatuses();
+  return UNITS
+    .filter((u) => estados.includes(normalizeUnitStatus(statuses[u.id]).estado))
+    .map((u) => normalizeUnitOverride(labels[u.id]).phone)
+    .filter((phone) => phone);
+}
 function cycleUnitStatus(id) {
   const statuses = getUnitStatuses();
   const current = normalizeUnitStatus(statuses[id]).estado;
@@ -491,16 +499,19 @@ $("#btnResetAllUnits").addEventListener("click", () => {
 // ===== Difusión a miembros (SMS) =====
 // Círculo de color al inicio del mensaje para identificar el tipo de un vistazo:
 // 🔴 = 10-50 emergencia (sirenas) · 🟢 = NO 10-50 (sin sirenas) · 🟡 = prueba del sistema
-function sendBroadcast(body, onlyDisponibles) {
-  const phones = getMemberPhones(onlyDisponibles);
+function sendSms(phones, body, emptyMsg) {
   if (!phones.length) {
-    const msg = onlyDisponibles
-      ? "No hay unidades con estatus Disponible que tengan celular configurado en este momento."
-      : "No hay celulares configurados. Clic en ✎ en cada miembro del Tablero de Unidades para agregar su número.";
-    alert(msg);
+    alert(emptyMsg);
     return;
   }
   window.location.href = `sms:${phones.join(",")}?body=${encodeURIComponent(body)}`;
+}
+function sendBroadcast(body, onlyDisponibles) {
+  const phones = getMemberPhones(onlyDisponibles);
+  const emptyMsg = onlyDisponibles
+    ? "No hay unidades con estatus Disponible que tengan celular configurado en este momento."
+    : "No hay celulares configurados. Clic en ✎ en cada miembro del Tablero de Unidades para agregar su número.";
+  sendSms(phones, body, emptyMsg);
 }
 
 function broadcastIncidente(codigo, descripcion, emergencia) {
@@ -530,7 +541,9 @@ function broadcastPrueba() {
 
 function broadcastCancelacion() {
   const codigo = $("#cancelCodigoSelect").value;
-  sendBroadcast(`CANCELE (${codigo}): el mensaje anterior queda SIN EFECTO. Disculpen la confusion.`, false);
+  const phones = getMemberPhonesByEstados(["Disponible", "En Ruta", "En Sitio"]);
+  const body = `CANCELE (${codigo}): el mensaje anterior queda SIN EFECTO. Disculpen la confusion.`;
+  sendSms(phones, body, "No hay unidades en estatus Disponible, En Ruta o En Sitio que tengan celular configurado.");
 }
 
 // Pinta el botón de naranja mientras el prompt()/confirm() está abierto y lo

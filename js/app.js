@@ -138,11 +138,11 @@ const UNITS = [
   { id: "unit-28", label: "Miembro 28" },
 ];
 
-const UNIT_STATUSES = ["Disponible", "En Ruta", "En Sitio", "Personal", "Fuera de Servicio"];
+const UNIT_STATUSES = ["Disponible", "En Ruta", "En Escena", "Personal", "Fuera de Servicio"];
 const UNIT_STATUS_CLASS = {
   "Disponible": "status-disponible",
   "En Ruta": "status-enruta",
-  "En Sitio": "status-ensitio",
+  "En Escena": "status-enescena",
   "Personal": "status-personal",
   "Fuera de Servicio": "status-fuera",
 };
@@ -427,12 +427,18 @@ function normalizeUnitOverride(raw) {
 }
 // Estatus que se consideran "en algo activo" — si pasan UNIT_ALERT_MINUTES sin
 // cambiar, la tarjeta se resalta para recordar pedir actualización.
-const UNIT_ALERT_STATUSES = ["En Ruta", "En Sitio"];
+const UNIT_ALERT_STATUSES = ["En Ruta", "En Escena"];
 const UNIT_ALERT_MINUTES = 15;
 function normalizeUnitStatus(raw) {
+  // "En Sitio" es el nombre anterior de "En Escena" (renombrado 2026-08-26) —
+  // se traduce aquí para no perder el estatus de unidades ya guardadas.
   if (!raw) return { estado: "Disponible", desde: null, activoDesde: null };
-  if (typeof raw === "string") return { estado: raw, desde: null, activoDesde: null }; // formato anterior, sin hora
-  return { estado: raw.estado || "Disponible", desde: raw.desde || null, activoDesde: raw.activoDesde || null };
+  if (typeof raw === "string") return { estado: raw === "En Sitio" ? "En Escena" : raw, desde: null, activoDesde: null }; // formato anterior, sin hora
+  return {
+    estado: raw.estado === "En Sitio" ? "En Escena" : (raw.estado || "Disponible"),
+    desde: raw.desde || null,
+    activoDesde: raw.activoDesde || null,
+  };
 }
 function renderUnitBoard() {
   const statuses = getUnitStatuses();
@@ -548,9 +554,9 @@ function broadcastPrueba() {
 
 function broadcastCancelacion() {
   const codigo = $("#cancelCodigoSelect").value;
-  const phones = getMemberPhonesByEstados(["Disponible", "En Ruta", "En Sitio"]);
+  const phones = getMemberPhonesByEstados(["Disponible", "En Ruta", "En Escena"]);
   const body = `CANCELE (${codigo}): el mensaje anterior queda SIN EFECTO. Disculpen la confusion.`;
-  sendSms(phones, body, "No hay unidades en estatus Disponible, En Ruta o En Sitio que tengan celular configurado.");
+  sendSms(phones, body, "No hay unidades en estatus Disponible, En Ruta o En Escena que tengan celular configurado.");
 }
 
 // Pinta el botón de naranja mientras el prompt()/confirm() está abierto y lo

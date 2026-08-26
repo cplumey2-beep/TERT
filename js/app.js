@@ -428,7 +428,7 @@ function normalizeUnitOverride(raw) {
 // Estatus que se consideran "en algo activo" — si pasan UNIT_ALERT_MINUTES sin
 // cambiar, la tarjeta se resalta para recordar pedir actualización.
 const UNIT_ALERT_STATUSES = ["En Ruta", "En Sitio"];
-const UNIT_ALERT_MINUTES = 20;
+const UNIT_ALERT_MINUTES = 15;
 function normalizeUnitStatus(raw) {
   if (!raw) return { estado: "Disponible", desde: null };
   if (typeof raw === "string") return { estado: raw, desde: null }; // formato anterior, sin hora
@@ -485,7 +485,7 @@ function cycleUnitStatus(id) {
   renderUnitBoard();
 }
 renderUnitBoard();
-setInterval(renderUnitBoard, 30000); // revisa cada 30s si alguna tarjeta ya paso los 20 min
+setInterval(renderUnitBoard, 30000); // revisa cada 30s si alguna tarjeta ya paso los UNIT_ALERT_MINUTES
 
 $("#btnResetAllUnits").addEventListener("click", () => {
   if (!confirm("¿Marcar TODAS las unidades como Disponible?")) return;

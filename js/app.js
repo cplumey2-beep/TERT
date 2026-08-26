@@ -183,9 +183,18 @@ function saveLogs(logs) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
 }
 function nextFolio(logs) {
-  const n = logs.length + 1;
+  // Usa el número de folio más alto ya usado este año (no logs.length), para
+  // que borrar un registro de en medio no genere un folio duplicado.
   const year = new Date().getFullYear();
-  return `TERT-${year}-${String(n).padStart(4, "0")}`;
+  const prefix = `TERT-${year}-`;
+  let maxN = 0;
+  logs.forEach((l) => {
+    if (l.folio && l.folio.startsWith(prefix)) {
+      const n = parseInt(l.folio.slice(prefix.length), 10);
+      if (!isNaN(n) && n > maxN) maxN = n;
+    }
+  });
+  return `${prefix}${String(maxN + 1).padStart(4, "0")}`;
 }
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, (c) => ({
@@ -473,18 +482,20 @@ function renderUnitBoard() {
 function getMemberPhones(onlyDisponibles) {
   const labels = getUnitLabels();
   const statuses = getUnitStatuses();
-  return UNITS
+  const phones = UNITS
     .filter((u) => !onlyDisponibles || normalizeUnitStatus(statuses[u.id]).estado === "Disponible")
     .map((u) => normalizeUnitOverride(labels[u.id]).phone)
     .filter((phone) => phone);
+  return [...new Set(phones)];
 }
 function getMemberPhonesByEstados(estados) {
   const labels = getUnitLabels();
   const statuses = getUnitStatuses();
-  return UNITS
+  const phones = UNITS
     .filter((u) => estados.includes(normalizeUnitStatus(statuses[u.id]).estado))
     .map((u) => normalizeUnitOverride(labels[u.id]).phone)
     .filter((phone) => phone);
+  return [...new Set(phones)];
 }
 function cycleUnitStatus(id) {
   const statuses = getUnitStatuses();

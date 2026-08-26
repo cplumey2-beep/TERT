@@ -873,21 +873,25 @@ $("#btnGuardarNotas").addEventListener("click", () => {
 });
 loadNotes();
 
-// ===== Exportar / Importar configuración (nombres, celulares, marcado rápido, notas) =====
+// ===== Exportar / Importar respaldo completo (nombres, celulares, marcado rápido, notas, bitácora, turnos) =====
 $("#btnExportConfig").addEventListener("click", () => {
   const config = {
     tipo: "tert_config",
-    version: 1,
+    version: 2,
     exportado: new Date().toISOString(),
     unitLabels: getUnitLabels(),
+    unitStatuses: getUnitStatuses(),
     quickDialOverrides: getQuickDialOverrides(),
     notas: localStorage.getItem(NOTES_KEY) || "",
+    logs: getLogs(),
+    turnoActual: getTurnoActual(),
+    turnosHistorial: getTurnosHistorial(),
   };
   const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `TERT_config_${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `TERT_respaldo_${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
 });
@@ -902,27 +906,33 @@ $("#importConfigFile").addEventListener("change", (e) => {
     try {
       config = JSON.parse(reader.result);
     } catch (err) {
-      alert("Archivo inválido: no es un JSON de configuración de TERT.");
+      alert("Archivo inválido: no es un JSON de respaldo de TERT.");
       e.target.value = "";
       return;
     }
     if (config.tipo !== "tert_config") {
-      alert("Archivo inválido: no es un archivo de configuración de TERT.");
+      alert("Archivo inválido: no es un archivo de respaldo de TERT.");
       e.target.value = "";
       return;
     }
-    if (!confirm("Esto reemplazará los nombres, celulares, marcado rápido y notas de este dispositivo con los del archivo. ¿Continuar?")) {
+    if (!confirm("Esto reemplazará nombres, celulares, marcado rápido, notas, bitácora y turnos de este dispositivo con los del archivo. ¿Continuar?")) {
       e.target.value = "";
       return;
     }
     saveUnitLabels(config.unitLabels || {});
+    saveUnitStatuses(config.unitStatuses || {});
     saveQuickDialOverrides(config.quickDialOverrides || {});
     localStorage.setItem(NOTES_KEY, config.notas || "");
+    saveLogs(config.logs || []);
+    saveTurnoActual(config.turnoActual || null);
+    saveTurnosHistorial(config.turnosHistorial || []);
     renderUnitBoard();
     renderQuickDial();
     loadNotes();
+    renderReportTable();
+    renderRecentTable();
     e.target.value = "";
-    alert("Configuración importada correctamente.");
+    alert("Respaldo importado correctamente.");
   };
   reader.readAsText(file);
 });

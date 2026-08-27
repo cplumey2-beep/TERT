@@ -438,7 +438,7 @@ button.danger-btn { background: var(--red); color: #fff; }
 
 .form-row { display: flex; gap: 14px; flex-wrap: wrap; }
 .form-row label, .log-form .full, #pasarListaSection .full { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--muted); }
-#pasarListaSection .full { margin-top: 14px; }
+#pasarListaSection .full { margin: 14px 0; }
 
 .agencia-fieldset { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
 .agencia-fieldset legend { padding: 0 6px; color: var(--muted); font-size: 0.85rem; }

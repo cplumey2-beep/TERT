@@ -211,6 +211,14 @@ function escapeHtml(str) {
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[c]));
 }
+// new Date().toISOString() usa UTC — en Puerto Rico (UTC-4) eso marca el día
+// SIGUIENTE entre las 8pm y medianoche hora local. Esta función corrige el
+// desfase para obtener la fecha/hora LOCAL en formato ISO.
+function localISOString() {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString();
+}
 function formatFechaLarga(iso) {
   return new Date(iso).toLocaleString("es-MX", {
     weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
@@ -755,9 +763,7 @@ renderAgenciaCheckboxes();
 function initForm() {
   const logs = getLogs();
   $("#folio").value = nextFolio(logs);
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  $("#fecha").value = now.toISOString().slice(0, 16);
+  $("#fecha").value = localISOString().slice(0, 16);
   $all(".agencia-check").forEach((cb) => (cb.checked = false));
 }
 initForm();
@@ -951,6 +957,7 @@ function renderAsistenciaTable() {
   });
   tbody.querySelectorAll("[data-del-asistencia]").forEach((btn) => {
     btn.addEventListener("click", () => {
+      if (!confirm("¿Eliminar esta entrada de asistencia?")) return;
       const d = getDiaAsistencia(fecha);
       if (!d) return;
       d.entradas.splice(Number(btn.dataset.delAsistencia), 1);
@@ -961,7 +968,7 @@ function renderAsistenciaTable() {
   $("#listaAnotaciones").value = dia ? (dia.anotaciones || "") : "";
 }
 function initPasarLista() {
-  $("#listaFecha").value = new Date().toISOString().slice(0, 10);
+  $("#listaFecha").value = localISOString().slice(0, 10);
   $("#listaFirmante").value = getUltimoFirmante();
   renderFirmantesDatalist();
   renderNombresSugeridos();
@@ -1060,7 +1067,10 @@ onPressed("#btnEliminarFirmante", () => {
   if (!nombre) return;
   if (!confirm(`¿Quitar "${nombre}" de las sugerencias de "quién pasa lista"? Los reportes ya guardados no cambian.`)) return;
   saveFirmantes(getFirmantes().filter((n) => n !== nombre));
-  if (getUltimoFirmante() === nombre) saveUltimoFirmante("");
+  if (getUltimoFirmante() === nombre) {
+    saveUltimoFirmante("");
+    if ($("#listaFirmante").value === nombre) $("#listaFirmante").value = "";
+  }
   renderFirmantesDatalist();
   renderNombresAdmin();
 });

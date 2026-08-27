@@ -1076,6 +1076,7 @@ $("#importConfigFile").addEventListener("change", (e) => {
     loadNotes();
     renderReportTable();
     renderRecentTable();
+    renderTurnoInfo();
     e.target.value = "";
     alert("Respaldo importado correctamente.");
   };

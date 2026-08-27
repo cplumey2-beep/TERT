@@ -970,6 +970,10 @@ function renderAsistenciaTable() {
     });
   });
   $("#listaAnotaciones").value = dia ? (dia.anotaciones || "") : "";
+  // Muestra el firmante REAL de este día (si ya tiene uno guardado) en vez de
+  // dejar el último usado en otra fecha — si no, se navegaba a un día pasado
+  // y el campo seguía mostrando el nombre de otro día sin avisar.
+  $("#listaFirmante").value = (dia && dia.firmante) || getUltimoFirmante();
   renderHistorialAsistencia();
 }
 function initPasarLista() {

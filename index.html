@@ -9,12 +9,12 @@
 <title>TERT - Sistema de Despacho</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#ff6a00">
-<link rel="icon" href="icons/icon-192.png?v=20260826n" type="image/png">
-<link rel="apple-touch-icon" href="icons/icon-180.png?v=20260826n">
+<link rel="icon" href="icons/icon-192.png?v=20260827a" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png?v=20260827a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TERT">
-<link rel="stylesheet" href="css/style.css?v=20260826n">
+<link rel="stylesheet" href="css/style.css?v=20260827a">
 <script>
 (function () {
   try {
@@ -64,11 +64,13 @@
     <section id="despacho" class="tab-panel active">
       <h2>Tablero de Unidades</h2>
       <p class="hint">Clic en ✎ para editar nombre/cargo y celular. Clic en el estatus para cambiarlo.</p>
+      <p class="lock-banner" id="lockBannerUnidades">🔒 Se requiere Despachador en Turno (o Modo Mantenimiento activo) para usar el Tablero de Unidades.</p>
       <button class="secondary-btn" id="btnResetAllUnits">🔄 Master: Todas Disponibles</button>
       <div class="unit-grid" id="unitBoard"></div>
 
       <h2>Difusión a Miembros (SMS)</h2>
       <p class="hint">10-50 = con sirena y bombillos · NO&nbsp;10-50 = sin sirena. Los códigos de incidente solo se envían a unidades con estatus <strong>Disponible</strong> y celular configurado (✎ en el Tablero de Unidades). Prueba de Sistema llega a todos sin importar su estatus. Se abre tu app de Mensajes con el mensaje ya armado — solo falta tocar Enviar.</p>
+      <p class="lock-banner" id="lockBannerDifusion">🔒 Se requiere Despachador en Turno (o Modo Mantenimiento activo) para usar la Difusión a Miembros.</p>
 
       <h3 class="quickdial-group-title">Accidente (10-42)</h3>
       <div class="grid-buttons">
@@ -169,6 +171,7 @@
     <!-- BITACORA -->
     <section id="bitacora" class="tab-panel">
       <h2>Nuevo Registro de Bitácora</h2>
+      <p class="lock-banner" id="lockBannerIncidente">🔒 Se requiere Despachador en Turno (o Modo Mantenimiento activo) para crear un incidente.</p>
       <form id="logForm" class="log-form">
         <div class="form-row">
           <label>Folio
@@ -246,6 +249,7 @@
     <!-- REPORTES -->
     <section id="reportes" class="tab-panel">
       <h2>Reportes de Incidentes</h2>
+      <p class="lock-banner" id="lockBannerReportes">🔒 Se requiere Despachador en Turno (o Modo Mantenimiento activo) para ver Reportes.</p>
       <div class="filters">
         <label class="full">Buscar <input type="text" id="filtroTexto" placeholder="Palabra en ubicación o descripción..."></label>
         <label>Desde <input type="date" id="filtroDesde"></label>
@@ -348,6 +352,11 @@
             <button class="secondary-btn" id="btnGuardarNotas">Guardar Notas</button>
             <button class="danger-btn" id="btnLimpiarNotas">Limpiar Notas</button>
           </div>
+        </div>
+        <div class="info-card full">
+          <h3>Modo Mantenimiento y Prueba</h3>
+          <p class="hint">Permite usar el sistema de despacho sin un Despachador en Turno activo — solo para pruebas o mantenimiento del creador/propietario de la plataforma. Activarlo pide una contraseña maestra; para desactivarlo no hace falta contraseña.</p>
+          <div id="mantenimientoBox"></div>
         </div>
         <div class="info-card full">
           <h3>Tema de Color</h3>
@@ -604,6 +613,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=20260826n"></script>
+  <script src="js/app.js?v=20260827a"></script>
 </body>
 </html>

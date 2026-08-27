@@ -129,6 +129,31 @@ body {
 }
 .turno-bar.turno-activo { background: rgba(46, 160, 67, 0.15); color: var(--green); }
 .turno-bar.turno-vacio { background: rgba(215, 58, 73, 0.15); color: var(--red); }
+/* Color fijo (no var(--yellow)) a propósito: --yellow cambia según el Tema de
+   Color elegido (es el estatus "Personal" del Tablero), y este aviso de modo
+   debe verse igual sin importar el tema. */
+.turno-bar.turno-mantenimiento { background: rgba(244, 208, 63, 0.18); color: #f4d03f; }
+
+.turno-bar-btn { padding: 3px 10px; font-size: 0.78rem; margin-left: 10px; }
+
+.lock-banner {
+  display: none;
+  background: rgba(215, 58, 73, 0.12);
+  color: var(--red);
+  border: 1px solid var(--red);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: -4px 0 14px;
+}
+.lock-banner.show { display: block; }
+
+button:disabled, select:disabled, input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 
 .turno-actual-box {
   background: var(--panel-alt);

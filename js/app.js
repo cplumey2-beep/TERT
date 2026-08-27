@@ -5,6 +5,12 @@ const LOCK_PASSWORD_HASH = "b841cc4653c031b8ef37f7418f93b053119de4dff29bae51e0ef
 const LOCK_KEY = "tert_unlocked_at";
 const LOCK_SESSION_MS = 7 * 24 * 60 * 60 * 1000; // sesión expira sola a los 7 días
 
+// ===== Modo Mantenimiento y Prueba (override sin Despachador en Turno) =====
+// Contraseña maestra: "Master1234" — para cambiarla, calcula el SHA-256 en hex
+// del nuevo valor y reemplaza MASTER_PASSWORD_HASH.
+const MASTER_PASSWORD_HASH = "9fda2311081823727c5de41f8a6413fd030e6978685902a654c72d9a20155e51";
+const MAINTENANCE_KEY = "tert_mantenimiento";
+
 async function sha256Hex(text) {
   const bytes = new TextEncoder().encode(text);
   const digest = await crypto.subtle.digest("SHA-256", bytes);
@@ -242,16 +248,87 @@ function saveTurnosHistorial(historial) {
   localStorage.setItem(TURNOS_HISTORIAL_KEY, JSON.stringify(historial));
 }
 
+function isMaintenanceMode() {
+  return localStorage.getItem(MAINTENANCE_KEY) === "1";
+}
+function setMaintenanceMode(on) {
+  if (on) localStorage.setItem(MAINTENANCE_KEY, "1");
+  else localStorage.removeItem(MAINTENANCE_KEY);
+}
+function isDespachoBlocked() {
+  return !getTurnoActual() && !isMaintenanceMode();
+}
+async function activarMantenimiento() {
+  const pass = prompt("Contraseña maestra para activar Modo Mantenimiento y Prueba:");
+  if (pass === null) return;
+  const hash = await sha256Hex(pass);
+  if (hash !== MASTER_PASSWORD_HASH) {
+    alert("Contraseña incorrecta.");
+    return;
+  }
+  setMaintenanceMode(true);
+  renderTurnoBar();
+}
+function salirMantenimiento() {
+  setMaintenanceMode(false);
+  renderTurnoBar();
+}
+function renderMantenimientoInfo() {
+  const box = $("#mantenimientoBox");
+  if (isMaintenanceMode()) {
+    box.innerHTML = `<button type="button" class="danger-btn" id="btnSalirMantenimientoInfo">🚪 Salir del Modo Mantenimiento</button>`;
+    $("#btnSalirMantenimientoInfo").addEventListener("click", () => {
+      salirMantenimiento();
+      renderMantenimientoInfo();
+    });
+  } else {
+    box.innerHTML = `<button type="button" class="secondary-btn" id="btnActivarMantenimientoInfo">🔧 Activar Modo Mantenimiento y Prueba</button>`;
+    $("#btnActivarMantenimientoInfo").addEventListener("click", async () => {
+      await activarMantenimiento();
+      renderMantenimientoInfo();
+    });
+  }
+}
+
+// Aplica/quita el bloqueo de Tablero de Unidades, Difusión, Crear Incidente y
+// Reportes cuando no hay Despachador en Turno ni Modo Mantenimiento activo.
+// Marcado Rápido y la navegación entre pestañas nunca se bloquean (911 no espera).
+function applyDespachoLock() {
+  const blocked = isDespachoBlocked();
+
+  $("#lockBannerUnidades").classList.toggle("show", blocked);
+  $("#btnResetAllUnits").disabled = blocked;
+  $all("#unitBoard .unit-edit, #unitBoard .unit-status").forEach((b) => (b.disabled = blocked));
+
+  $("#lockBannerDifusion").classList.toggle("show", blocked);
+  $all('[id^="btnBroadcast"]').forEach((b) => (b.disabled = blocked));
+  $("#cancelCodigoSelect").disabled = blocked;
+
+  $("#lockBannerIncidente").classList.toggle("show", blocked);
+  $all("#logForm input, #logForm select, #logForm textarea, #logForm button").forEach((el) => (el.disabled = blocked));
+
+  $("#lockBannerReportes").classList.toggle("show", blocked);
+  $all("#reportes input, #reportes select, #reportes button").forEach((el) => (el.disabled = blocked));
+}
+
 function renderTurnoBar() {
   const turno = getTurnoActual();
   const bar = $("#turnoBar");
   if (turno) {
     bar.textContent = `Despachador en Turno: ${turno.nombre} — desde ${formatFechaLarga(turno.inicio)}`;
     bar.className = "turno-bar turno-activo";
+  } else if (isMaintenanceMode()) {
+    bar.innerHTML = `🔧 Modo Mantenimiento y Prueba Activado <button type="button" class="secondary-btn turno-bar-btn" id="btnSalirMantenimientoBar">Salir</button>`;
+    bar.className = "turno-bar turno-mantenimiento";
+    $("#btnSalirMantenimientoBar").addEventListener("click", () => {
+      salirMantenimiento();
+      renderMantenimientoInfo();
+    });
   } else {
     bar.textContent = "⚠️ Sin despachador en turno registrado — configúralo en Información";
     bar.className = "turno-bar turno-vacio";
   }
+  applyDespachoLock();
 }
 
 function renderTurnoInfo() {
@@ -310,6 +387,7 @@ function terminarTurno() {
 $("#btnIniciarTurno").addEventListener("click", iniciarTurno);
 $("#btnTerminarTurno").addEventListener("click", terminarTurno);
 renderTurnoInfo();
+renderMantenimientoInfo();
 
 // ===== Marcado rápido =====
 function getQuickDialOverrides() {
@@ -454,6 +532,7 @@ function renderUnitBoard() {
   const statuses = getUnitStatuses();
   const labels = getUnitLabels();
   const container = $("#unitBoard");
+  const blocked = isDespachoBlocked();
   container.innerHTML = "";
   UNITS.forEach((u) => {
     const o = normalizeUnitOverride(labels[u.id]);
@@ -474,6 +553,8 @@ function renderUnitBoard() {
       <button type="button" class="unit-status" title="Clic para cambiar estatus">${escapeHtml(current)}</button>
       ${showActivo ? `<span class="unit-activo-timer" title="Tiempo activo desde que salió de Disponible">⏱ ${minutosActivo} min</span>` : ""}
     `;
+    card.querySelector(".unit-edit").disabled = blocked;
+    card.querySelector(".unit-status").disabled = blocked;
     card.querySelector(".unit-edit").addEventListener("click", () => openContactModal("unit", u.id, label, phone));
     card.querySelector(".unit-status").addEventListener("click", () => cycleUnitStatus(u.id));
     container.appendChild(card);
@@ -830,6 +911,7 @@ function renderReportTable() {
     btn.addEventListener("click", () => printIncidentReport(btn.dataset.detalle));
   });
   $("#statLine").textContent = `Total de registros mostrados: ${logs.length}`;
+  applyDespachoLock();
   return logs;
 }
 

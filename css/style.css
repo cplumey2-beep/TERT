@@ -576,15 +576,20 @@ body.printing-single #printSingle ul { margin: 4px 0; padding-left: 18px; }
    "Gráficos de fondo" en el diálogo de impresión — una <img> normal sí
    siempre se imprime, sin depender de esa opción. */
 .asistencia-watermark {
-  position: absolute;
+  /* fixed (no absolute): se centra en la hoja/pantalla completa, no en el
+     contenido — con position:absolute el centrado dependía de la altura de
+     .asistencia-print, que cambia según cuántas filas tenga la tabla, y por
+     eso quedaba escondida detrás de los encasillados en reportes cortos. */
+  position: fixed;
   top: 50%;
   left: 50%;
-  width: 380px;
-  height: 380px;
+  width: 480px;
+  height: 480px;
   transform: translate(-50%, -50%);
   object-fit: contain;
-  opacity: 0.12;
-  z-index: 0;
+  opacity: 0.1;
+  z-index: 5;
+  pointer-events: none;
 }
 .asistencia-header, .asistencia-titlebar, .asistencia-print-table, .asistencia-footer, .asistencia-firma {
   position: relative;
@@ -610,18 +615,21 @@ body.printing-single #printSingle ul { margin: 4px 0; padding-left: 18px; }
   font-size: 0.85rem;
 }
 .asistencia-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 14px;
   margin-top: 14px;
   border: 1px solid #000;
   padding: 8px 12px;
 }
 .asistencia-anotaciones { flex: 1; font-size: 0.85rem; }
 .asistencia-anotaciones-blanco { height: 50px; border-top: 1px dashed #999; margin-top: 6px; }
-.asistencia-revision { font-size: 0.78rem; white-space: nowrap; align-self: flex-end; }
 .asistencia-firma { margin-top: 14px; font-size: 0.9rem; }
+.asistencia-page-footer {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  font-size: 0.78rem;
+  color: #000;
+  z-index: 1;
+}
 
 /* Estado "presionado" controlado por JS (no CSS :hover) — se activa justo antes de
    abrir un prompt()/confirm() y se apaga apenas el usuario responde, para dar

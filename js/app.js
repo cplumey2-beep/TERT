@@ -1074,9 +1074,9 @@ onPressed("#btnImprimirLista", () => {
           <p>${escapeHtml(dia.anotaciones || "")}</p>
           <div class="asistencia-anotaciones-blanco"></div>
         </div>
-        <div class="asistencia-revision">Rev. 26 enero 2025, Cap: 1 Art. 4.0 Pág #12</div>
       </div>
-      <p class="asistencia-firma">Pasó lista: <strong>${escapeHtml(firmante || "-")}</strong></p>
+      <p class="asistencia-firma">Pasó lista: <strong>${firmante ? `${escapeHtml(firmante)} &mdash; Personal Administrativo` : "-"}</strong></p>
+      <div class="asistencia-page-footer">Rev. 26 enero 2025, Cap: 1 Art. 4.0 Pág #12</div>
     </div>
   `;
   document.body.classList.add("printing-single");

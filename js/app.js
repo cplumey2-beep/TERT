@@ -174,6 +174,8 @@ const ASISTENCIA_KEY = "tert_asistencia";
 const ASISTENCIA_FIRMANTES_KEY = "tert_asistencia_firmantes";
 const ASISTENCIA_ULTIMO_FIRMANTE_KEY = "tert_asistencia_ultimo_firmante";
 const ASISTENCIA_NOMBRES_KEY = "tert_asistencia_nombres";
+const RESPALDO_ULTIMO_KEY = "tert_respaldo_ultimo";
+const RESPALDO_RECORDATORIO_DIAS = 14;
 const NOTES_KEY = "tert_notas";
 const THEME_KEY = "tert_theme";
 const UNIT_STATUS_KEY = "tert_unit_status";
@@ -242,6 +244,7 @@ $all(".tab-btn").forEach((btn) => {
     $("#" + btn.dataset.tab).classList.add("active");
     if (btn.dataset.tab === "reportes") renderReportTable();
     if (btn.dataset.tab === "bitacora") renderRecentTable();
+    if (btn.dataset.tab === "metricas") renderMetricas();
   });
 });
 
@@ -967,6 +970,7 @@ function renderAsistenciaTable() {
     });
   });
   $("#listaAnotaciones").value = dia ? (dia.anotaciones || "") : "";
+  renderHistorialAsistencia();
 }
 function initPasarLista() {
   $("#listaFecha").value = localISOString().slice(0, 10);
@@ -1006,6 +1010,7 @@ onPressed("#btnGuardarFirmante", () => {
   registrarFirmante(firmante);
   renderFirmantesDatalist();
   renderNombresAdmin();
+  renderHistorialAsistencia();
   alert("Nombre guardado — aparecerá como firma del reporte de este día.");
 });
 onPressed("#btnAgregarAsistencia", () => {
@@ -1113,7 +1118,123 @@ onPressed("#btnEliminarFirmante", () => {
   renderFirmantesDatalist();
   renderNombresAdmin();
 });
+
+// ===== Historial de Asistencia (buscar días anteriores) =====
+function renderHistorialAsistencia() {
+  const desde = $("#historialAsistDesde").value;
+  const hasta = $("#historialAsistHasta").value;
+  let dias = getAsistencia().filter((d) => (!desde || d.fecha >= desde) && (!hasta || d.fecha <= hasta));
+  dias = dias.slice().sort((a, b) => (a.fecha < b.fecha ? 1 : -1));
+  const tbody = $("#historialAsistTable tbody");
+  tbody.innerHTML = dias.length
+    ? ""
+    : `<tr><td colspan="4">No hay días guardados en ese rango.</td></tr>`;
+  dias.forEach((d) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${escapeHtml(d.fecha)}</td>
+      <td>${escapeHtml(d.firmante || "-")}</td>
+      <td>${d.entradas.length}</td>
+      <td><button type="button" class="secondary-btn" data-ver-fecha="${escapeHtml(d.fecha)}">Ver / Imprimir</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll("[data-ver-fecha]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      $("#listaFecha").value = btn.dataset.verFecha;
+      renderAsistenciaTable();
+      $("#listaFecha").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  });
+}
+onPressed("#btnHistorialAsistBuscar", renderHistorialAsistencia);
+onPressed("#btnHistorialAsistLimpiar", () => {
+  $("#historialAsistDesde").value = "";
+  $("#historialAsistHasta").value = "";
+  renderHistorialAsistencia();
+});
+
 initPasarLista();
+renderHistorialAsistencia();
+
+// ===== Métricas (gráficos SVG hechos a mano, sin librerías externas —
+// esta app debe funcionar sin internet, y una librería de gráficos desde un
+// CDN se rompería justo cuando más se necesita) =====
+function svgBarChart(data, opts = {}) {
+  const { barHeight = 24, gap = 8, labelWidth = 140, chartWidth = 200, color = "var(--accent)", maxItems = 25 } = opts;
+  if (!data.length) return `<p class="chart-empty">Sin datos en este período.</p>`;
+  const rows = data.slice(0, maxItems);
+  const max = Math.max(1, ...rows.map((r) => r[1]));
+  const totalWidth = labelWidth + chartWidth + 50;
+  const height = rows.length * (barHeight + gap);
+  const bars = rows.map(([label, value], i) => {
+    const y = i * (barHeight + gap);
+    const barW = Math.max(2, (value / max) * chartWidth);
+    const raw = String(label);
+    const labelText = escapeHtml(raw.length > 24 ? raw.slice(0, 22) + "…" : raw);
+    return `
+      <text x="0" y="${y + barHeight / 2}" dy="0.35em" font-size="11" style="fill:var(--text)">${labelText}</text>
+      <rect x="${labelWidth}" y="${y}" width="${barW}" height="${barHeight - 4}" rx="4" style="fill:${color}"></rect>
+      <text x="${labelWidth + barW + 6}" y="${y + barHeight / 2}" dy="0.35em" font-size="11" style="fill:var(--text)">${value}</text>
+    `;
+  }).join("");
+  return `<svg viewBox="0 0 ${totalWidth} ${height}" width="100%" height="${height}">${bars}</svg>`;
+}
+function contarPor(arr, keyFn) {
+  const counts = {};
+  arr.forEach((item) => {
+    const k = keyFn(item);
+    if (!k) return;
+    counts[k] = (counts[k] || 0) + 1;
+  });
+  return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+}
+function formatMesCorto(yyyyMm) {
+  const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+  const [y, m] = yyyyMm.split("-");
+  return `${meses[parseInt(m, 10) - 1] || "?"} ${y}`;
+}
+function renderMetricas() {
+  const desde = $("#metricasDesde").value;
+  const hasta = $("#metricasHasta").value;
+
+  const dias = getAsistencia().filter((d) => (!desde || d.fecha >= desde) && (!hasta || d.fecha <= hasta));
+  const entradas = dias.flatMap((d) => d.entradas);
+  const logs = getLogs().filter((l) => {
+    const f = (l.fecha || "").slice(0, 10);
+    return (!desde || f >= desde) && (!hasta || f <= hasta);
+  });
+
+  $("#chartParticipacion").innerHTML = svgBarChart(contarPor(entradas, (e) => e.nombre), { maxItems: 25 });
+  $("#chartTipo").innerHTML = svgBarChart(contarPor(entradas, (e) => e.tipo || "Miembro"), { labelWidth: 80, chartWidth: 130 });
+  $("#chartMedios").innerHTML = svgBarChart(contarPor(entradas, (e) => e.medio), { labelWidth: 100, chartWidth: 120 });
+
+  const porMes = contarPor(logs, (l) => (l.fecha || "").slice(0, 7))
+    .slice()
+    .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+    .map(([mes, count]) => [formatMesCorto(mes), count]);
+  $("#chartIncidentesMes").innerHTML = svgBarChart(porMes, { labelWidth: 70, chartWidth: 190, color: "var(--blue)" });
+  $("#chartIncidentesTipo").innerHTML = svgBarChart(contarPor(logs, (l) => l.tipo), { labelWidth: 110, chartWidth: 120, color: "var(--blue)" });
+  $("#chartIncidentesPrioridad").innerHTML = svgBarChart(contarPor(logs, (l) => l.prioridad), { labelWidth: 60, chartWidth: 140, color: "var(--blue)" });
+
+  const porNombre = contarPor(entradas, (e) => e.nombre);
+  const personaTop = porNombre[0];
+  const diasConAsistencia = dias.filter((d) => d.entradas.length > 0).length;
+  $("#metricasResumen").innerHTML = `
+    <div class="metricas-resumen-grid">
+      <div class="metricas-stat"><span class="num">${entradas.length}</span><span class="lbl">Reportes de asistencia</span></div>
+      <div class="metricas-stat"><span class="num">${diasConAsistencia}</span><span class="lbl">Días con asistencia</span></div>
+      <div class="metricas-stat"><span class="num">${logs.length}</span><span class="lbl">Incidentes en Bitácora</span></div>
+      <div class="metricas-stat"><span class="num" style="font-size:1rem">${personaTop ? escapeHtml(personaTop[0]) : "-"}</span><span class="lbl">Mayor participación${personaTop ? ` (${personaTop[1]})` : ""}</span></div>
+    </div>
+  `;
+}
+onPressed("#btnMetricasFiltrar", renderMetricas);
+onPressed("#btnMetricasLimpiar", () => {
+  $("#metricasDesde").value = "";
+  $("#metricasHasta").value = "";
+  renderMetricas();
+});
 
 // ===== Reportes =====
 function calcularTiempoRespuesta(log) {
@@ -1288,6 +1409,24 @@ $all(".theme-btn").forEach((btn) => {
 setActiveThemeButton(localStorage.getItem(THEME_KEY) || "naranja");
 
 // ===== Exportar / Importar respaldo completo (nombres, celulares, marcado rápido, notas, bitácora, turnos) =====
+function renderBackupReminder() {
+  const el = $("#backupReminder");
+  const ultimo = localStorage.getItem(RESPALDO_ULTIMO_KEY);
+  if (!ultimo) {
+    el.textContent = "⚠️ Nunca has exportado un respaldo en este dispositivo. Hazlo para no perder la información si algo le pasa al teléfono.";
+    el.classList.add("show");
+    return;
+  }
+  const dias = Math.floor((Date.now() - new Date(ultimo).getTime()) / (24 * 60 * 60 * 1000));
+  if (dias >= RESPALDO_RECORDATORIO_DIAS) {
+    el.textContent = `⚠️ Hace ${dias} días que no exportas un respaldo. Considera hacerlo ahora.`;
+    el.classList.add("show");
+  } else {
+    el.classList.remove("show");
+  }
+}
+renderBackupReminder();
+
 $("#btnExportConfig").addEventListener("click", () => {
   const config = {
     tipo: "tert_config",
@@ -1312,6 +1451,8 @@ $("#btnExportConfig").addEventListener("click", () => {
   a.download = `TERT_respaldo_${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
+  localStorage.setItem(RESPALDO_ULTIMO_KEY, new Date().toISOString());
+  renderBackupReminder();
 });
 
 $("#btnImportConfig").addEventListener("click", () => $("#importConfigFile").click());

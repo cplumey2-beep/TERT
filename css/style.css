@@ -147,6 +147,40 @@ body {
   font-weight: 600;
   margin: -4px 0 14px;
 }
+
+/* Color fijo (no var(--yellow)): esa variable cambia según el Tema de Color
+   (es el estatus "Personal" del Tablero) — este aviso debe verse igual
+   siempre, sin importar el tema elegido. */
+.backup-reminder {
+  display: none;
+  background: rgba(244, 208, 63, 0.14);
+  color: #f4d03f;
+  border: 1px solid #f4d03f;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 14px;
+}
+.backup-reminder.show { display: block; }
+
+.chart-box { overflow-x: auto; }
+.chart-box svg { display: block; min-width: 260px; }
+.chart-empty { color: var(--muted); font-size: 0.85rem; font-style: italic; }
+.metricas-resumen-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+.metricas-stat {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  text-align: center;
+}
+.metricas-stat .num { font-size: 1.5rem; font-weight: 800; color: var(--accent); display: block; }
+.metricas-stat .lbl { font-size: 0.78rem; color: var(--muted); }
 .lock-banner.show { display: block; }
 
 button:disabled, select:disabled, input:disabled {

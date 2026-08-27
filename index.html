@@ -9,12 +9,12 @@
 <title>TERT - Sistema de Despacho</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#ff6a00">
-<link rel="icon" href="icons/icon-192.png?v=20260827o" type="image/png">
-<link rel="apple-touch-icon" href="icons/icon-180.png?v=20260827o">
+<link rel="icon" href="icons/icon-192.png?v=20260827p" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png?v=20260827p">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TERT">
-<link rel="stylesheet" href="css/style.css?v=20260827o">
+<link rel="stylesheet" href="css/style.css?v=20260827p">
 <link rel="preload" as="image" href="assets/tert-seal.jpg">
 <script>
 (function () {
@@ -57,6 +57,7 @@
     <button class="tab-btn active" data-tab="despacho">📡 Despacho</button>
     <button class="tab-btn" data-tab="bitacora">📝 Bitácora</button>
     <button class="tab-btn" data-tab="reportes">📊 Reportes</button>
+    <button class="tab-btn" data-tab="metricas">📊 Métricas</button>
     <button class="tab-btn" data-tab="info">ℹ️ Información</button>
   </nav>
 
@@ -314,6 +315,23 @@
           <button type="button" class="secondary-btn" id="btnGuardarAnotaciones">💾 Guardar Anotaciones</button>
           <button type="button" class="primary-btn" id="btnImprimirLista">🖨️ Imprimir Asistencia del Día</button>
         </div>
+
+        <h3 class="turno-historial-title">Buscar en el Historial</h3>
+        <p class="hint-inline">Busca días anteriores por rango de fecha (o deja los campos vacíos para ver todos).</p>
+        <div class="filters">
+          <label>Desde <input type="date" id="historialAsistDesde"></label>
+          <label>Hasta <input type="date" id="historialAsistHasta"></label>
+          <button type="button" class="secondary-btn" id="btnHistorialAsistBuscar">🔎 Buscar</button>
+          <button type="button" class="secondary-btn" id="btnHistorialAsistLimpiar">Limpiar</button>
+        </div>
+        <div class="table-wrap">
+          <table id="historialAsistTable">
+            <thead>
+              <tr><th>Fecha</th><th>Pasó Lista</th><th># Reportes</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
 
       <h2>Reportes de Incidentes</h2>
@@ -363,6 +381,50 @@
         </table>
       </div>
       <p class="stat-line" id="statLine"></p>
+    </section>
+
+    <!-- METRICAS -->
+    <section id="metricas" class="tab-panel">
+      <h2>Métricas</h2>
+      <p class="hint">Basadas en lo que ya se ha registrado en Pasar Lista Diaria y en Bitácora/Reportes. Útil para ver quién está participando y justificar rango, mérito o experiencia con datos reales.</p>
+      <div class="filters">
+        <label>Desde <input type="date" id="metricasDesde"></label>
+        <label>Hasta <input type="date" id="metricasHasta"></label>
+        <button class="secondary-btn" id="btnMetricasFiltrar">Filtrar</button>
+        <button class="secondary-btn" id="btnMetricasLimpiar">Limpiar (todo el historial)</button>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card full">
+          <h3>🏅 Participación por Persona (Pasar Lista Diaria)</h3>
+          <p class="hint">Cuántas veces se ha reportado cada persona en el rango seleccionado. Ordenado de mayor a menor.</p>
+          <div id="chartParticipacion" class="chart-box"></div>
+        </div>
+        <div class="info-card">
+          <h3>Miembro vs. Aliado</h3>
+          <div id="chartTipo" class="chart-box"></div>
+        </div>
+        <div class="info-card">
+          <h3>Medio de Comunicación</h3>
+          <div id="chartMedios" class="chart-box"></div>
+        </div>
+        <div class="info-card full">
+          <h3>📈 Incidentes por Mes (Bitácora)</h3>
+          <div id="chartIncidentesMes" class="chart-box"></div>
+        </div>
+        <div class="info-card">
+          <h3>Incidentes por Tipo</h3>
+          <div id="chartIncidentesTipo" class="chart-box"></div>
+        </div>
+        <div class="info-card">
+          <h3>Incidentes por Prioridad</h3>
+          <div id="chartIncidentesPrioridad" class="chart-box"></div>
+        </div>
+        <div class="info-card full">
+          <h3>Resumen del Período</h3>
+          <div id="metricasResumen"></div>
+        </div>
+      </div>
     </section>
 
     <!-- INFO -->
@@ -457,7 +519,8 @@
         </div>
         <div class="info-card full">
           <h3>Respaldo del Dispositivo</h3>
-          <p class="hint">Guarda nombres, celulares, marcado rápido, notas, bitácora, turnos y asistencia diaria en un solo archivo. Úsalo para pasar la información a otro dispositivo, o como respaldo antes de desinstalar/reinstalar la app (por ejemplo al actualizar el ícono). Exporta aquí, guarda el archivo (WhatsApp, correo, etc.) y luego impórtalo desde donde lo necesites.</p>
+          <p class="hint">Guarda nombres, celulares, marcado rápido, notas, bitácora, turnos y asistencia diaria en un solo archivo. Úsalo para pasar la información a otro dispositivo, o como respaldo antes de desinstalar/reinstalar la app (por ejemplo al actualizar el ícono). Exporta aquí, guarda el archivo (WhatsApp, correo, etc.) y luego impórtalo desde donde lo necesites. Recuerda que todo vive solo en este dispositivo — sin un respaldo reciente, se pierde si el teléfono se daña, se resetea o se reinstala la app.</p>
+          <p class="backup-reminder" id="backupReminder"></p>
           <div class="grid-buttons">
             <button class="primary-btn" id="btnExportConfig">⬇️ Exportar Respaldo</button>
             <button class="secondary-btn" id="btnImportConfig">⬆️ Importar Respaldo</button>
@@ -698,6 +761,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=20260827o"></script>
+  <script src="js/app.js?v=20260827p"></script>
 </body>
 </html>

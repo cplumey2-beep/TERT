@@ -173,6 +173,7 @@ const STORAGE_KEY = "tert_bitacora";
 const ASISTENCIA_KEY = "tert_asistencia";
 const ASISTENCIA_FIRMANTES_KEY = "tert_asistencia_firmantes";
 const ASISTENCIA_ULTIMO_FIRMANTE_KEY = "tert_asistencia_ultimo_firmante";
+const ASISTENCIA_NOMBRES_KEY = "tert_asistencia_nombres";
 const NOTES_KEY = "tert_notas";
 const THEME_KEY = "tert_theme";
 const UNIT_STATUS_KEY = "tert_unit_status";
@@ -885,6 +886,20 @@ function registrarFirmante(nombre) {
   }
   saveUltimoFirmante(nombre);
 }
+function getNombresConocidos() {
+  return JSON.parse(localStorage.getItem(ASISTENCIA_NOMBRES_KEY) || "[]");
+}
+function saveNombresConocidos(lista) {
+  localStorage.setItem(ASISTENCIA_NOMBRES_KEY, JSON.stringify(lista));
+}
+function registrarNombreConocido(nombre) {
+  if (!nombre) return;
+  const nombres = getNombresConocidos();
+  if (!nombres.includes(nombre)) {
+    nombres.push(nombre);
+    saveNombresConocidos(nombres);
+  }
+}
 function getDiaAsistencia(fecha) {
   return getAsistencia().find((d) => d.fecha === fecha);
 }
@@ -910,8 +925,13 @@ function renderFirmantesDatalist() {
 }
 function renderNombresSugeridos() {
   const labels = getUnitLabels();
-  const nombres = UNITS.map((u) => normalizeUnitOverride(labels[u.id]).label || u.label);
+  const nombresUnidades = UNITS.map((u) => normalizeUnitOverride(labels[u.id]).label || u.label);
+  const nombres = [...new Set([...nombresUnidades, ...getNombresConocidos()])];
   $("#listaNombresSugeridos").innerHTML = nombres.map((n) => `<option value="${escapeHtml(n)}"></option>`).join("");
+}
+function renderNombresAdmin() {
+  $("#nombresConocidosSelect").innerHTML = getNombresConocidos().map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join("");
+  $("#firmantesSelect").innerHTML = getFirmantes().map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join("");
 }
 function renderAsistenciaTable() {
   const fecha = $("#listaFecha").value;
@@ -945,12 +965,18 @@ function initPasarLista() {
   $("#listaFirmante").value = getUltimoFirmante();
   renderFirmantesDatalist();
   renderNombresSugeridos();
+  renderNombresAdmin();
   renderAsistenciaTable();
 }
 $("#listaFecha").addEventListener("change", renderAsistenciaTable);
 onPressed("#btnHoraAhora", () => {
   const now = new Date();
   $("#listaHora").value = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+});
+onPressed("#btnLimpiarCamposAsistencia", () => {
+  $("#listaNombre").value = "";
+  $("#listaMedio").selectedIndex = 0;
+  $("#listaHora").value = "";
 });
 onPressed("#btnAgregarAsistencia", () => {
   const fecha = $("#listaFecha").value;
@@ -967,7 +993,10 @@ onPressed("#btnAgregarAsistencia", () => {
   dia.entradas.push({ nombre, medio, hora });
   saveDiaAsistencia(dia);
   registrarFirmante(firmante);
+  registrarNombreConocido(nombre);
   renderFirmantesDatalist();
+  renderNombresSugeridos();
+  renderNombresAdmin();
 
   $("#listaNombre").value = "";
   $("#listaHora").value = "";
@@ -1017,6 +1046,23 @@ onPressed("#btnImprimirLista", () => {
   `;
   document.body.classList.add("printing-single");
   window.print();
+});
+onPressed("#btnEliminarNombreConocido", () => {
+  const nombre = $("#nombresConocidosSelect").value;
+  if (!nombre) return;
+  if (!confirm(`¿Quitar "${nombre}" de las sugerencias de nombre? Los reportes ya guardados no cambian.`)) return;
+  saveNombresConocidos(getNombresConocidos().filter((n) => n !== nombre));
+  renderNombresSugeridos();
+  renderNombresAdmin();
+});
+onPressed("#btnEliminarFirmante", () => {
+  const nombre = $("#firmantesSelect").value;
+  if (!nombre) return;
+  if (!confirm(`¿Quitar "${nombre}" de las sugerencias de "quién pasa lista"? Los reportes ya guardados no cambian.`)) return;
+  saveFirmantes(getFirmantes().filter((n) => n !== nombre));
+  if (getUltimoFirmante() === nombre) saveUltimoFirmante("");
+  renderFirmantesDatalist();
+  renderNombresAdmin();
 });
 initPasarLista();
 
@@ -1203,6 +1249,7 @@ $("#btnExportConfig").addEventListener("click", () => {
     asistencia: getAsistencia(),
     asistenciaFirmantes: getFirmantes(),
     asistenciaUltimoFirmante: getUltimoFirmante(),
+    asistenciaNombresConocidos: getNombresConocidos(),
   };
   const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -1246,6 +1293,7 @@ $("#importConfigFile").addEventListener("change", (e) => {
     saveAsistencia(config.asistencia || []);
     saveFirmantes(config.asistenciaFirmantes || []);
     saveUltimoFirmante(config.asistenciaUltimoFirmante || "");
+    saveNombresConocidos(config.asistenciaNombresConocidos || []);
     renderUnitBoard();
     renderQuickDial();
     loadNotes();

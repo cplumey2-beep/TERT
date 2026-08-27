@@ -1054,7 +1054,7 @@ onPressed("#btnImprimirLista", () => {
 
   $("#printSingle").innerHTML = `
     <div class="asistencia-print">
-      <img class="asistencia-watermark" src="assets/tert-seal.jpg" alt="">
+      <img class="asistencia-watermark" id="asistenciaWatermarkImg" src="assets/tert-seal.jpg" alt="">
       <div class="asistencia-header">
         <h2>TACTICAL EMERGENCY RESPONSE TEAM CORP.</h2>
         <p>Calle Aguja # 190, Urb. Estancias de Barceloneta, Barceloneta PR 00617</p>
@@ -1080,7 +1080,17 @@ onPressed("#btnImprimirLista", () => {
     </div>
   `;
   document.body.classList.add("printing-single");
-  window.print();
+  // Espera a que la marca de agua termine de cargar antes de imprimir — si
+  // window.print() se llama de inmediato, el navegador puede renderizar el
+  // PDF/impresión ANTES de que la imagen recién insertada esté lista, y sale
+  // en blanco (sobre todo la primera vez, sin caché de esa imagen).
+  const watermarkImg = $("#asistenciaWatermarkImg");
+  if (watermarkImg.complete) {
+    window.print();
+  } else {
+    watermarkImg.addEventListener("load", () => window.print(), { once: true });
+    watermarkImg.addEventListener("error", () => window.print(), { once: true });
+  }
 });
 onPressed("#btnEliminarNombreConocido", () => {
   const nombre = $("#nombresConocidosSelect").value;

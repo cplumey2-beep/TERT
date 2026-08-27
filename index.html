@@ -9,12 +9,13 @@
 <title>TERT - Sistema de Despacho</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#ff6a00">
-<link rel="icon" href="icons/icon-192.png?v=20260827m" type="image/png">
-<link rel="apple-touch-icon" href="icons/icon-180.png?v=20260827m">
+<link rel="icon" href="icons/icon-192.png?v=20260827n" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png?v=20260827n">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TERT">
-<link rel="stylesheet" href="css/style.css?v=20260827m">
+<link rel="stylesheet" href="css/style.css?v=20260827n">
+<link rel="preload" as="image" href="assets/tert-seal.jpg">
 <script>
 (function () {
   try {
@@ -250,7 +251,7 @@
     <section id="reportes" class="tab-panel">
       <div id="pasarListaSection">
         <h2>Pasar Lista Diaria</h2>
-        <p class="hint">No requiere Despachador en Turno — cualquiera puede pasar lista. Registra quién se reportó, cuándo y por qué medio; al final imprime el reporte del día.</p>
+        <p class="available-banner">✅ No requiere Despachador en Turno — cualquiera puede pasar lista. Registra quién se reportó, cuándo y por qué medio; al final imprime el reporte del día.</p>
         <div class="form-row">
           <label>Fecha
             <input type="date" id="listaFecha">
@@ -260,8 +261,8 @@
             <datalist id="firmantesList"></datalist>
           </label>
         </div>
-        <p class="hint">Favor de poner el nombre completo — así queda claro en la firma del reporte.</p>
-        <div class="form-actions">
+        <p class="hint-inline">Favor de poner el nombre completo — así queda claro en la firma del reporte.</p>
+        <div class="form-actions form-actions-tight">
           <button type="button" class="secondary-btn" id="btnGuardarFirmante">💾 Guardar Nombre</button>
         </div>
 
@@ -697,6 +698,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=20260827m"></script>
+  <script src="js/app.js?v=20260827n"></script>
 </body>
 </html>

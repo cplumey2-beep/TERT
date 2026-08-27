@@ -438,7 +438,28 @@ button.danger-btn { background: var(--red); color: #fff; }
 
 .form-row { display: flex; gap: 14px; flex-wrap: wrap; }
 .form-row label, .log-form .full, #pasarListaSection .full { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--muted); }
-#pasarListaSection .full { margin: 14px 0; }
+
+/* Pasar Lista Diaria — ritmo de espacios consistente entre bloques */
+#pasarListaSection .available-banner {
+  background: rgba(46, 160, 67, 0.12);
+  color: var(--green);
+  border: 1px solid var(--green);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 18px;
+}
+#pasarListaSection .form-row { margin-bottom: 4px; }
+#pasarListaSection .hint-inline {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 6px 0 12px;
+}
+#pasarListaSection .form-actions { margin: 4px 0 22px; }
+#pasarListaSection .form-actions-tight { margin: 4px 0 20px; }
+#pasarListaSection .table-wrap { margin-bottom: 22px; }
+#pasarListaSection .full { margin: 4px 0 14px; }
 
 .agencia-fieldset { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
 .agencia-fieldset legend { padding: 0 6px; color: var(--muted); font-size: 0.85rem; }
@@ -457,7 +478,6 @@ input, select, textarea {
 }
 
 .form-actions { display: flex; gap: 10px; }
-#pasarListaSection .form-actions { margin-top: 10px; }
 
 .table-wrap { overflow-x: auto; margin-top: 10px; }
 

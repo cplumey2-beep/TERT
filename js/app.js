@@ -694,7 +694,7 @@ onPressed("#btnBroadcastPrueba", broadcastPrueba);
 onPressed("#btnBroadcastCancelar", broadcastCancelacion);
 
 // ===== Mapas y ubicación =====
-$("#btnMyLocation").addEventListener("click", () => {
+onPressed("#btnMyLocation", () => {
   const result = $("#locationResult");
   if (!navigator.geolocation) {
     result.textContent = "Geolocalización no disponible en este navegador.";
@@ -713,15 +713,15 @@ $("#btnMyLocation").addEventListener("click", () => {
   );
 });
 
-$("#btnGoogleMaps").addEventListener("click", () => {
+onPressed("#btnGoogleMaps", () => {
   window.open("https://www.google.com/maps", "_blank");
 });
 
-$("#btnWaze").addEventListener("click", () => {
+onPressed("#btnWaze", () => {
   window.open("https://www.waze.com/live-map", "_blank");
 });
 
-$("#btnCoordSearch").addEventListener("click", () => {
+onPressed("#btnCoordSearch", () => {
   const dir = prompt("Escribe la dirección o punto de referencia a buscar:");
   if (dir) {
     window.open(`https://www.google.com/maps/search/${encodeURIComponent(dir)}`, "_blank");
@@ -781,7 +781,7 @@ $("#logForm").addEventListener("submit", (e) => {
   alert(`Registro guardado: ${entry.folio}`);
 });
 
-$("#btnClearForm").addEventListener("click", () => {
+onPressed("#btnClearForm", () => {
   $("#logForm").reset();
   initForm();
 });
@@ -947,9 +947,9 @@ window.addEventListener("afterprint", () => {
   document.body.classList.remove("printing-single");
 });
 
-$("#btnFiltrar").addEventListener("click", renderReportTable);
+onPressed("#btnFiltrar", renderReportTable);
 $("#filtroTexto").addEventListener("input", renderReportTable);
-$("#btnLimpiarFiltro").addEventListener("click", () => {
+onPressed("#btnLimpiarFiltro", () => {
   $("#filtroDesde").value = "";
   $("#filtroHasta").value = "";
   $("#filtroTipo").value = "";

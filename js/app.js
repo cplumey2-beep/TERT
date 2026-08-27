@@ -1080,6 +1080,7 @@ onPressed("#btnImprimirLista", () => {
     </div>
   `;
   document.body.classList.add("printing-single");
+  document.title = "TERT asistencia diaria";
   // Espera a que la marca de agua termine de cargar antes de imprimir — si
   // window.print() se llama de inmediato, el navegador puede renderizar el
   // PDF/impresión ANTES de que la imagen recién insertada esté lista, y sale
@@ -1206,8 +1207,13 @@ function printIncidentReport(folio) {
   document.body.classList.add("printing-single");
   window.print();
 }
+// El navegador usa document.title como nombre sugerido al "Guardar como PDF"
+// — se cambia justo antes de imprimir un reporte específico y se restaura
+// aquí, para no afectar el título de la pestaña/app el resto del tiempo.
+const ORIGINAL_DOCUMENT_TITLE = document.title;
 window.addEventListener("afterprint", () => {
   document.body.classList.remove("printing-single");
+  document.title = ORIGINAL_DOCUMENT_TITLE;
 });
 
 onPressed("#btnFiltrar", renderReportTable);

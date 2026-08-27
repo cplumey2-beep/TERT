@@ -1230,15 +1230,19 @@ function renderMetricas() {
   $("#chartIncidentesPrioridad").innerHTML = svgBarChart(contarPor(logs, (l) => l.prioridad), { labelWidth: 60, chartWidth: 140, color: "var(--blue)" });
 
   const porNombre = contarPor(entradas, (e) => e.nombre);
-  const personaTop = porNombre[0];
+  const top4 = porNombre.slice(0, 4);
   const diasConAsistencia = dias.filter((d) => d.entradas.length > 0).length;
+  const top4Html = top4.length
+    ? `<ol class="metricas-top-list">${top4.map(([nombre, count]) => `<li>${escapeHtml(nombre)} <strong>&mdash; ${count}</strong></li>`).join("")}</ol>`
+    : `<p class="chart-empty">Sin datos en este período.</p>`;
   $("#metricasResumen").innerHTML = `
     <div class="metricas-resumen-grid">
       <div class="metricas-stat"><span class="num">${entradas.length}</span><span class="lbl">Reportes de asistencia</span></div>
       <div class="metricas-stat"><span class="num">${diasConAsistencia}</span><span class="lbl">Días con asistencia</span></div>
       <div class="metricas-stat"><span class="num">${logs.length}</span><span class="lbl">Incidentes en Bitácora</span></div>
-      <div class="metricas-stat"><span class="num" style="font-size:1rem">${personaTop ? escapeHtml(personaTop[0]) : "-"}</span><span class="lbl">Mayor participación${personaTop ? ` (${personaTop[1]})` : ""}</span></div>
     </div>
+    <h4 class="metricas-top-title">🏅 Top 4 en Participación</h4>
+    ${top4Html}
   `;
 }
 onPressed("#btnMetricasFiltrar", renderMetricas);

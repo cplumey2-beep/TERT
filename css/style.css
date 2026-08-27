@@ -181,6 +181,16 @@ body {
 }
 .metricas-stat .num { font-size: 1.5rem; font-weight: 800; color: var(--accent); display: block; }
 .metricas-stat .lbl { font-size: 0.78rem; color: var(--muted); }
+
+.metricas-top-title { margin: 18px 0 8px; font-size: 0.95rem; }
+.metricas-top-list {
+  margin: 0;
+  padding-left: 22px;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+.metricas-top-list li { margin-bottom: 6px; }
+.metricas-top-list strong { color: var(--accent); }
 .lock-banner.show { display: block; }
 
 button:disabled, select:disabled, input:disabled {

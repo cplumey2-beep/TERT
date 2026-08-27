@@ -949,6 +949,7 @@ function renderAsistenciaTable() {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${escapeHtml(e.nombre)}</td>
+      <td>${escapeHtml(e.tipo || "Miembro")}</td>
       <td>${escapeHtml(e.hora)}</td>
       <td>${escapeHtml(e.medio)}</td>
       <td><button type="button" class="secondary-btn" data-del-asistencia="${i}">Eliminar</button></td>
@@ -976,14 +977,36 @@ function initPasarLista() {
   renderAsistenciaTable();
 }
 $("#listaFecha").addEventListener("change", renderAsistenciaTable);
+function esNombreDeUnidad(nombre) {
+  const labels = getUnitLabels();
+  const nombresUnidades = UNITS.map((u) => normalizeUnitOverride(labels[u.id]).label || u.label);
+  return nombresUnidades.includes(nombre);
+}
+$("#listaNombre").addEventListener("input", () => {
+  $("#listaTipo").value = esNombreDeUnidad($("#listaNombre").value.trim()) ? "Miembro" : "Aliado";
+});
 onPressed("#btnHoraAhora", () => {
   const now = new Date();
   $("#listaHora").value = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 });
 onPressed("#btnLimpiarCamposAsistencia", () => {
   $("#listaNombre").value = "";
+  $("#listaTipo").value = "Miembro";
   $("#listaMedio").selectedIndex = 0;
   $("#listaHora").value = "";
+});
+onPressed("#btnGuardarFirmante", () => {
+  const fecha = $("#listaFecha").value;
+  if (!fecha) { alert("Selecciona una fecha."); return; }
+  const firmante = $("#listaFirmante").value.trim();
+  if (!firmante) { alert("Escribe el nombre de quien está pasando lista."); return; }
+  const dia = getOrCreateDiaAsistencia(fecha);
+  dia.firmante = firmante;
+  saveDiaAsistencia(dia);
+  registrarFirmante(firmante);
+  renderFirmantesDatalist();
+  renderNombresAdmin();
+  alert("Nombre guardado — aparecerá como firma del reporte de este día.");
 });
 onPressed("#btnAgregarAsistencia", () => {
   const fecha = $("#listaFecha").value;
@@ -992,20 +1015,22 @@ onPressed("#btnAgregarAsistencia", () => {
   if (!nombre) { alert("Escribe el nombre de la persona."); return; }
   const hora = $("#listaHora").value;
   if (!hora) { alert("Selecciona la hora (o toca 'Reportado Ahora')."); return; }
+  const tipo = $("#listaTipo").value;
   const medio = $("#listaMedio").value;
   const firmante = $("#listaFirmante").value.trim();
 
   const dia = getOrCreateDiaAsistencia(fecha);
   if (firmante) dia.firmante = firmante;
-  dia.entradas.push({ nombre, medio, hora });
+  dia.entradas.push({ nombre, tipo, medio, hora });
   saveDiaAsistencia(dia);
-  registrarFirmante(firmante);
+  if (firmante) registrarFirmante(firmante);
   registrarNombreConocido(nombre);
   renderFirmantesDatalist();
   renderNombresSugeridos();
   renderNombresAdmin();
 
   $("#listaNombre").value = "";
+  $("#listaTipo").value = "Miembro";
   $("#listaHora").value = "";
   renderAsistenciaTable();
 });
@@ -1018,15 +1043,18 @@ onPressed("#btnGuardarAnotaciones", () => {
 });
 onPressed("#btnImprimirLista", () => {
   const fecha = $("#listaFecha").value;
-  const dia = getDiaAsistencia(fecha) || { fecha, firmante: $("#listaFirmante").value, anotaciones: $("#listaAnotaciones").value, entradas: [] };
+  const dia = getDiaAsistencia(fecha) || { fecha, firmante: "", anotaciones: $("#listaAnotaciones").value, entradas: [] };
+  // Respaldo: si el día no tiene firmante guardado, usa lo que esté escrito
+  // en el campo ahora mismo, para no imprimir "Pasó lista: -" sin necesidad.
+  const firmante = dia.firmante || $("#listaFirmante").value.trim();
   const fechaFmt = fecha ? new Date(fecha + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" }) : "-";
   const filas = dia.entradas.length
-    ? dia.entradas.map((e) => `<tr><td>${escapeHtml(e.nombre)}</td><td>${escapeHtml(e.hora)}</td><td>${escapeHtml(e.medio)}</td></tr>`).join("")
-    : `<tr><td colspan="3">Sin reportes registrados.</td></tr>`;
+    ? dia.entradas.map((e) => `<tr><td>${escapeHtml(e.nombre)}</td><td>${escapeHtml(e.tipo || "Miembro")}</td><td>${escapeHtml(e.hora)}</td><td>${escapeHtml(e.medio)}</td></tr>`).join("")
+    : `<tr><td colspan="4">Sin reportes registrados.</td></tr>`;
 
   $("#printSingle").innerHTML = `
     <div class="asistencia-print">
-      <div class="asistencia-watermark"></div>
+      <img class="asistencia-watermark" src="assets/tert-seal.jpg" alt="">
       <div class="asistencia-header">
         <h2>TACTICAL EMERGENCY RESPONSE TEAM CORP.</h2>
         <p>Calle Aguja # 190, Urb. Estancias de Barceloneta, Barceloneta PR 00617</p>
@@ -1037,7 +1065,7 @@ onPressed("#btnImprimirLista", () => {
         <span>Fecha: ${escapeHtml(fechaFmt)}</span>
       </div>
       <table class="asistencia-print-table">
-        <thead><tr><th>Nombre del Integrante, Aliado o Miembro</th><th>Hora del Reporte</th><th>Medio de Comunicación Utilizado</th></tr></thead>
+        <thead><tr><th>Nombre del Integrante, Aliado o Miembro</th><th>Tipo</th><th>Hora del Reporte</th><th>Medio de Comunicación Utilizado</th></tr></thead>
         <tbody>${filas}</tbody>
       </table>
       <div class="asistencia-footer">
@@ -1048,7 +1076,7 @@ onPressed("#btnImprimirLista", () => {
         </div>
         <div class="asistencia-revision">Rev. 26 enero 2025, Cap: 1 Art. 4.0 Pág #12</div>
       </div>
-      <p class="asistencia-firma">Pasó lista: <strong>${escapeHtml(dia.firmante || "-")}</strong></p>
+      <p class="asistencia-firma">Pasó lista: <strong>${escapeHtml(firmante || "-")}</strong></p>
     </div>
   `;
   document.body.classList.add("printing-single");

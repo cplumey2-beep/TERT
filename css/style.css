@@ -457,6 +457,7 @@ input, select, textarea {
 }
 
 .form-actions { display: flex; gap: 10px; }
+#pasarListaSection .form-actions { margin-top: 10px; }
 
 .table-wrap { overflow-x: auto; margin-top: 10px; }
 
@@ -570,6 +571,10 @@ body.printing-single #printSingle ul { margin: 4px 0; padding-left: 18px; }
 
 /* Reporte de Pasar Lista Diaria — imita el formato del reporte en papel */
 .asistencia-print { position: relative; padding: 10px; }
+/* <img> real, no CSS background-image: la mayoría de los navegadores NO
+   imprimen imágenes de fondo por CSS a menos que el usuario active a mano
+   "Gráficos de fondo" en el diálogo de impresión — una <img> normal sí
+   siempre se imprime, sin depender de esa opción. */
 .asistencia-watermark {
   position: absolute;
   top: 50%;
@@ -577,7 +582,7 @@ body.printing-single #printSingle ul { margin: 4px 0; padding-left: 18px; }
   width: 380px;
   height: 380px;
   transform: translate(-50%, -50%);
-  background: url('../assets/tert-seal.jpg') center/contain no-repeat;
+  object-fit: contain;
   opacity: 0.12;
   z-index: 0;
 }

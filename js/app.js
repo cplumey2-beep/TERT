@@ -1206,6 +1206,9 @@ function formatMesCorto(yyyyMm) {
   const [y, m] = yyyyMm.split("-");
   return `${meses[parseInt(m, 10) - 1] || "?"} ${y}`;
 }
+function formatFechaCorta(yyyyMmDd) {
+  return new Date(yyyyMmDd + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" });
+}
 function renderMetricas() {
   const desde = $("#metricasDesde").value;
   const hasta = $("#metricasHasta").value;
@@ -1235,7 +1238,22 @@ function renderMetricas() {
   const top4Html = top4.length
     ? `<ol class="metricas-top-list">${top4.map(([nombre, count]) => `<li>${escapeHtml(nombre)} <strong>&mdash; ${count}</strong></li>`).join("")}</ol>`
     : `<p class="chart-empty">Sin datos en este período.</p>`;
+
+  // Texto claro de a qué rango de fechas corresponde todo lo de arriba —
+  // si no hay filtro, se calcula el rango real de los datos disponibles
+  // (primera y última fecha encontrada), no un período fijo tipo "30 días".
+  let periodoTexto;
+  if (desde || hasta) {
+    periodoTexto = `Del ${desde ? formatFechaCorta(desde) : "inicio del historial"} al ${hasta ? formatFechaCorta(hasta) : "hoy"}`;
+  } else {
+    const todasFechas = [...dias.map((d) => d.fecha), ...logs.map((l) => (l.fecha || "").slice(0, 10))].filter(Boolean).sort();
+    periodoTexto = todasFechas.length
+      ? `Todo el historial disponible — del ${formatFechaCorta(todasFechas[0])} al ${formatFechaCorta(todasFechas[todasFechas.length - 1])}`
+      : "Todavía no hay datos guardados.";
+  }
+
   $("#metricasResumen").innerHTML = `
+    <p class="metricas-periodo">📅 <strong>Período mostrado:</strong> ${escapeHtml(periodoTexto)}</p>
     <div class="metricas-resumen-grid">
       <div class="metricas-stat"><span class="num">${entradas.length}</span><span class="lbl">Reportes de asistencia</span></div>
       <div class="metricas-stat"><span class="num">${diasConAsistencia}</span><span class="lbl">Días con asistencia</span></div>

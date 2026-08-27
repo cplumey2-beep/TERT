@@ -1135,7 +1135,10 @@ function renderHistorialAsistencia() {
       <td>${escapeHtml(d.fecha)}</td>
       <td>${escapeHtml(d.firmante || "-")}</td>
       <td>${d.entradas.length}</td>
-      <td><button type="button" class="secondary-btn" data-ver-fecha="${escapeHtml(d.fecha)}">Ver / Imprimir</button></td>
+      <td class="row-actions">
+        <button type="button" class="secondary-btn" data-ver-fecha="${escapeHtml(d.fecha)}">Ver / Imprimir</button>
+        <button type="button" class="danger-btn" data-del-fecha="${escapeHtml(d.fecha)}">Eliminar</button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
@@ -1144,6 +1147,15 @@ function renderHistorialAsistencia() {
       $("#listaFecha").value = btn.dataset.verFecha;
       renderAsistenciaTable();
       $("#listaFecha").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  });
+  tbody.querySelectorAll("[data-del-fecha]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const fecha = btn.dataset.delFecha;
+      if (!confirm(`¿Eliminar TODO el reporte de asistencia del ${fecha}? Esta acción no se puede deshacer.`)) return;
+      saveAsistencia(getAsistencia().filter((d) => d.fecha !== fecha));
+      if ($("#listaFecha").value === fecha) renderAsistenciaTable();
+      else renderHistorialAsistencia();
     });
   });
 }

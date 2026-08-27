@@ -561,10 +561,61 @@ body.printing-single #printSingle {
   font-family: "Segoe UI", Arial, sans-serif;
 }
 body.printing-single #printSingle h2 { border-left: 4px solid #ff6a00; padding-left: 10px; margin-bottom: 4px; }
-body.printing-single #printSingle table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+body.printing-single #printSingle table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; }
+body.printing-single #printSingle td { color: #000; background: #fff; }
 body.printing-single #printSingle td { border: 1px solid #999; padding: 6px 10px; vertical-align: top; }
 body.printing-single #printSingle td.label { font-weight: 700; width: 160px; background: #f0f0f0; }
 body.printing-single #printSingle ul { margin: 4px 0; padding-left: 18px; }
+
+/* Reporte de Pasar Lista Diaria — imita el formato del reporte en papel */
+.asistencia-print { position: relative; padding: 10px; }
+.asistencia-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 380px;
+  height: 380px;
+  transform: translate(-50%, -50%);
+  background: url('../assets/tert-seal.jpg') center/contain no-repeat;
+  opacity: 0.12;
+  z-index: 0;
+}
+.asistencia-header, .asistencia-titlebar, .asistencia-print-table, .asistencia-footer, .asistencia-firma {
+  position: relative;
+  z-index: 1;
+}
+.asistencia-header { text-align: center; margin-bottom: 10px; }
+.asistencia-header h2 { border-left: none !important; padding-left: 0 !important; margin: 0 0 4px; font-size: 1.3rem; }
+.asistencia-header p { margin: 2px 0; font-size: 0.85rem; }
+.asistencia-titlebar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #000;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+.asistencia-print-table th {
+  border: 1px solid #999;
+  padding: 6px 10px;
+  background: #f0f0f0;
+  color: #000;
+  font-size: 0.85rem;
+}
+.asistencia-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 14px;
+  margin-top: 14px;
+  border: 1px solid #000;
+  padding: 8px 12px;
+}
+.asistencia-anotaciones { flex: 1; font-size: 0.85rem; }
+.asistencia-anotaciones-blanco { height: 50px; border-top: 1px dashed #999; margin-top: 6px; }
+.asistencia-revision { font-size: 0.78rem; white-space: nowrap; align-self: flex-end; }
+.asistencia-firma { margin-top: 14px; font-size: 0.9rem; }
 
 /* Estado "presionado" controlado por JS (no CSS :hover) — se activa justo antes de
    abrir un prompt()/confirm() y se apaga apenas el usuario responde, para dar

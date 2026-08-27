@@ -9,12 +9,12 @@
 <title>TERT - Sistema de Despacho</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#ff6a00">
-<link rel="icon" href="icons/icon-192.png?v=20260827e" type="image/png">
-<link rel="apple-touch-icon" href="icons/icon-180.png?v=20260827e">
+<link rel="icon" href="icons/icon-192.png?v=20260827g" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png?v=20260827g">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TERT">
-<link rel="stylesheet" href="css/style.css?v=20260827e">
+<link rel="stylesheet" href="css/style.css?v=20260827g">
 <script>
 (function () {
   try {
@@ -248,6 +248,62 @@
 
     <!-- REPORTES -->
     <section id="reportes" class="tab-panel">
+      <div id="pasarListaSection">
+        <h2>Pasar Lista Diaria</h2>
+        <p class="hint">No requiere Despachador en Turno — cualquiera puede pasar lista. Registra quién se reportó, cuándo y por qué medio; al final imprime el reporte del día.</p>
+        <div class="form-row">
+          <label>Fecha
+            <input type="date" id="listaFecha">
+          </label>
+          <label>¿Quién está pasando lista?
+            <input type="text" id="listaFirmante" list="firmantesList" placeholder="Ej. Capt. Zapata">
+            <datalist id="firmantesList"></datalist>
+          </label>
+        </div>
+
+        <div class="form-row">
+          <label>Nombre
+            <input type="text" id="listaNombre" list="listaNombresSugeridos" placeholder="Nombre del integrante, aliado o miembro">
+            <datalist id="listaNombresSugeridos"></datalist>
+          </label>
+          <label>Medio de comunicación
+            <select id="listaMedio">
+              <option>WhatsApp</option>
+              <option>Zello</option>
+              <option>Radio (2mts)</option>
+              <option>Facebook</option>
+              <option>Teléfono</option>
+              <option>En Persona</option>
+              <option>Otro</option>
+            </select>
+          </label>
+          <label>Hora
+            <input type="time" id="listaHora">
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="secondary-btn" id="btnHoraAhora">📍 Reportado Ahora</button>
+          <button type="button" class="primary-btn" id="btnAgregarAsistencia">➕ Agregar</button>
+        </div>
+
+        <div class="table-wrap">
+          <table id="asistenciaTable">
+            <thead>
+              <tr><th>Nombre</th><th>Hora</th><th>Medio</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <label class="full">Anotaciones
+          <textarea id="listaAnotaciones" rows="3" placeholder="Comentarios del día (opcional)..."></textarea>
+        </label>
+        <div class="form-actions">
+          <button type="button" class="secondary-btn" id="btnGuardarAnotaciones">💾 Guardar Anotaciones</button>
+          <button type="button" class="primary-btn" id="btnImprimirLista">🖨️ Imprimir Reporte del Día</button>
+        </div>
+      </div>
+
       <h2>Reportes de Incidentes</h2>
       <p class="lock-banner" id="lockBannerReportes">🔒 Se requiere Despachador en Turno (o Modo Mantenimiento activo) para ver Reportes.</p>
       <div class="filters">
@@ -373,7 +429,7 @@
         </div>
         <div class="info-card full">
           <h3>Respaldo del Dispositivo</h3>
-          <p class="hint">Guarda nombres, celulares, marcado rápido, notas, bitácora y turnos en un solo archivo. Úsalo para pasar la información a otro dispositivo, o como respaldo antes de desinstalar/reinstalar la app (por ejemplo al actualizar el ícono). Exporta aquí, guarda el archivo (WhatsApp, correo, etc.) y luego impórtalo desde donde lo necesites.</p>
+          <p class="hint">Guarda nombres, celulares, marcado rápido, notas, bitácora, turnos y asistencia diaria en un solo archivo. Úsalo para pasar la información a otro dispositivo, o como respaldo antes de desinstalar/reinstalar la app (por ejemplo al actualizar el ícono). Exporta aquí, guarda el archivo (WhatsApp, correo, etc.) y luego impórtalo desde donde lo necesites.</p>
           <div class="grid-buttons">
             <button class="primary-btn" id="btnExportConfig">⬇️ Exportar Respaldo</button>
             <button class="secondary-btn" id="btnImportConfig">⬆️ Importar Respaldo</button>
@@ -614,6 +670,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=20260827e"></script>
+  <script src="js/app.js?v=20260827g"></script>
 </body>
 </html>

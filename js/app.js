@@ -170,6 +170,9 @@ const ESTADO_CLASS = {
 };
 
 const STORAGE_KEY = "tert_bitacora";
+const ASISTENCIA_KEY = "tert_asistencia";
+const ASISTENCIA_FIRMANTES_KEY = "tert_asistencia_firmantes";
+const ASISTENCIA_ULTIMO_FIRMANTE_KEY = "tert_asistencia_ultimo_firmante";
 const NOTES_KEY = "tert_notas";
 const THEME_KEY = "tert_theme";
 const UNIT_STATUS_KEY = "tert_unit_status";
@@ -308,7 +311,10 @@ function applyDespachoLock() {
   $all("#logForm input, #logForm select, #logForm textarea, #logForm button").forEach((el) => (el.disabled = blocked));
 
   $("#lockBannerReportes").classList.toggle("show", blocked);
-  $all("#reportes input, #reportes select, #reportes button").forEach((el) => (el.disabled = blocked));
+  $all("#reportes input, #reportes select, #reportes button").forEach((el) => {
+    if (el.closest("#pasarListaSection")) return; // Pasar Lista Diaria nunca se bloquea
+    el.disabled = blocked;
+  });
 }
 
 function renderTurnoBar() {
@@ -851,6 +857,169 @@ function deleteLog(folio) {
   renderReportTable();
 }
 
+// ===== Pasar Lista Diaria (no requiere Despachador en Turno) =====
+function getAsistencia() {
+  return JSON.parse(localStorage.getItem(ASISTENCIA_KEY) || "[]");
+}
+function saveAsistencia(lista) {
+  localStorage.setItem(ASISTENCIA_KEY, JSON.stringify(lista));
+}
+function getFirmantes() {
+  return JSON.parse(localStorage.getItem(ASISTENCIA_FIRMANTES_KEY) || "[]");
+}
+function saveFirmantes(lista) {
+  localStorage.setItem(ASISTENCIA_FIRMANTES_KEY, JSON.stringify(lista));
+}
+function getUltimoFirmante() {
+  return localStorage.getItem(ASISTENCIA_ULTIMO_FIRMANTE_KEY) || "";
+}
+function saveUltimoFirmante(nombre) {
+  localStorage.setItem(ASISTENCIA_ULTIMO_FIRMANTE_KEY, nombre);
+}
+function registrarFirmante(nombre) {
+  if (!nombre) return;
+  const firmantes = getFirmantes();
+  if (!firmantes.includes(nombre)) {
+    firmantes.push(nombre);
+    saveFirmantes(firmantes);
+  }
+  saveUltimoFirmante(nombre);
+}
+function getDiaAsistencia(fecha) {
+  return getAsistencia().find((d) => d.fecha === fecha);
+}
+function getOrCreateDiaAsistencia(fecha) {
+  const lista = getAsistencia();
+  let dia = lista.find((d) => d.fecha === fecha);
+  if (!dia) {
+    dia = { fecha, firmante: "", anotaciones: "", entradas: [] };
+    lista.push(dia);
+    saveAsistencia(lista);
+  }
+  return dia;
+}
+function saveDiaAsistencia(dia) {
+  const lista = getAsistencia();
+  const idx = lista.findIndex((d) => d.fecha === dia.fecha);
+  if (idx >= 0) lista[idx] = dia;
+  else lista.push(dia);
+  saveAsistencia(lista);
+}
+function renderFirmantesDatalist() {
+  $("#firmantesList").innerHTML = getFirmantes().map((n) => `<option value="${escapeHtml(n)}"></option>`).join("");
+}
+function renderNombresSugeridos() {
+  const labels = getUnitLabels();
+  const nombres = UNITS.map((u) => normalizeUnitOverride(labels[u.id]).label || u.label);
+  $("#listaNombresSugeridos").innerHTML = nombres.map((n) => `<option value="${escapeHtml(n)}"></option>`).join("");
+}
+function renderAsistenciaTable() {
+  const fecha = $("#listaFecha").value;
+  const dia = getDiaAsistencia(fecha);
+  const tbody = $("#asistenciaTable tbody");
+  tbody.innerHTML = "";
+  const entradas = dia ? dia.entradas : [];
+  entradas.forEach((e, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${escapeHtml(e.nombre)}</td>
+      <td>${escapeHtml(e.hora)}</td>
+      <td>${escapeHtml(e.medio)}</td>
+      <td><button type="button" class="secondary-btn" data-del-asistencia="${i}">Eliminar</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll("[data-del-asistencia]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const d = getDiaAsistencia(fecha);
+      if (!d) return;
+      d.entradas.splice(Number(btn.dataset.delAsistencia), 1);
+      saveDiaAsistencia(d);
+      renderAsistenciaTable();
+    });
+  });
+  $("#listaAnotaciones").value = dia ? (dia.anotaciones || "") : "";
+}
+function initPasarLista() {
+  $("#listaFecha").value = new Date().toISOString().slice(0, 10);
+  $("#listaFirmante").value = getUltimoFirmante();
+  renderFirmantesDatalist();
+  renderNombresSugeridos();
+  renderAsistenciaTable();
+}
+$("#listaFecha").addEventListener("change", renderAsistenciaTable);
+onPressed("#btnHoraAhora", () => {
+  const now = new Date();
+  $("#listaHora").value = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+});
+onPressed("#btnAgregarAsistencia", () => {
+  const fecha = $("#listaFecha").value;
+  if (!fecha) { alert("Selecciona una fecha."); return; }
+  const nombre = $("#listaNombre").value.trim();
+  if (!nombre) { alert("Escribe el nombre de la persona."); return; }
+  const hora = $("#listaHora").value;
+  if (!hora) { alert("Selecciona la hora (o toca 'Reportado Ahora')."); return; }
+  const medio = $("#listaMedio").value;
+  const firmante = $("#listaFirmante").value.trim();
+
+  const dia = getOrCreateDiaAsistencia(fecha);
+  if (firmante) dia.firmante = firmante;
+  dia.entradas.push({ nombre, medio, hora });
+  saveDiaAsistencia(dia);
+  registrarFirmante(firmante);
+  renderFirmantesDatalist();
+
+  $("#listaNombre").value = "";
+  $("#listaHora").value = "";
+  renderAsistenciaTable();
+});
+onPressed("#btnGuardarAnotaciones", () => {
+  const fecha = $("#listaFecha").value;
+  const dia = getOrCreateDiaAsistencia(fecha);
+  dia.anotaciones = $("#listaAnotaciones").value;
+  saveDiaAsistencia(dia);
+  alert("Anotaciones guardadas.");
+});
+onPressed("#btnImprimirLista", () => {
+  const fecha = $("#listaFecha").value;
+  const dia = getDiaAsistencia(fecha) || { fecha, firmante: $("#listaFirmante").value, anotaciones: $("#listaAnotaciones").value, entradas: [] };
+  const fechaFmt = fecha ? new Date(fecha + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" }) : "-";
+  const filas = dia.entradas.length
+    ? dia.entradas.map((e) => `<tr><td>${escapeHtml(e.nombre)}</td><td>${escapeHtml(e.hora)}</td><td>${escapeHtml(e.medio)}</td></tr>`).join("")
+    : `<tr><td colspan="3">Sin reportes registrados.</td></tr>`;
+
+  $("#printSingle").innerHTML = `
+    <div class="asistencia-print">
+      <div class="asistencia-watermark"></div>
+      <div class="asistencia-header">
+        <h2>TACTICAL EMERGENCY RESPONSE TEAM CORP.</h2>
+        <p>Calle Aguja # 190, Urb. Estancias de Barceloneta, Barceloneta PR 00617</p>
+        <p>Teléfono: (939) 350 &ndash; 8068 / E-mail: jose2007miguel@gmail.com</p>
+      </div>
+      <div class="asistencia-titlebar">
+        <strong>Reporte Diario (Personal T.E.R.T.)</strong>
+        <span>Fecha: ${escapeHtml(fechaFmt)}</span>
+      </div>
+      <table class="asistencia-print-table">
+        <thead><tr><th>Nombre del Integrante, Aliado o Miembro</th><th>Hora del Reporte</th><th>Medio de Comunicación Utilizado</th></tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+      <div class="asistencia-footer">
+        <div class="asistencia-anotaciones">
+          <strong>Anotaciones:</strong>
+          <p>${escapeHtml(dia.anotaciones || "")}</p>
+          <div class="asistencia-anotaciones-blanco"></div>
+        </div>
+        <div class="asistencia-revision">Rev. 26 enero 2025, Cap: 1 Art. 4.0 Pág #12</div>
+      </div>
+      <p class="asistencia-firma">Pasó lista: <strong>${escapeHtml(dia.firmante || "-")}</strong></p>
+    </div>
+  `;
+  document.body.classList.add("printing-single");
+  window.print();
+});
+initPasarLista();
+
 // ===== Reportes =====
 function calcularTiempoRespuesta(log) {
   const eventos = log.eventos || [];
@@ -1022,7 +1191,7 @@ setActiveThemeButton(localStorage.getItem(THEME_KEY) || "naranja");
 $("#btnExportConfig").addEventListener("click", () => {
   const config = {
     tipo: "tert_config",
-    version: 2,
+    version: 3,
     exportado: new Date().toISOString(),
     unitLabels: getUnitLabels(),
     unitStatuses: getUnitStatuses(),
@@ -1031,6 +1200,9 @@ $("#btnExportConfig").addEventListener("click", () => {
     logs: getLogs(),
     turnoActual: getTurnoActual(),
     turnosHistorial: getTurnosHistorial(),
+    asistencia: getAsistencia(),
+    asistenciaFirmantes: getFirmantes(),
+    asistenciaUltimoFirmante: getUltimoFirmante(),
   };
   const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -1060,7 +1232,7 @@ $("#importConfigFile").addEventListener("change", (e) => {
       e.target.value = "";
       return;
     }
-    if (!confirm("Esto reemplazará nombres, celulares, marcado rápido, notas, bitácora y turnos de este dispositivo con los del archivo. ¿Continuar?")) {
+    if (!confirm("Esto reemplazará nombres, celulares, marcado rápido, notas, bitácora, turnos y asistencia de este dispositivo con los del archivo. ¿Continuar?")) {
       e.target.value = "";
       return;
     }
@@ -1071,9 +1243,13 @@ $("#importConfigFile").addEventListener("change", (e) => {
     saveLogs(config.logs || []);
     saveTurnoActual(config.turnoActual || null);
     saveTurnosHistorial(config.turnosHistorial || []);
+    saveAsistencia(config.asistencia || []);
+    saveFirmantes(config.asistenciaFirmantes || []);
+    saveUltimoFirmante(config.asistenciaUltimoFirmante || "");
     renderUnitBoard();
     renderQuickDial();
     loadNotes();
+    initPasarLista();
     renderReportTable();
     renderRecentTable();
     renderTurnoInfo();

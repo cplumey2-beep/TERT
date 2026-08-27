@@ -593,7 +593,7 @@ function cycleUnitStatus(id) {
 renderUnitBoard();
 setInterval(renderUnitBoard, 30000); // revisa cada 30s si alguna tarjeta ya paso los UNIT_ALERT_MINUTES
 
-$("#btnResetAllUnits").addEventListener("click", () => {
+onPressed("#btnResetAllUnits", () => {
   if (!confirm("¿Marcar TODAS las unidades como Disponible?")) return;
   const statuses = getUnitStatuses();
   const ahora = new Date().toISOString();

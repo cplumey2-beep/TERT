@@ -1333,6 +1333,7 @@ function renderMetricas() {
 
   const escenaHistorial = getEscenaHistorial().filter((v) => (!desde || v.fecha >= desde) && (!hasta || v.fecha <= hasta));
   $("#chartEscena").innerHTML = svgBarChart(contarPor(escenaHistorial, (v) => v.nombre), { maxItems: 25, color: "var(--green)" });
+  $("#hintEscenaMinimo").textContent = `Cuántas veces confirmadas (${getEscenaMinMinutos()}+ min, sin importar el tipo de incidente) ha estado cada persona en estatus "En Escena".`;
 
   const porNombre = contarPor(entradas, (e) => e.nombre);
   const top4 = porNombre.slice(0, 4);
@@ -1665,6 +1666,7 @@ $("#importConfigFile").addEventListener("change", (e) => {
     renderReportTable();
     renderRecentTable();
     renderTurnoInfo();
+    renderMetricas();
     e.target.value = "";
     alert("Respaldo importado correctamente.");
   };

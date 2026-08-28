@@ -176,6 +176,39 @@ const ASISTENCIA_ULTIMO_FIRMANTE_KEY = "tert_asistencia_ultimo_firmante";
 const ASISTENCIA_NOMBRES_KEY = "tert_asistencia_nombres";
 const RESPALDO_ULTIMO_KEY = "tert_respaldo_ultimo";
 const RESPALDO_RECORDATORIO_DIAS = 14;
+const UNIT_ALERT_MINUTES_KEY = "tert_alerta_minutos";
+const ESCENA_MIN_MINUTOS_KEY = "tert_escena_min_minutos";
+const ESCENA_TOPE_HORAS_KEY = "tert_escena_tope_horas";
+const ESCENA_HISTORIAL_KEY = "tert_escena_historial";
+function getUnitAlertMinutes() {
+  return Number(localStorage.getItem(UNIT_ALERT_MINUTES_KEY)) || 15;
+}
+function getEscenaMinMinutos() {
+  return Number(localStorage.getItem(ESCENA_MIN_MINUTOS_KEY)) || 15;
+}
+function getEscenaTopeHoras() {
+  return Number(localStorage.getItem(ESCENA_TOPE_HORAS_KEY)) || 8;
+}
+function getEscenaHistorial() {
+  return JSON.parse(localStorage.getItem(ESCENA_HISTORIAL_KEY) || "[]");
+}
+function saveEscenaHistorial(lista) {
+  localStorage.setItem(ESCENA_HISTORIAL_KEY, JSON.stringify(lista));
+}
+// Solo cuenta como visita real si duró el mínimo configurado (filtra clics
+// accidentales y los pasos obligados del ciclo del botón de estatus hacia
+// "Personal"/"Fuera de Servicio", que pasan por "En Escena" sin ser una
+// visita real). La duración se limita al tope configurado para que a
+// alguien se le olvide actualizar el estatus por horas no infle el dato.
+function registrarVisitaEscenaSiAplica(nombre, enEscenaDesde) {
+  if (!enEscenaDesde) return;
+  const minutos = Math.round((Date.now() - new Date(enEscenaDesde).getTime()) / 60000);
+  if (minutos < getEscenaMinMinutos()) return;
+  const topeMinutos = getEscenaTopeHoras() * 60;
+  const historial = getEscenaHistorial();
+  historial.push({ nombre, fecha: localISOString().slice(0, 10), minutos: Math.min(minutos, topeMinutos) });
+  saveEscenaHistorial(historial);
+}
 const NOTES_KEY = "tert_notas";
 const THEME_KEY = "tert_theme";
 const UNIT_STATUS_KEY = "tert_unit_status";
@@ -304,6 +337,42 @@ function renderMantenimientoInfo() {
     });
   }
 }
+function renderConfigTiempos() {
+  $("#cfgAlertaMinutos").value = getUnitAlertMinutes();
+  $("#cfgEscenaMinMinutos").value = getEscenaMinMinutos();
+  $("#cfgEscenaTopeHoras").value = getEscenaTopeHoras();
+  const editable = isMaintenanceMode();
+  $("#cfgAlertaMinutos").disabled = !editable;
+  $("#cfgEscenaMinMinutos").disabled = !editable;
+  $("#cfgEscenaTopeHoras").disabled = !editable;
+  $("#btnGuardarConfigTiempos").disabled = !editable;
+}
+onPressed("#btnGuardarConfigTiempos", () => {
+  const alerta = Math.max(1, Math.min(180, Number($("#cfgAlertaMinutos").value) || 15));
+  const escenaMin = Math.max(1, Math.min(180, Number($("#cfgEscenaMinMinutos").value) || 15));
+  const escenaTope = Math.max(1, Math.min(48, Number($("#cfgEscenaTopeHoras").value) || 8));
+  localStorage.setItem(UNIT_ALERT_MINUTES_KEY, String(alerta));
+  localStorage.setItem(ESCENA_MIN_MINUTOS_KEY, String(escenaMin));
+  localStorage.setItem(ESCENA_TOPE_HORAS_KEY, String(escenaTope));
+  renderConfigTiempos();
+  renderUnitBoard();
+  alert("Configuración de tiempos guardada.");
+});
+function renderEscenaAdminBox() {
+  const box = $("#escenaAdminBox");
+  if (!box) return;
+  if (!isMaintenanceMode()) {
+    box.innerHTML = "";
+    return;
+  }
+  box.innerHTML = `<button type="button" class="danger-btn" id="btnReiniciarEscena">🗑️ Reiniciar Contador de Escenas</button>`;
+  $("#btnReiniciarEscena").addEventListener("click", () => {
+    if (!confirm("¿Borrar TODO el historial de Asistencia a Escenas de todo el equipo? Esta acción no se puede deshacer.")) return;
+    saveEscenaHistorial([]);
+    renderMetricas();
+    renderEscenaAdminBox();
+  });
+}
 
 // Aplica/quita el bloqueo de Tablero de Unidades, Difusión, Crear Incidente y
 // Reportes cuando no hay Despachador en Turno ni Modo Mantenimiento activo.
@@ -327,6 +396,9 @@ function applyDespachoLock() {
     if (el.closest("#pasarListaSection")) return; // Pasar Lista Diaria nunca se bloquea
     el.disabled = blocked;
   });
+  // Borrar Todos los Registros: además del bloqueo normal, requiere Modo
+  // Mantenimiento específicamente (no basta con tener un despachador de turno).
+  $("#btnBorrarTodo").disabled = blocked || !isMaintenanceMode();
 }
 
 function renderTurnoBar() {
@@ -347,6 +419,8 @@ function renderTurnoBar() {
     bar.className = "turno-bar turno-vacio";
   }
   applyDespachoLock();
+  renderConfigTiempos();
+  renderEscenaAdminBox();
 }
 
 function renderTurnoInfo() {
@@ -531,19 +605,19 @@ function normalizeUnitOverride(raw) {
   if (typeof raw === "string") return { label: raw, phone: "" }; // formato anterior
   return { label: raw.label || "", phone: raw.phone || "" };
 }
-// Estatus que se consideran "en algo activo" — si pasan UNIT_ALERT_MINUTES sin
-// cambiar, la tarjeta se resalta para recordar pedir actualización.
+// Estatus que se consideran "en algo activo" — si pasan getUnitAlertMinutes()
+// sin cambiar, la tarjeta se resalta para recordar pedir actualización.
 const UNIT_ALERT_STATUSES = ["En Ruta", "En Escena"];
-const UNIT_ALERT_MINUTES = 15;
 function normalizeUnitStatus(raw) {
   // "En Sitio" es el nombre anterior de "En Escena" (renombrado 2026-08-26) —
   // se traduce aquí para no perder el estatus de unidades ya guardadas.
-  if (!raw) return { estado: "Disponible", desde: null, activoDesde: null };
-  if (typeof raw === "string") return { estado: raw === "En Sitio" ? "En Escena" : raw, desde: null, activoDesde: null }; // formato anterior, sin hora
+  if (!raw) return { estado: "Disponible", desde: null, activoDesde: null, enEscenaDesde: null };
+  if (typeof raw === "string") return { estado: raw === "En Sitio" ? "En Escena" : raw, desde: null, activoDesde: null, enEscenaDesde: null }; // formato anterior, sin hora
   return {
     estado: raw.estado === "En Sitio" ? "En Escena" : (raw.estado || "Disponible"),
     desde: raw.desde || null,
     activoDesde: raw.activoDesde || null,
+    enEscenaDesde: raw.enEscenaDesde || null,
   };
 }
 function renderUnitBoard() {
@@ -559,7 +633,7 @@ function renderUnitBoard() {
     const st = normalizeUnitStatus(statuses[u.id]);
     const current = st.estado;
     const minutos = st.desde ? Math.round((Date.now() - new Date(st.desde).getTime()) / 60000) : null;
-    const isStale = UNIT_ALERT_STATUSES.includes(current) && minutos !== null && minutos >= UNIT_ALERT_MINUTES;
+    const isStale = UNIT_ALERT_STATUSES.includes(current) && minutos !== null && minutos >= getUnitAlertMinutes();
     const minutosActivo = st.activoDesde ? Math.round((Date.now() - new Date(st.activoDesde).getTime()) / 60000) : null;
     const showActivo = UNIT_ALERT_STATUSES.includes(current) && minutosActivo !== null;
     const card = document.createElement("div");
@@ -604,18 +678,38 @@ function cycleUnitStatus(id) {
   const isActivo = UNIT_ALERT_STATUSES.includes(next);
   let activoDesde = null;
   if (isActivo) activoDesde = wasActivo ? prev.activoDesde : new Date().toISOString();
-  statuses[id] = { estado: next, desde: new Date().toISOString(), activoDesde };
+
+  let enEscenaDesde = prev.enEscenaDesde;
+  if (prev.estado === "En Escena" && next !== "En Escena") {
+    const labels = getUnitLabels();
+    const u = UNITS.find((x) => x.id === id);
+    const nombre = normalizeUnitOverride(labels[id]).label || (u ? u.label : id);
+    registrarVisitaEscenaSiAplica(nombre, prev.enEscenaDesde);
+    enEscenaDesde = null;
+  } else if (next === "En Escena" && prev.estado !== "En Escena") {
+    enEscenaDesde = new Date().toISOString();
+  }
+
+  statuses[id] = { estado: next, desde: new Date().toISOString(), activoDesde, enEscenaDesde };
   saveUnitStatuses(statuses);
   renderUnitBoard();
 }
 renderUnitBoard();
-setInterval(renderUnitBoard, 30000); // revisa cada 30s si alguna tarjeta ya paso los UNIT_ALERT_MINUTES
+setInterval(renderUnitBoard, 30000); // revisa cada 30s si alguna tarjeta ya paso getUnitAlertMinutes()
 
 onPressed("#btnResetAllUnits", () => {
   if (!confirm("¿Marcar TODAS las unidades como Disponible?")) return;
   const statuses = getUnitStatuses();
+  const labels = getUnitLabels();
   const ahora = new Date().toISOString();
-  UNITS.forEach((u) => (statuses[u.id] = { estado: "Disponible", desde: ahora, activoDesde: null }));
+  UNITS.forEach((u) => {
+    const prev = normalizeUnitStatus(statuses[u.id]);
+    if (prev.estado === "En Escena") {
+      const nombre = normalizeUnitOverride(labels[u.id]).label || u.label;
+      registrarVisitaEscenaSiAplica(nombre, prev.enEscenaDesde);
+    }
+    statuses[u.id] = { estado: "Disponible", desde: ahora, activoDesde: null, enEscenaDesde: null };
+  });
   saveUnitStatuses(statuses);
   renderUnitBoard();
 });
@@ -1214,6 +1308,7 @@ function formatFechaCorta(yyyyMmDd) {
   return new Date(yyyyMmDd + "T00:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" });
 }
 function renderMetricas() {
+  renderEscenaAdminBox();
   const desde = $("#metricasDesde").value;
   const hasta = $("#metricasHasta").value;
 
@@ -1235,6 +1330,9 @@ function renderMetricas() {
   $("#chartIncidentesMes").innerHTML = svgBarChart(porMes, { labelWidth: 70, chartWidth: 190, color: "var(--blue)" });
   $("#chartIncidentesTipo").innerHTML = svgBarChart(contarPor(logs, (l) => l.tipo), { labelWidth: 110, chartWidth: 120, color: "var(--blue)" });
   $("#chartIncidentesPrioridad").innerHTML = svgBarChart(contarPor(logs, (l) => l.prioridad), { labelWidth: 60, chartWidth: 140, color: "var(--blue)" });
+
+  const escenaHistorial = getEscenaHistorial().filter((v) => (!desde || v.fecha >= desde) && (!hasta || v.fecha <= hasta));
+  $("#chartEscena").innerHTML = svgBarChart(contarPor(escenaHistorial, (v) => v.nombre), { maxItems: 25, color: "var(--green)" });
 
   const porNombre = contarPor(entradas, (e) => e.nombre);
   const top4 = porNombre.slice(0, 4);
@@ -1468,7 +1566,7 @@ renderBackupReminder();
 $("#btnExportConfig").addEventListener("click", () => {
   const config = {
     tipo: "tert_config",
-    version: 3,
+    version: 4,
     exportado: new Date().toISOString(),
     unitLabels: getUnitLabels(),
     unitStatuses: getUnitStatuses(),
@@ -1481,6 +1579,12 @@ $("#btnExportConfig").addEventListener("click", () => {
     asistenciaFirmantes: getFirmantes(),
     asistenciaUltimoFirmante: getUltimoFirmante(),
     asistenciaNombresConocidos: getNombresConocidos(),
+    escenaHistorial: getEscenaHistorial(),
+    configTiempos: {
+      alertaMinutos: getUnitAlertMinutes(),
+      escenaMinMinutos: getEscenaMinMinutos(),
+      escenaTopeHoras: getEscenaTopeHoras(),
+    },
   };
   const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -1512,7 +1616,27 @@ $("#importConfigFile").addEventListener("change", (e) => {
       e.target.value = "";
       return;
     }
-    if (!confirm("Esto reemplazará nombres, celulares, marcado rápido, notas, bitácora, turnos y asistencia de este dispositivo con los del archivo. ¿Continuar?")) {
+
+    // Aviso (no bloquea) si el archivo trae datos más viejos que lo que ya
+    // hay en este dispositivo — compara la fecha real más reciente de
+    // Bitácora + Asistencia en cada lado, no solo cuándo se exportó el archivo.
+    const fechaMasReciente = (logs, asistencia) => {
+      const fechas = [
+        ...(logs || []).map((l) => (l.fecha || "").slice(0, 10)),
+        ...(asistencia || []).map((d) => d.fecha),
+      ].filter(Boolean).sort();
+      return fechas.length ? fechas[fechas.length - 1] : null;
+    };
+    const fechaActual = fechaMasReciente(getLogs(), getAsistencia());
+    const fechaArchivo = fechaMasReciente(config.logs, config.asistencia);
+    if (fechaActual && fechaArchivo && fechaArchivo < fechaActual) {
+      if (!confirm(`⚠️ El archivo que vas a importar llega hasta el ${fechaArchivo}, pero ya tienes información en este dispositivo hasta el ${fechaActual}. Si continúas, vas a reemplazar datos más nuevos con datos más viejos.\n\n¿Aún así quieres continuar?`)) {
+        e.target.value = "";
+        return;
+      }
+    }
+
+    if (!confirm("Esto reemplazará nombres, celulares, marcado rápido, notas, bitácora, turnos, asistencia y métricas de escena de este dispositivo con los del archivo. ¿Continuar?")) {
       e.target.value = "";
       return;
     }
@@ -1527,6 +1651,13 @@ $("#importConfigFile").addEventListener("change", (e) => {
     saveFirmantes(config.asistenciaFirmantes || []);
     saveUltimoFirmante(config.asistenciaUltimoFirmante || "");
     saveNombresConocidos(config.asistenciaNombresConocidos || []);
+    saveEscenaHistorial(config.escenaHistorial || []);
+    if (config.configTiempos) {
+      localStorage.setItem(UNIT_ALERT_MINUTES_KEY, String(config.configTiempos.alertaMinutos || 15));
+      localStorage.setItem(ESCENA_MIN_MINUTOS_KEY, String(config.configTiempos.escenaMinMinutos || 15));
+      localStorage.setItem(ESCENA_TOPE_HORAS_KEY, String(config.configTiempos.escenaTopeHoras || 8));
+    }
+    renderConfigTiempos();
     renderUnitBoard();
     renderQuickDial();
     loadNotes();

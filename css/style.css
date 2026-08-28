@@ -124,7 +124,7 @@ body {
 .unidades-gauge.gauge-bad { border-color: #e5484d; }
 .unidades-gauge.gauge-bad .unidades-gauge-num { color: #e5484d; }
 
-.gauge-ruta, .gauge-escena, .gauge-personal, .gauge-fuera { background: rgba(255, 255, 255, 0.04); }
+.gauge-ruta, .gauge-escena, .gauge-personal, .gauge-fuera { background: rgba(255, 255, 255, 0.04); width: 48px; }
 .gauge-ruta { border-color: var(--accent); }
 .gauge-ruta .unidades-gauge-num { color: var(--accent); }
 .gauge-escena { border-color: var(--blue); }

@@ -653,8 +653,8 @@ function renderUnitBoard() {
   });
   renderUnidadesGauge(statuses);
 }
-// Medidor rápido en la barra superior: cuántas unidades están Disponibles
-// ahora mismo, sin tener que entrar al Tablero de Unidades a contarlas.
+// Franja de medidores debajo de la barra superior: cuántas unidades hay en
+// cada estatus ahora mismo, sin tener que entrar al Tablero a contarlas.
 function renderUnidadesGauge(statuses) {
   const total = UNITS.length;
   const estados = UNITS.map((u) => normalizeUnitStatus(statuses[u.id]).estado);

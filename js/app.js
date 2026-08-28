@@ -657,12 +657,19 @@ function renderUnitBoard() {
 // ahora mismo, sin tener que entrar al Tablero de Unidades a contarlas.
 function renderUnidadesGauge(statuses) {
   const total = UNITS.length;
-  const disponibles = UNITS.filter((u) => normalizeUnitStatus(statuses[u.id]).estado === "Disponible").length;
+  const estados = UNITS.map((u) => normalizeUnitStatus(statuses[u.id]).estado);
+  const contar = (estado) => estados.filter((e) => e === estado).length;
+  const disponibles = contar("Disponible");
   const ratio = total ? disponibles / total : 0;
   const gauge = $("#unidadesGauge");
   $("#unidadesGaugeNum").textContent = `${disponibles}/${total}`;
   gauge.classList.toggle("gauge-warn", ratio > 0 && ratio < 0.5);
   gauge.classList.toggle("gauge-bad", ratio === 0);
+
+  $("#gaugeEnRutaNum").textContent = contar("En Ruta");
+  $("#gaugeEnEscenaNum").textContent = contar("En Escena");
+  $("#gaugePersonalNum").textContent = contar("Personal");
+  $("#gaugeFueraNum").textContent = contar("Fuera de Servicio");
 }
 function getMemberPhones(onlyDisponibles) {
   const labels = getUnitLabels();

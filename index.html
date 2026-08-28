@@ -9,12 +9,12 @@
 <title>TERT - Sistema de Despacho</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#ff6a00">
-<link rel="icon" href="icons/icon-192.png?v=20260828f" type="image/png">
-<link rel="apple-touch-icon" href="icons/icon-180.png?v=20260828f">
+<link rel="icon" href="icons/icon-192.png?v=20260828g" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png?v=20260828g">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TERT">
-<link rel="stylesheet" href="css/style.css?v=20260828f">
+<link rel="stylesheet" href="css/style.css?v=20260828g">
 <link rel="preload" as="image" href="assets/tert-seal.jpg">
 <script>
 (function () {
@@ -51,6 +51,22 @@
         <div class="unidades-gauge" id="unidadesGauge" title="Unidades disponibles ahora mismo">
           <span class="unidades-gauge-num" id="unidadesGaugeNum">--/--</span>
           <span class="unidades-gauge-lbl">Disponibles</span>
+        </div>
+        <div class="unidades-gauge mini gauge-ruta" id="gaugeEnRuta" title="Unidades En Ruta">
+          <span class="unidades-gauge-num" id="gaugeEnRutaNum">--</span>
+          <span class="unidades-gauge-lbl">Ruta</span>
+        </div>
+        <div class="unidades-gauge mini gauge-escena" id="gaugeEnEscena" title="Unidades En Escena">
+          <span class="unidades-gauge-num" id="gaugeEnEscenaNum">--</span>
+          <span class="unidades-gauge-lbl">Escena</span>
+        </div>
+        <div class="unidades-gauge mini gauge-personal" id="gaugePersonal" title="Unidades en Personal">
+          <span class="unidades-gauge-num" id="gaugePersonalNum">--</span>
+          <span class="unidades-gauge-lbl">Personal</span>
+        </div>
+        <div class="unidades-gauge mini gauge-fuera" id="gaugeFuera" title="Unidades Fuera de Servicio">
+          <span class="unidades-gauge-num" id="gaugeFueraNum">--</span>
+          <span class="unidades-gauge-lbl">Fuera</span>
         </div>
       </div>
       <button class="secondary-btn" id="btnLogout" title="Cerrar sesión">🔒 Salir</button>
@@ -855,6 +871,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=20260828f"></script>
+  <script src="js/app.js?v=20260828g"></script>
 </body>
 </html>

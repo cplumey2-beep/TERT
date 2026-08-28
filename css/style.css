@@ -80,7 +80,7 @@ body {
 
 .topbar-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 
-.clock-row { display: flex; align-items: center; gap: 10px; }
+.clock-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; row-gap: 6px; justify-content: flex-end; }
 
 .clock {
   font-size: 1.4rem;
@@ -115,6 +115,18 @@ body {
 .unidades-gauge.gauge-warn .unidades-gauge-num { color: #f4d03f; }
 .unidades-gauge.gauge-bad { border-color: #e5484d; }
 .unidades-gauge.gauge-bad .unidades-gauge-num { color: #e5484d; }
+
+.unidades-gauge.mini { padding: 2px 8px; background: rgba(255, 255, 255, 0.04); }
+.unidades-gauge.mini .unidades-gauge-num { font-size: 0.9rem; }
+.unidades-gauge.mini .unidades-gauge-lbl { font-size: 0.55rem; }
+.gauge-ruta { border-color: var(--accent); }
+.gauge-ruta .unidades-gauge-num { color: var(--accent); }
+.gauge-escena { border-color: var(--blue); }
+.gauge-escena .unidades-gauge-num { color: var(--blue); }
+.gauge-personal { border-color: var(--yellow); }
+.gauge-personal .unidades-gauge-num { color: var(--yellow); }
+.gauge-fuera { border-color: var(--red); }
+.gauge-fuera .unidades-gauge-num { color: var(--red); }
 
 #btnLogout { padding: 4px 12px; font-size: 0.8rem; }
 

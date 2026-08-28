@@ -587,6 +587,10 @@ th { background: var(--panel-alt); color: var(--accent); }
 .legal-text { overflow-y: auto; padding-right: 4px; min-height: 0; }
 .legal-text p { margin: 0 0 12px; font-size: 0.9rem; color: var(--text); line-height: 1.5; }
 .legal-text p:last-child { margin-bottom: 0; }
+.legal-text h4 { margin: 18px 0 6px; color: var(--accent); font-size: 1rem; }
+.legal-text h4:first-child { margin-top: 0; }
+.legal-text ul { margin: 0 0 12px; padding-left: 20px; color: var(--text); font-size: 0.9rem; line-height: 1.5; }
+.legal-text ul li { margin-bottom: 4px; }
 .legal-text em { color: var(--muted); }
 
 .filters { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 10px; }

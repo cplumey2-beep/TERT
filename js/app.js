@@ -1562,7 +1562,13 @@ $("#alfaModalOverlay").addEventListener("click", (e) => {
   if (e.target.id === "alfaModalOverlay") $("#alfaModalOverlay").classList.remove("open");
 });
 
-// ===== Acerca de / Términos y Condiciones =====
+// ===== Funcionalidades / Acerca de / Términos y Condiciones =====
+$("#btnOpenFuncionalidades").addEventListener("click", () => $("#funcionalidadesModalOverlay").classList.add("open"));
+$("#funcionalidadesModalClose").addEventListener("click", () => $("#funcionalidadesModalOverlay").classList.remove("open"));
+$("#funcionalidadesModalOverlay").addEventListener("click", (e) => {
+  if (e.target.id === "funcionalidadesModalOverlay") $("#funcionalidadesModalOverlay").classList.remove("open");
+});
+
 $("#btnOpenAcerca").addEventListener("click", () => $("#acercaModalOverlay").classList.add("open"));
 $("#acercaModalClose").addEventListener("click", () => $("#acercaModalOverlay").classList.remove("open"));
 $("#acercaModalOverlay").addEventListener("click", (e) => {

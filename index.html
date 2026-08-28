@@ -9,12 +9,12 @@
 <title>TERT - Sistema de Despacho</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#ff6a00">
-<link rel="icon" href="icons/icon-192.png?v=20260827t" type="image/png">
-<link rel="apple-touch-icon" href="icons/icon-180.png?v=20260827t">
+<link rel="icon" href="icons/icon-192.png?v=20260828a" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png?v=20260828a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TERT">
-<link rel="stylesheet" href="css/style.css?v=20260827t">
+<link rel="stylesheet" href="css/style.css?v=20260828a">
 <link rel="preload" as="image" href="assets/tert-seal.jpg">
 <script>
 (function () {
@@ -535,6 +535,7 @@
         <div class="info-card full">
           <h3>Acerca de / Legal</h3>
           <div class="grid-buttons">
+            <button class="secondary-btn" id="btnOpenFuncionalidades">🧩 Funcionalidades del Sistema</button>
             <button class="secondary-btn" id="btnOpenAcerca">ℹ️ Acerca de esta Plataforma</button>
             <button class="secondary-btn" id="btnOpenTerminos">⚖️ Términos y Condiciones</button>
           </div>
@@ -695,6 +696,66 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="funcionalidadesModalOverlay">
+    <div class="modal-box modal-box-wide">
+      <h3>Funcionalidades del Sistema</h3>
+      <div class="legal-text">
+        <p>Resumen de qué es y qué ofrece el Sistema de Despacho TERT — una plataforma digital construida para Tactical Emergency Response Team Corp., que reemplaza procesos en papel, centraliza la operación diaria y da datos reales para tomar decisiones.</p>
+
+        <h4>📡 Despacho en Tiempo Real</h4>
+        <ul>
+          <li><strong>Tablero de Unidades</strong> — estatus en vivo de cada miembro, con alerta automática si una unidad lleva 15+ min sin actualizar.</li>
+          <li><strong>Difusión Masiva por SMS</strong> — un toque envía la alerta a todas las unidades disponibles, con plantillas para 9 tipos de incidente y variante de emergencia (10-50) o regular.</li>
+          <li><strong>Cancelar Mensaje</strong> — retracta una alerta enviada por error.</li>
+          <li><strong>Marcado Rápido</strong> — contactos reales de emergencia de Barceloneta, Arecibo, Florida y Manatí.</li>
+          <li><strong>Mapas y Ubicación</strong> — geolocalización instantánea, Google Maps y Waze.</li>
+        </ul>
+
+        <h4>📝 Bitácora y Reportes de Incidentes</h4>
+        <ul>
+          <li>Registro completo de cada incidente: tipo, prioridad, ubicación, unidad asignada, agencias de apoyo.</li>
+          <li>Línea de tiempo automática por caso, con tiempo de respuesta calculado solo.</li>
+          <li>Reportes filtrables por fecha, tipo, estatus o texto libre; exportación a CSV e impresión/PDF individual.</li>
+          <li>Cada registro queda ligado al Despachador en Turno — respaldo legal real.</li>
+        </ul>
+
+        <h4>✅ Pasar Lista Diaria</h4>
+        <ul>
+          <li>Reemplaza el reporte diario en papel: nombre (miembro o aliado), hora y medio de comunicación.</li>
+          <li>Reporte oficial en PDF con membrete real, marca de agua del sello T.E.R.T. y cita de protocolo.</li>
+          <li>Historial completo buscable por fecha, para siempre.</li>
+          <li>No requiere Despachador en Turno — una emergencia real no espera.</li>
+        </ul>
+
+        <h4>📊 Métricas</h4>
+        <ul>
+          <li>Participación por persona — base objetiva para mérito, experiencia y rango.</li>
+          <li>Miembro vs. Aliado, medio de comunicación más usado.</li>
+          <li>Incidentes por mes, tipo y prioridad, con gráficos instantáneos.</li>
+        </ul>
+
+        <h4>🔐 Control Operativo y Responsabilidad Legal</h4>
+        <ul>
+          <li>Despachador en Turno obligatorio para operar el sistema.</li>
+          <li>Modo Mantenimiento con contraseña maestra para pruebas.</li>
+          <li>Candado de acceso y respaldo exportable con recordatorio automático.</li>
+        </ul>
+
+        <h4>📻 Referencia Operativa Integrada</h4>
+        <p>Clave 10 estatal completa y Claves Alfa de emergencias médicas, disponibles al instante desde el teléfono en el campo.</p>
+
+        <h4>🏆 ¿Cómo se compara en el mercado?</h4>
+        <p>Nuestra categoría real es la de plataformas de gestión de personal voluntario (tipo Aladtec, Volgistics, Better Impact), que cobran entre $30 y $150 al mes. Lo que tenemos va más allá de esa categoría: combina despacho en vivo, asistencia oficial y analítica de mérito en una sola plataforma diseñada específicamente para cómo trabaja TERT.</p>
+
+        <h4>💰 Valoración de Referencia</h4>
+        <p><em>Esto es solo para contexto — no hay ningún cobro dentro de nuestro equipo, la plataforma fue construida para TERT.</em> Si se ofreciera comercialmente a otra organización similar, un valor justo de mercado sería $40–$75 al mes (o $400–$750 al año) tal como está hoy, subiendo a $75–$150 al mes con una futura sincronización en tiempo real entre dispositivos.</p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="secondary-btn" id="funcionalidadesModalClose">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="acercaModalOverlay">
     <div class="modal-box modal-box-wide">
       <h3>Acerca de esta Plataforma</h3>
@@ -761,6 +822,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=20260827t"></script>
+  <script src="js/app.js?v=20260828a"></script>
 </body>
 </html>

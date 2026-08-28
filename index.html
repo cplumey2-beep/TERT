@@ -9,12 +9,12 @@
 <title>TERT - Sistema de Despacho</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#ff6a00">
-<link rel="icon" href="icons/icon-192.png?v=20260828e" type="image/png">
-<link rel="apple-touch-icon" href="icons/icon-180.png?v=20260828e">
+<link rel="icon" href="icons/icon-192.png?v=20260828f" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png?v=20260828f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TERT">
-<link rel="stylesheet" href="css/style.css?v=20260828e">
+<link rel="stylesheet" href="css/style.css?v=20260828f">
 <link rel="preload" as="image" href="assets/tert-seal.jpg">
 <script>
 (function () {
@@ -46,7 +46,13 @@
       </div>
     </div>
     <div class="topbar-right">
-      <div class="clock" id="clock">--:--:--</div>
+      <div class="clock-row">
+        <div class="clock" id="clock">--:--:--</div>
+        <div class="unidades-gauge" id="unidadesGauge" title="Unidades disponibles ahora mismo">
+          <span class="unidades-gauge-num" id="unidadesGaugeNum">--/--</span>
+          <span class="unidades-gauge-lbl">Disponibles</span>
+        </div>
+      </div>
       <button class="secondary-btn" id="btnLogout" title="Cerrar sesión">🔒 Salir</button>
     </div>
   </header>
@@ -849,6 +855,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=20260828e"></script>
+  <script src="js/app.js?v=20260828f"></script>
 </body>
 </html>

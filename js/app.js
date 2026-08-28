@@ -651,6 +651,18 @@ function renderUnitBoard() {
     card.querySelector(".unit-status").addEventListener("click", () => cycleUnitStatus(u.id));
     container.appendChild(card);
   });
+  renderUnidadesGauge(statuses);
+}
+// Medidor rápido en la barra superior: cuántas unidades están Disponibles
+// ahora mismo, sin tener que entrar al Tablero de Unidades a contarlas.
+function renderUnidadesGauge(statuses) {
+  const total = UNITS.length;
+  const disponibles = UNITS.filter((u) => normalizeUnitStatus(statuses[u.id]).estado === "Disponible").length;
+  const ratio = total ? disponibles / total : 0;
+  const gauge = $("#unidadesGauge");
+  $("#unidadesGaugeNum").textContent = `${disponibles}/${total}`;
+  gauge.classList.toggle("gauge-warn", ratio > 0 && ratio < 0.5);
+  gauge.classList.toggle("gauge-bad", ratio === 0);
 }
 function getMemberPhones(onlyDisponibles) {
   const labels = getUnitLabels();

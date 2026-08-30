@@ -1787,7 +1787,14 @@ function clusterFireHotspots(spots) {
 }
 let fireClustersCache = [];
 let fireFetchFailed = false;
+let fireFetchInFlight = false;
 function fetchFires() {
+  // Guard de reentrancia: ahora hay 4 disparadores independientes (ciclo de 15
+  // min, visibilitychange, online, botón manual) — sin esto, dos que coincidan
+  // (ej. el teléfono recupera señal y vuelve a primer plano a la vez) duplican
+  // las peticiones a NASA y corren una carrera de "el último en terminar gana".
+  if (fireFetchInFlight) return;
+  fireFetchInFlight = true;
   const listEl = $("#fireList");
   if (listEl) listEl.innerHTML = '<p class="hint">🛰️ Consultando satélites...</p>';
   const allHotspots = [];
@@ -1796,6 +1803,7 @@ function fetchFires() {
   const finishOne = () => {
     done++;
     if (done >= FIRMS_SOURCES.length) {
+      fireFetchInFlight = false;
       fireFetchFailed = failCount >= FIRMS_SOURCES.length;
       renderFireModal(allHotspots);
     }

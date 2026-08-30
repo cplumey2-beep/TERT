@@ -1701,6 +1701,265 @@ $("#btnForceRefresh").addEventListener("click", async () => {
   window.location.href = window.location.pathname + "?_refresh=" + Date.now();
 });
 
+// ===== Alerta de Incendios (NASA FIRMS) =====
+// Mismo patrón de fetch client-side (sin backend) que WeatherCenterPR/KWINT:
+// consulta directa a NASA FIRMS desde el navegador, clustering <1km para no
+// inflar el conteo por múltiples pasadas de satélite, mapeo a municipio por
+// distancia. TERT no tiene servidor propio, así que esto corre 100% en el cliente.
+const FIRMS_KEY = "989b65a4765645802d73c69a782f2b74";
+const FIRMS_BBOX = "-67.27,17.88,-65.22,18.52";
+const FIRMS_SOURCES = ["VIIRS_NOAA20_NRT", "VIIRS_NOAA21_NRT", "VIIRS_SNPP_NRT", "MODIS_NRT"];
+const PR_MUNIS = {
+  "Adjuntas": [18.1627, -66.7224], "Aguada": [18.3824, -67.1887], "Aguadilla": [18.4274, -67.1541],
+  "Aguas Buenas": [18.2569, -66.1028], "Aibonito": [18.14, -66.266], "Anasco": [18.2828, -67.1396],
+  "Arecibo": [18.4725, -66.7156], "Arroyo": [17.966, -66.0614], "Barceloneta": [18.4505, -66.5385],
+  "Barranquitas": [18.1866, -66.3063], "Bayamon": [18.3985, -66.1554], "Cabo Rojo": [18.0866, -67.1457],
+  "Caguas": [18.2341, -66.0485], "Camuy": [18.4837, -66.8449], "Canovanas": [18.379, -65.9014],
+  "Carolina": [18.3808, -65.9573], "Catano": [18.4413, -66.1174], "Cayey": [18.1119, -66.166],
+  "Ceiba": [18.2636, -65.6486], "Ciales": [18.336, -66.4689], "Cidra": [18.176, -66.1614],
+  "Coamo": [18.08, -66.358], "Comerio": [18.2192, -66.2256], "Corozal": [18.3414, -66.3168],
+  "Culebra": [18.3108, -65.3028], "Dorado": [18.4589, -66.2677], "Fajardo": [18.3258, -65.6524],
+  "Florida": [18.3632, -66.5617], "Guanica": [17.9714, -66.908], "Guayama": [17.9843, -66.1137],
+  "Guayanilla": [18.0191, -66.7918], "Guaynabo": [18.3567, -66.1108], "Gurabo": [18.2544, -65.973],
+  "Hatillo": [18.4867, -66.8254], "Hormigueros": [18.1397, -67.1275], "Humacao": [18.1498, -65.8197],
+  "Isabela": [18.5006, -67.0243], "Jayuya": [18.2186, -66.5916], "Juana Diaz": [18.0535, -66.5066],
+  "Juncos": [18.2275, -65.9211], "Lajas": [18.0498, -67.0591], "Lares": [18.2949, -66.8778],
+  "Las Marias": [18.2508, -66.9904], "Las Piedras": [18.1831, -65.8722], "Loiza": [18.4313, -65.8783],
+  "Luquillo": [18.3726, -65.7165], "Manati": [18.4314, -66.4837], "Maricao": [18.1808, -66.9796],
+  "Maunabo": [18.0072, -65.8993], "Mayaguez": [18.2011, -67.1396], "Moca": [18.3946, -67.1131],
+  "Morovis": [18.3257, -66.4079], "Naguabo": [18.2117, -65.7349], "Naranjito": [18.3009, -66.2449],
+  "Orocovis": [18.2269, -66.391], "Patillas": [18.0038, -66.0136], "Penuelas": [18.0563, -66.726],
+  "Ponce": [18.0111, -66.6141], "Quebradillas": [18.4735, -66.9388], "Rincon": [18.3403, -67.25],
+  "Rio Grande": [18.3803, -65.8314], "Sabana Grande": [18.0777, -66.9607], "Salinas": [17.9772, -66.2987],
+  "San German": [18.0826, -67.0353], "San Juan": [18.4655, -66.1057], "San Lorenzo": [18.1897, -65.9617],
+  "San Sebastian": [18.3374, -66.9901], "Santa Isabel": [17.9663, -66.4049], "Toa Alta": [18.3885, -66.2482],
+  "Toa Baja": [18.4441, -66.2541], "Trujillo Alto": [18.3548, -66.0075], "Utuado": [18.2653, -66.7008],
+  "Vega Alta": [18.4122, -66.3312], "Vega Baja": [18.4442, -66.3879], "Vieques": [18.1263, -65.4401],
+  "Villalba": [18.1275, -66.4922], "Yabucoa": [18.0505, -65.8794], "Yauco": [18.0348, -66.8499],
+};
+function fireHaversine(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+function fireNearestMuni(lat, lon) {
+  let best = null;
+  let bd = Infinity;
+  for (const name in PR_MUNIS) {
+    const m = PR_MUNIS[name];
+    const d = fireHaversine(lat, lon, m[0], m[1]);
+    if (d < bd) {
+      bd = d;
+      best = name;
+    }
+  }
+  return { name: best, dist: Math.round(bd * 10) / 10 };
+}
+function clusterFireHotspots(spots) {
+  let rem = spots.slice();
+  const clusters = [];
+  while (rem.length) {
+    const seed = rem.shift();
+    const cl = [seed];
+    const still = [];
+    for (const s of rem) {
+      if (fireHaversine(seed.lat, seed.lon, s.lat, s.lon) <= 1) cl.push(s);
+      else still.push(s);
+    }
+    rem = still;
+    const bestConf = cl.some((p) => p.confidence === "h") ? "h" : cl.some((p) => p.confidence === "n") ? "n" : "l";
+    const maxFrp = Math.max(...cl.map((p) => p.frp));
+    const latest = cl.sort((a, b) => (b.acq_date + b.acq_time).localeCompare(a.acq_date + a.acq_time))[0];
+    clusters.push({
+      lat: seed.lat, lon: seed.lon, municipality: seed.municipality, dist_km: seed.dist_km,
+      confidence: bestConf, frp: maxFrp, detections: cl.length,
+      acq_date: latest.acq_date, acq_time: latest.acq_time, satellite: latest.satellite, daynight: latest.daynight,
+    });
+  }
+  return clusters;
+}
+let fireClustersCache = [];
+function fetchFires() {
+  const listEl = $("#fireList");
+  if (listEl) listEl.innerHTML = '<p class="hint">🛰️ Consultando satélites...</p>';
+  const allHotspots = [];
+  let done = 0;
+  FIRMS_SOURCES.forEach((src) => {
+    const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${FIRMS_KEY}/${src}/${FIRMS_BBOX}/2`;
+    fetch(url)
+      .then((r) => r.text())
+      .then((txt) => {
+        const lines = txt.trim().split("\n");
+        if (lines.length > 1) {
+          const hdr = lines[0].split(",");
+          for (let i = 1; i < lines.length; i++) {
+            const fields = lines[i].split(",");
+            if (fields.length < hdr.length) continue;
+            const row = {};
+            hdr.forEach((h, j) => (row[h] = fields[j]));
+            const lat = parseFloat(row.latitude);
+            const lon = parseFloat(row.longitude);
+            if (isNaN(lat)) continue;
+            const rawConf = row.confidence || "l";
+            let conf;
+            const cn = parseInt(rawConf, 10);
+            conf = !isNaN(cn) ? (cn >= 80 ? "h" : cn >= 30 ? "n" : "l") : ["h", "n", "l"].includes(rawConf) ? rawConf : "l";
+            const nearest = fireNearestMuni(lat, lon);
+            allHotspots.push({
+              lat, lon, confidence: conf, frp: parseFloat(row.frp) || 0,
+              acq_date: row.acq_date || "", acq_time: (row.acq_time || "").padStart(4, "0"),
+              satellite: row.satellite || src, daynight: row.daynight || "",
+              municipality: nearest.name, dist_km: nearest.dist,
+            });
+          }
+        }
+        done++;
+        if (done >= FIRMS_SOURCES.length) renderFireModal(allHotspots);
+      })
+      .catch(() => {
+        done++;
+        if (done >= FIRMS_SOURCES.length) renderFireModal(allHotspots);
+      });
+  });
+}
+function updateFireBadge(count, severity) {
+  const btn = $("#btnFireAlert");
+  btn.classList.remove("sev-alta", "sev-moderada", "sev-baja");
+  if (!count) {
+    btn.hidden = true;
+    return;
+  }
+  btn.hidden = false;
+  if (severity === "MODERADA") btn.classList.add("sev-moderada");
+  else if (severity === "BAJA") btn.classList.add("sev-baja");
+  $("#fireAlertBadgeNum").textContent = count;
+}
+function renderFireModal(hotspots) {
+  const now = Date.now();
+  const recent = hotspots.filter((h) => {
+    try {
+      const dt = new Date(`${h.acq_date}T${h.acq_time.substring(0, 2)}:${h.acq_time.substring(2, 4)}:00Z`);
+      return now - dt.getTime() < 43200000; // 12h
+    } catch (e) {
+      return true;
+    }
+  });
+  const seen = {};
+  const unique = [];
+  recent.forEach((h) => {
+    const k = `${Math.round(h.lat * 1000)},${Math.round(h.lon * 1000)}`;
+    if (!seen[k]) {
+      seen[k] = 1;
+      unique.push(h);
+    }
+  });
+
+  const summ = $("#fireSummary");
+  const list = $("#fireList");
+
+  if (!unique.length) {
+    fireClustersCache = [];
+    updateFireBadge(0, null);
+    if (summ) summ.innerHTML = "";
+    if (list) {
+      list.innerHTML =
+        '<div class="fire-item clear"><div class="fire-icon">🟢</div><div class="fire-info">' +
+        '<div class="fire-muni">Sin incendios activos</div>' +
+        '<div class="fire-detail">No se registran fuegos forestales activos en Puerto Rico en las últimas 12 horas. Fuente: NASA FIRMS (VIIRS + MODIS).</div>' +
+        "</div></div>";
+    }
+    return;
+  }
+
+  const clusters = clusterFireHotspots(unique);
+  fireClustersCache = clusters;
+  const byMuni = {};
+  clusters.forEach((c) => {
+    if (!byMuni[c.municipality]) byMuni[c.municipality] = [];
+    byMuni[c.municipality].push(c);
+  });
+
+  const totalFires = clusters.length;
+  const highConf = clusters.filter((c) => c.confidence === "h").length;
+  const maxFrp = Math.max(...clusters.map((c) => c.frp));
+
+  let severity, sevColor;
+  if (highConf >= 2 || maxFrp >= 15) {
+    severity = "ALTA";
+    sevColor = "var(--red)";
+  } else if (highConf >= 1 || maxFrp >= 5) {
+    severity = "MODERADA";
+    sevColor = "#f4d03f";
+  } else {
+    severity = "BAJA";
+    sevColor = "var(--accent)";
+  }
+
+  updateFireBadge(totalFires, severity);
+
+  if (summ) {
+    summ.innerHTML =
+      `<div class="fire-stat"><span class="val" style="color:${sevColor}">${totalFires}</span><span class="lbl">Incendios</span></div>` +
+      `<div class="fire-stat"><span class="val" style="color:${sevColor}">${severity}</span><span class="lbl">Severidad</span></div>` +
+      `<div class="fire-stat"><span class="val">${maxFrp.toFixed(1)}</span><span class="lbl">FRP Max (MW)</span></div>` +
+      `<div class="fire-stat"><span class="val">${Object.keys(byMuni).length}</span><span class="lbl">Municipios</span></div>`;
+  }
+
+  const munis = Object.keys(byMuni).sort((a, b) => byMuni[b].length - byMuni[a].length);
+  let html = "";
+  munis.forEach((m) => {
+    const mc = byMuni[m];
+    const fires = mc.length;
+    const sevClass = mc.some((c) => c.confidence === "h") ? "high" : "mod";
+    const countStr = fires > 1 ? `${fires} incendios activos` : "1 incendio activo";
+    let detailHtml = "";
+    mc.sort((a, b) => b.frp - a.frp).forEach((c, i) => {
+      const gpsUrl = `https://www.google.com/maps?q=${c.lat},${c.lon}`;
+      const confLabel = { h: "🔴 Alta", n: "🟠 Nominal", l: "🟡 Baja" }[c.confidence] || "?";
+      const timeLabel = `${c.acq_date} ${c.acq_time.substring(0, 2)}:${c.acq_time.substring(2, 4)}Z`;
+      const idx = fireClustersCache.indexOf(c);
+      if (fires > 1) detailHtml += `<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.08)"><strong>Incendio ${i + 1}</strong><br>`;
+      else detailHtml += `<div style="margin-top:4px">`;
+      detailHtml +=
+        `📍 <strong>${c.lat.toFixed(4)}°N, ${Math.abs(c.lon).toFixed(4)}°W</strong><br>` +
+        `🗺️ <a href="${gpsUrl}" target="_blank">Abrir en Google Maps →</a><br>` +
+        `⚡ FRP: <strong>${c.frp.toFixed(1)} MW</strong> | Confianza: ${confLabel}<br>` +
+        `🛰️ ${c.satellite.replace("_", " ")} | 🕒 ${timeLabel}<br>` +
+        `<button type="button" class="fire-sms-btn" data-fire-idx="${idx}">📱 Enviar SMS</button>` +
+        `</div>`;
+    });
+    html += `<div class="fire-item ${sevClass}"><div class="fire-icon">🔥</div><div class="fire-info">` +
+      `<div class="fire-muni">📍 ${m} — ${countStr}</div>` +
+      `<div class="fire-detail">${detailHtml}</div></div></div>`;
+  });
+  if (list) list.innerHTML = html;
+}
+function sendFireSms(cluster) {
+  const gpsUrl = `https://www.google.com/maps?q=${cluster.lat},${cluster.lon}`;
+  // Sin acentos ni emoji a proposito, mismo motivo que broadcastIncidente():
+  // fuerza codificacion GSM-7 (160 caracteres/fragmento) en vez de Unicode (70).
+  const body = `Fuego detectado en ${cluster.municipality}. Oprima enlace para direccion en Google Maps: ${gpsUrl}`;
+  sendBroadcast(body, true);
+}
+$("#fireList").addEventListener("click", (e) => {
+  const btn = e.target.closest(".fire-sms-btn");
+  if (!btn) return;
+  const cluster = fireClustersCache[parseInt(btn.dataset.fireIdx, 10)];
+  if (cluster) withPressed(btn, () => sendFireSms(cluster));
+});
+onPressed("#btnFireAlert", () => $("#fireModalOverlay").classList.add("open"));
+onPressed("#btnFireRefresh", fetchFires);
+$("#fireModalClose").addEventListener("click", () => $("#fireModalOverlay").classList.remove("open"));
+$("#fireModalOverlay").addEventListener("click", (e) => {
+  if (e.target.id === "fireModalOverlay") $("#fireModalOverlay").classList.remove("open");
+});
+fetchFires();
+setInterval(fetchFires, 900000); // 15 min
+
 // ===== Referencias de códigos (Clave 10 / Claves Alfa) =====
 $("#btnOpenClave10").addEventListener("click", () => $("#clave10ModalOverlay").classList.add("open"));
 $("#clave10ModalClose").addEventListener("click", () => $("#clave10ModalOverlay").classList.remove("open"));

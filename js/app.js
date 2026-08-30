@@ -1924,16 +1924,18 @@ function renderFireModal(hotspots) {
   const highConf = clusters.filter((c) => c.confidence === "h").length;
   const maxFrp = Math.max(...clusters.map((c) => c.frp));
 
+  // Mismos colores que .fire-alert-bar.sev-* en style.css — deben coincidir
+  // siempre, si se reordena la severidad ahí hay que actualizar esto también.
   let severity, sevColor;
   if (highConf >= 2 || maxFrp >= 15) {
     severity = "ALTA";
     sevColor = "var(--red)";
   } else if (highConf >= 1 || maxFrp >= 5) {
     severity = "MODERADA";
-    sevColor = "#f4d03f";
+    sevColor = "var(--accent)";
   } else {
     severity = "BAJA";
-    sevColor = "var(--accent)";
+    sevColor = "#c4d82c";
   }
 
   updateFireAlertBar(totalFires, severity);

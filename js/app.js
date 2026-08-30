@@ -388,6 +388,9 @@ function applyDespachoLock() {
   $all('[id^="btnBroadcast"]').forEach((b) => (b.disabled = blocked));
   $("#cancelCodigoSelect").disabled = blocked;
 
+  $("#lockBannerFuego").classList.toggle("show", blocked);
+  $all(".fire-sms-btn").forEach((b) => (b.disabled = blocked));
+
   $("#lockBannerIncidente").classList.toggle("show", blocked);
   $all("#logForm input, #logForm select, #logForm textarea, #logForm button").forEach((el) => (el.disabled = blocked));
 
@@ -1937,6 +1940,7 @@ function renderFireModal(hotspots) {
       `<div class="fire-detail">${detailHtml}</div></div></div>`;
   });
   if (list) list.innerHTML = html;
+  applyDespachoLock();
 }
 function sendFireSms(cluster) {
   const gpsUrl = `https://www.google.com/maps?q=${cluster.lat},${cluster.lon}`;

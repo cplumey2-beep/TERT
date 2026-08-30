@@ -762,6 +762,10 @@ button.btn-pressed {
    Barra de ancho completo (mismo patrón que .turno-bar) en vez de una pastilla
    más junto a D/R/E/P/F — una alerta real de incendio no puede confundirse con
    las demás pastillas informativas y pasar desapercibida. */
+@keyframes fire-alert-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 currentColor; opacity: 1; }
+  50% { box-shadow: 0 0 0 6px transparent; opacity: 0.85; }
+}
 .fire-alert-bar {
   display: block;
   width: 100%;
@@ -776,9 +780,11 @@ button.btn-pressed {
   cursor: pointer;
   background: rgba(215, 58, 73, 0.18);
   color: var(--red);
-  animation: unit-stale-pulse 1.6s infinite;
+  animation: fire-alert-pulse 1.6s infinite;
 }
 .fire-alert-bar[hidden] { display: none; }
+.fire-alert-bar.sev-moderada { background: rgba(244, 208, 63, 0.2); color: #f4d03f; }
+.fire-alert-bar.sev-baja { background: rgba(255, 106, 0, 0.15); color: var(--accent); }
 .fire-alert-bar.offline {
   background: rgba(255, 255, 255, 0.06);
   color: var(--muted);

@@ -1845,9 +1845,9 @@ function fetchFires() {
       });
   });
 }
-function updateFireAlertBar(count, offline) {
+function updateFireAlertBar(count, severity, offline) {
   const bar = $("#fireAlertBar");
-  bar.classList.remove("offline");
+  bar.classList.remove("sev-moderada", "sev-baja", "offline");
   if (offline) {
     bar.hidden = false;
     bar.classList.add("offline");
@@ -1859,14 +1859,16 @@ function updateFireAlertBar(count, offline) {
     return;
   }
   bar.hidden = false;
-  bar.textContent = `🔥 Fuegos detectados: ${count} — toca para ver detalles y avisar a las unidades`;
+  if (severity === "MODERADA") bar.classList.add("sev-moderada");
+  else if (severity === "BAJA") bar.classList.add("sev-baja");
+  bar.textContent = `🔥 Fuegos detectados: ${count} (${severity}) — toca para ver detalles y avisar a las unidades`;
 }
 function renderFireModal(hotspots) {
   const summ = $("#fireSummary");
   const list = $("#fireList");
   if (fireFetchFailed) {
     fireClustersCache = [];
-    updateFireAlertBar(0, true);
+    updateFireAlertBar(0, null, true);
     if (summ) summ.innerHTML = "";
     if (list) {
       list.innerHTML =
@@ -1934,7 +1936,7 @@ function renderFireModal(hotspots) {
     sevColor = "var(--accent)";
   }
 
-  updateFireAlertBar(totalFires);
+  updateFireAlertBar(totalFires, severity);
 
   if (summ) {
     summ.innerHTML =

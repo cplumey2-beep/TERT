@@ -666,7 +666,7 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 0.8r
 }
 
 @media print {
-  header, nav, footer, .filters, .report-actions, #despacho, #bitacora, #info, .estado-strip { display: none !important; }
+  header, nav, footer, .filters, .report-actions, #despacho, #bitacora, #info, .estado-strip, .fire-alert-bar { display: none !important; }
   body { background: #fff; color: #000; }
   table, th, td { border-color: #000; }
 }
@@ -758,38 +758,32 @@ button.btn-pressed {
   transition: none !important;
 }
 
-/* ===== Alerta de Incendios (NASA FIRMS) ===== */
-.fire-alert-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 12px;
-  border-radius: 8px;
-  border: 2px solid var(--red);
-  background: rgba(215, 58, 73, 0.15);
-  color: var(--red);
+/* ===== Alerta de Incendios (NASA FIRMS) =====
+   Barra de ancho completo (mismo patrón que .turno-bar) en vez de una pastilla
+   más junto a D/R/E/P/F — una alerta real de incendio no puede confundirse con
+   las demás pastillas informativas y pasar desapercibida. */
+.fire-alert-bar {
+  display: block;
+  width: 100%;
+  padding: 8px 20px;
+  font-size: 0.9rem;
   font-weight: 700;
-  font-size: 0.8rem;
-  cursor: pointer;
+  text-align: center;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
   font-family: inherit;
+  cursor: pointer;
+  background: rgba(215, 58, 73, 0.18);
+  color: var(--red);
   animation: unit-stale-pulse 1.6s infinite;
 }
-.fire-alert-btn[hidden] { display: none; }
-.fire-alert-btn.sev-moderada { border-color: #f4d03f; background: rgba(244, 208, 63, 0.15); color: #f4d03f; }
-.fire-alert-btn.sev-baja { border-color: var(--accent); background: rgba(255, 106, 0, 0.12); color: var(--accent); }
-.fire-alert-btn.offline {
-  border-color: var(--muted);
+.fire-alert-bar[hidden] { display: none; }
+.fire-alert-bar.offline {
   background: rgba(255, 255, 255, 0.06);
   color: var(--muted);
   animation: none;
 }
-.fire-alert-badge {
-  background: currentColor;
-  border-radius: 20px;
-  padding: 0 7px;
-  font-variant-numeric: tabular-nums;
-}
-.fire-alert-badge span { color: var(--panel); }
 
 .fire-summary { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px; }
 .fire-stat { text-align: center; }

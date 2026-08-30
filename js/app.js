@@ -1845,33 +1845,28 @@ function fetchFires() {
       });
   });
 }
-function updateFireBadge(count, severity, offline) {
-  const btn = $("#btnFireAlert");
-  btn.classList.remove("sev-moderada", "sev-baja", "offline");
+function updateFireAlertBar(count, offline) {
+  const bar = $("#fireAlertBar");
+  bar.classList.remove("offline");
   if (offline) {
-    btn.hidden = false;
-    btn.classList.add("offline");
-    $("#fireAlertLabel").textContent = "🔥 Sin conexión";
-    $("#fireAlertBadgeWrap").hidden = true;
+    bar.hidden = false;
+    bar.classList.add("offline");
+    bar.textContent = "⚠️ Sin conexión — no se pudo verificar incendios";
     return;
   }
-  $("#fireAlertBadgeWrap").hidden = false;
-  $("#fireAlertLabel").textContent = "🔥 Incendios Activos";
   if (!count) {
-    btn.hidden = true;
+    bar.hidden = true;
     return;
   }
-  btn.hidden = false;
-  if (severity === "MODERADA") btn.classList.add("sev-moderada");
-  else if (severity === "BAJA") btn.classList.add("sev-baja");
-  $("#fireAlertBadgeNum").textContent = count;
+  bar.hidden = false;
+  bar.textContent = `🔥 Fuegos detectados: ${count} — toca para ver detalles y avisar a las unidades`;
 }
 function renderFireModal(hotspots) {
   const summ = $("#fireSummary");
   const list = $("#fireList");
   if (fireFetchFailed) {
     fireClustersCache = [];
-    updateFireBadge(0, null, true);
+    updateFireAlertBar(0, true);
     if (summ) summ.innerHTML = "";
     if (list) {
       list.innerHTML =
@@ -1903,7 +1898,7 @@ function renderFireModal(hotspots) {
 
   if (!unique.length) {
     fireClustersCache = [];
-    updateFireBadge(0, null);
+    updateFireAlertBar(0);
     if (summ) summ.innerHTML = "";
     if (list) {
       list.innerHTML =
@@ -1939,7 +1934,7 @@ function renderFireModal(hotspots) {
     sevColor = "var(--accent)";
   }
 
-  updateFireBadge(totalFires, severity);
+  updateFireAlertBar(totalFires);
 
   if (summ) {
     summ.innerHTML =
@@ -1992,7 +1987,7 @@ $("#fireList").addEventListener("click", (e) => {
   const cluster = fireClustersCache[parseInt(btn.dataset.fireIdx, 10)];
   if (cluster) withPressed(btn, () => sendFireSms(cluster));
 });
-onPressed("#btnFireAlert", () => $("#fireModalOverlay").classList.add("open"));
+onPressed("#fireAlertBar", () => $("#fireModalOverlay").classList.add("open"));
 onPressed("#btnFireRefresh", fetchFires);
 $("#fireModalClose").addEventListener("click", () => $("#fireModalOverlay").classList.remove("open"));
 $("#fireModalOverlay").addEventListener("click", (e) => {

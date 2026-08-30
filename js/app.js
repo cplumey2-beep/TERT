@@ -1785,6 +1785,17 @@ function clusterFireHotspots(spots) {
   }
   return clusters;
 }
+function fireDetectedAt(h) {
+  return new Date(`${h.acq_date}T${h.acq_time.substring(0, 2)}:${h.acq_time.substring(2, 4)}:00Z`);
+}
+function fireAgeLabel(date) {
+  const mins = Math.round((Date.now() - date.getTime()) / 60000);
+  if (mins < 1) return "hace instantes";
+  if (mins < 60) return `hace ${mins} min`;
+  const hrs = Math.floor(mins / 60);
+  const rem = mins % 60;
+  return rem ? `hace ${hrs}h ${rem}min` : `hace ${hrs}h`;
+}
 let fireClustersCache = [];
 let fireFetchFailed = false;
 let fireFetchInFlight = false;
@@ -1882,8 +1893,7 @@ function renderFireModal(hotspots) {
   const now = Date.now();
   const recent = hotspots.filter((h) => {
     try {
-      const dt = new Date(`${h.acq_date}T${h.acq_time.substring(0, 2)}:${h.acq_time.substring(2, 4)}:00Z`);
-      return now - dt.getTime() < 43200000; // 12h
+      return now - fireDetectedAt(h).getTime() < 43200000; // 12h
     } catch (e) {
       return true;
     }
@@ -1959,7 +1969,11 @@ function renderFireModal(hotspots) {
     mc.sort((a, b) => b.frp - a.frp).forEach((c, i) => {
       const gpsUrl = `https://www.google.com/maps?q=${c.lat},${c.lon}`;
       const confLabel = { h: "🔴 Alta", n: "🟠 Nominal", l: "🟡 Baja" }[c.confidence] || "?";
-      const timeLabel = `${c.acq_date} ${c.acq_time.substring(0, 2)}:${c.acq_time.substring(2, 4)}Z`;
+      const detectedAt = fireDetectedAt(c);
+      const timeLabel = detectedAt.toLocaleTimeString("es-PR", {
+        timeZone: "America/Puerto_Rico", hour: "numeric", minute: "2-digit",
+      });
+      const ageLabel = fireAgeLabel(detectedAt);
       const idx = fireClustersCache.indexOf(c);
       if (fires > 1) detailHtml += `<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.08)"><strong>Incendio ${i + 1}</strong><br>`;
       else detailHtml += `<div style="margin-top:4px">`;
@@ -1967,7 +1981,8 @@ function renderFireModal(hotspots) {
         `📍 <strong>${c.lat.toFixed(4)}°N, ${Math.abs(c.lon).toFixed(4)}°W</strong><br>` +
         `🗺️ <a href="${gpsUrl}" target="_blank">Abrir en Google Maps →</a><br>` +
         `⚡ FRP: <strong>${c.frp.toFixed(1)} MW</strong> | Confianza: ${confLabel}<br>` +
-        `🛰️ ${c.satellite.replace("_", " ")} | 🕒 ${timeLabel}<br>` +
+        `🛰️ ${c.satellite.replace("_", " ")}<br>` +
+        `🕒 Detectado: ${timeLabel} hora PR — <strong>${ageLabel}</strong><br>` +
         `<button type="button" class="fire-sms-btn" data-fire-idx="${idx}">📱 Enviar SMS</button>` +
         `</div>`;
     });

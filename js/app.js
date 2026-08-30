@@ -1786,11 +1786,20 @@ function clusterFireHotspots(spots) {
   return clusters;
 }
 let fireClustersCache = [];
+let fireFetchFailed = false;
 function fetchFires() {
   const listEl = $("#fireList");
   if (listEl) listEl.innerHTML = '<p class="hint">🛰️ Consultando satélites...</p>';
   const allHotspots = [];
   let done = 0;
+  let failCount = 0;
+  const finishOne = () => {
+    done++;
+    if (done >= FIRMS_SOURCES.length) {
+      fireFetchFailed = failCount >= FIRMS_SOURCES.length;
+      renderFireModal(allHotspots);
+    }
+  };
   FIRMS_SOURCES.forEach((src) => {
     const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${FIRMS_KEY}/${src}/${FIRMS_BBOX}/2`;
     fetch(url)
@@ -1820,18 +1829,26 @@ function fetchFires() {
             });
           }
         }
-        done++;
-        if (done >= FIRMS_SOURCES.length) renderFireModal(allHotspots);
+        finishOne();
       })
       .catch(() => {
-        done++;
-        if (done >= FIRMS_SOURCES.length) renderFireModal(allHotspots);
+        failCount++;
+        finishOne();
       });
   });
 }
-function updateFireBadge(count, severity) {
+function updateFireBadge(count, severity, offline) {
   const btn = $("#btnFireAlert");
-  btn.classList.remove("sev-alta", "sev-moderada", "sev-baja");
+  btn.classList.remove("sev-moderada", "sev-baja", "offline");
+  if (offline) {
+    btn.hidden = false;
+    btn.classList.add("offline");
+    $("#fireAlertLabel").textContent = "🔥 Sin conexión";
+    $("#fireAlertBadgeWrap").hidden = true;
+    return;
+  }
+  $("#fireAlertBadgeWrap").hidden = false;
+  $("#fireAlertLabel").textContent = "🔥 Incendios Activos";
   if (!count) {
     btn.hidden = true;
     return;
@@ -1842,6 +1859,21 @@ function updateFireBadge(count, severity) {
   $("#fireAlertBadgeNum").textContent = count;
 }
 function renderFireModal(hotspots) {
+  const summ = $("#fireSummary");
+  const list = $("#fireList");
+  if (fireFetchFailed) {
+    fireClustersCache = [];
+    updateFireBadge(0, null, true);
+    if (summ) summ.innerHTML = "";
+    if (list) {
+      list.innerHTML =
+        '<div class="fire-item"><div class="fire-icon">⚠️</div><div class="fire-info">' +
+        '<div class="fire-muni">Sin conexión</div>' +
+        '<div class="fire-detail">No se pudo verificar incendios en NASA FIRMS — revisa tu conexión a internet. Se reintenta automáticamente en cuanto vuelva la señal.</div>' +
+        "</div></div>";
+    }
+    return;
+  }
   const now = Date.now();
   const recent = hotspots.filter((h) => {
     try {
@@ -1860,9 +1892,6 @@ function renderFireModal(hotspots) {
       unique.push(h);
     }
   });
-
-  const summ = $("#fireSummary");
-  const list = $("#fireList");
 
   if (!unique.length) {
     fireClustersCache = [];
@@ -1963,6 +1992,13 @@ $("#fireModalOverlay").addEventListener("click", (e) => {
 });
 fetchFires();
 setInterval(fetchFires, 900000); // 15 min
+// Reconsulta al reabrir la app (el despachador la manda al background sin
+// cerrarla, así que una recarga completa no siempre ocurre) y apenas vuelve
+// la señal, en vez de esperar hasta 15 min en cualquiera de los dos casos.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") fetchFires();
+});
+window.addEventListener("online", fetchFires);
 
 // ===== Referencias de códigos (Clave 10 / Claves Alfa) =====
 $("#btnOpenClave10").addEventListener("click", () => $("#clave10ModalOverlay").classList.add("open"));

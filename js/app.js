@@ -246,6 +246,55 @@ function escapeHtml(str) {
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[c]));
 }
+// Imprimir reportes individuales (asistencia diaria, detalle de incidente) en
+// una PESTAÑA/VENTANA APARTE en vez de ocultar la app con una clase CSS y
+// restaurarla en "afterprint". En Android sin servicio de impresora instalado
+// (va directo a "Guardar como PDF"), el PDF final se genera de forma
+// diferida — recién cuando el usuario toca "Descargar" en la pre-vista, no
+// al abrir el diálogo — y para entonces "afterprint" ya había disparado y
+// restaurado la app, así que el PDF terminaba capturando la app completa en
+// vez del reporte. Al imprimir un documento aparte, aislado, no hay nada que
+// restaurar: el PDF sale igual sin importar cuánto tiempo tarde el usuario en
+// revisar la pre-vista antes de guardar.
+const PRINT_STYLES = `
+  body { font-family: "Segoe UI", Arial, sans-serif; color: #000; background: #fff; max-width: 700px; margin: 30px auto; padding: 0 16px; }
+  h2 { border-left: 4px solid #ff6a00; padding-left: 10px; margin-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; }
+  td { color: #000; background: #fff; border: 1px solid #999; padding: 6px 10px; vertical-align: top; }
+  td.label { font-weight: 700; width: 160px; background: #f0f0f0; }
+  ul { margin: 4px 0; padding-left: 18px; }
+  .asistencia-print { position: relative; padding: 10px; }
+  .asistencia-watermark { position: fixed; top: 50%; left: 50%; width: 480px; height: 480px; transform: translate(-50%, -50%); object-fit: contain; opacity: 0.1; z-index: 5; pointer-events: none; }
+  .asistencia-header, .asistencia-titlebar, .asistencia-print-table, .asistencia-footer, .asistencia-firma { position: relative; z-index: 1; }
+  .asistencia-header { text-align: center; margin-bottom: 10px; }
+  .asistencia-header h2 { border-left: none !important; padding-left: 0 !important; margin: 0 0 4px; font-size: 1.3rem; }
+  .asistencia-header p { margin: 2px 0; font-size: 0.85rem; }
+  .asistencia-titlebar { display: flex; justify-content: space-between; align-items: center; border: 1px solid #000; padding: 8px 12px; margin-bottom: 8px; font-size: 0.95rem; }
+  .asistencia-print-table th { border: 1px solid #999; padding: 6px 10px; background: #f0f0f0; color: #000; font-size: 0.85rem; }
+  .asistencia-footer { margin-top: 14px; border: 1px solid #000; padding: 8px 12px; }
+  .asistencia-anotaciones { flex: 1; font-size: 0.85rem; }
+  .asistencia-anotaciones-blanco { height: 50px; border-top: 1px dashed #999; margin-top: 6px; }
+  .asistencia-firma { margin-top: 14px; font-size: 0.9rem; }
+  .asistencia-page-footer { position: fixed; bottom: 10px; right: 10px; font-size: 0.78rem; color: #000; z-index: 1; }
+`;
+function openPrintDoc(bodyHtml, docTitle) {
+  const win = window.open("", "_blank");
+  if (!win) {
+    alert("El navegador bloqueó la ventana de impresión. Permite ventanas emergentes para este sitio e intenta de nuevo.");
+    return;
+  }
+  win.document.open();
+  win.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${escapeHtml(docTitle)}</title><base href="${location.href}"><style>${PRINT_STYLES}</style></head><body>${bodyHtml}</body></html>`);
+  win.document.close();
+  const img = win.document.querySelector("img");
+  const doPrint = () => { win.focus(); win.print(); };
+  if (!img || img.complete) {
+    setTimeout(doPrint, 150);
+  } else {
+    img.addEventListener("load", doPrint, { once: true });
+    img.addEventListener("error", doPrint, { once: true });
+  }
+}
 // new Date().toISOString() usa UTC — en Puerto Rico (UTC-4) eso marca el día
 // SIGUIENTE entre las 8pm y medianoche hora local. Esta función corrige el
 // desfase para obtener la fecha/hora LOCAL en formato ISO.
@@ -1166,7 +1215,12 @@ onPressed("#btnGuardarAnotaciones", () => {
   saveDiaAsistencia(dia);
   alert("Anotaciones guardadas.");
 });
-onPressed("#btnImprimirLista", () => {
+// Listener directo (no onPressed/withPressed): window.open() debe llamarse
+// de forma SÍNCRONA dentro del gesto de clic del usuario o el navegador lo
+// puede bloquear como popup — el setTimeout(60) de withPressed (pensado para
+// dar tiempo al color de "presionado" antes de un alert()/confirm() que
+// congela el render) rompería justo esa sincronía.
+$("#btnImprimirLista").addEventListener("click", () => {
   const fecha = $("#listaFecha").value;
   const dia = getDiaAsistencia(fecha) || { fecha, firmante: "", anotaciones: $("#listaAnotaciones").value, entradas: [] };
   // Respaldo: si el día no tiene firmante guardado, usa lo que esté escrito
@@ -1177,9 +1231,9 @@ onPressed("#btnImprimirLista", () => {
     ? dia.entradas.map((e) => `<tr><td>${escapeHtml(e.nombre)}</td><td>${escapeHtml(e.tipo || "Miembro")}</td><td>${escapeHtml(e.hora)}</td><td>${escapeHtml(e.medio)}</td></tr>`).join("")
     : `<tr><td colspan="4">Sin reportes registrados.</td></tr>`;
 
-  $("#printSingle").innerHTML = `
+  const html = `
     <div class="asistencia-print">
-      <img class="asistencia-watermark" id="asistenciaWatermarkImg" src="assets/tert-seal.jpg" alt="">
+      <img class="asistencia-watermark" src="assets/tert-seal.jpg" alt="">
       <div class="asistencia-header">
         <h2>TACTICAL EMERGENCY RESPONSE TEAM CORP.</h2>
         <p>Calle Aguja # 190, Urb. Estancias de Barceloneta, Barceloneta PR 00617</p>
@@ -1204,19 +1258,7 @@ onPressed("#btnImprimirLista", () => {
       <div class="asistencia-page-footer">Rev. 26 enero 2025, Cap: 1 Art. 4.0 Pág #12</div>
     </div>
   `;
-  document.body.classList.add("printing-single");
-  document.title = "TERT asistencia diaria";
-  // Espera a que la marca de agua termine de cargar antes de imprimir — si
-  // window.print() se llama de inmediato, el navegador puede renderizar el
-  // PDF/impresión ANTES de que la imagen recién insertada esté lista, y sale
-  // en blanco (sobre todo la primera vez, sin caché de esa imagen).
-  const watermarkImg = $("#asistenciaWatermarkImg");
-  if (watermarkImg.complete) {
-    window.print();
-  } else {
-    watermarkImg.addEventListener("load", () => window.print(), { once: true });
-    watermarkImg.addEventListener("error", () => window.print(), { once: true });
-  }
+  openPrintDoc(html, "TERT asistencia diaria");
 });
 onPressed("#btnEliminarNombreConocido", () => {
   const nombre = $("#nombresConocidosSelect").value;
@@ -1468,7 +1510,7 @@ function printIncidentReport(folio) {
     : "<p>Sin eventos registrados.</p>";
   const agenciasHtml = (log.agencias || []).length ? (log.agencias || []).join(", ") : "Ninguna registrada";
 
-  $("#printSingle").innerHTML = `
+  const html = `
     <h2>Reporte de Incidente &mdash; ${escapeHtml(log.folio)}</h2>
     <table>
       <tr><td class="label">Fecha / Hora</td><td>${escapeHtml(log.fecha.replace("T", " "))}</td></tr>
@@ -1484,24 +1526,8 @@ function printIncidentReport(folio) {
       <tr><td class="label">Línea de Tiempo</td><td>${timelineHtml}</td></tr>
     </table>
   `;
-  document.body.classList.add("printing-single");
-  window.print();
+  openPrintDoc(html, `TERT reporte ${log.folio}`);
 }
-// El navegador usa document.title como nombre sugerido al "Guardar como PDF"
-// — se cambia justo antes de imprimir un reporte específico y se restaura
-// aquí, para no afectar el título de la pestaña/app el resto del tiempo.
-const ORIGINAL_DOCUMENT_TITLE = document.title;
-// En Android sin un servicio de impresora instalado (va directo a "Guardar
-// como PDF"), "afterprint" puede disparar ANTES de que el sistema termine de
-// capturar la página estilizada — si quitamos la clase de inmediato, el PDF
-// sale con la app completa visible en vez del reporte con logo/formato. Se
-// espera un momento antes de restaurar, para darle margen a esa captura tardía.
-window.addEventListener("afterprint", () => {
-  setTimeout(() => {
-    document.body.classList.remove("printing-single");
-    document.title = ORIGINAL_DOCUMENT_TITLE;
-  }, 1000);
-});
 
 onPressed("#btnFiltrar", renderReportTable);
 $("#filtroTexto").addEventListener("input", renderReportTable);

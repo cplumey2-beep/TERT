@@ -606,8 +606,6 @@ th { background: var(--panel-alt); color: var(--accent); }
 .timeline-list li { margin-bottom: 3px; }
 .timeline-list strong { color: var(--text); }
 
-#printSingle { display: none; }
-
 .modal-overlay {
   display: none;
   position: fixed;
@@ -677,82 +675,9 @@ footer { text-align: center; padding: 16px; color: var(--muted); font-size: 0.8r
   table, th, td { border-color: #000; }
 }
 
-body.printing-single > *:not(#printSingle) { display: none !important; }
-body.printing-single #printSingle {
-  display: block;
-  max-width: 700px;
-  margin: 30px auto;
-  color: #000;
-  font-family: "Segoe UI", Arial, sans-serif;
-}
-body.printing-single #printSingle h2 { border-left: 4px solid #ff6a00; padding-left: 10px; margin-bottom: 4px; }
-body.printing-single #printSingle table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; }
-body.printing-single #printSingle td { color: #000; background: #fff; }
-body.printing-single #printSingle td { border: 1px solid #999; padding: 6px 10px; vertical-align: top; }
-body.printing-single #printSingle td.label { font-weight: 700; width: 160px; background: #f0f0f0; }
-body.printing-single #printSingle ul { margin: 4px 0; padding-left: 18px; }
-
-/* Reporte de Pasar Lista Diaria — imita el formato del reporte en papel */
-.asistencia-print { position: relative; padding: 10px; }
-/* <img> real, no CSS background-image: la mayoría de los navegadores NO
-   imprimen imágenes de fondo por CSS a menos que el usuario active a mano
-   "Gráficos de fondo" en el diálogo de impresión — una <img> normal sí
-   siempre se imprime, sin depender de esa opción. */
-.asistencia-watermark {
-  /* fixed (no absolute): se centra en la hoja/pantalla completa, no en el
-     contenido — con position:absolute el centrado dependía de la altura de
-     .asistencia-print, que cambia según cuántas filas tenga la tabla, y por
-     eso quedaba escondida detrás de los encasillados en reportes cortos. */
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 480px;
-  height: 480px;
-  transform: translate(-50%, -50%);
-  object-fit: contain;
-  opacity: 0.1;
-  z-index: 5;
-  pointer-events: none;
-}
-.asistencia-header, .asistencia-titlebar, .asistencia-print-table, .asistencia-footer, .asistencia-firma {
-  position: relative;
-  z-index: 1;
-}
-.asistencia-header { text-align: center; margin-bottom: 10px; }
-.asistencia-header h2 { border-left: none !important; padding-left: 0 !important; margin: 0 0 4px; font-size: 1.3rem; }
-.asistencia-header p { margin: 2px 0; font-size: 0.85rem; }
-.asistencia-titlebar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid #000;
-  padding: 8px 12px;
-  margin-bottom: 8px;
-  font-size: 0.95rem;
-}
-.asistencia-print-table th {
-  border: 1px solid #999;
-  padding: 6px 10px;
-  background: #f0f0f0;
-  color: #000;
-  font-size: 0.85rem;
-}
-.asistencia-footer {
-  margin-top: 14px;
-  border: 1px solid #000;
-  padding: 8px 12px;
-}
-.asistencia-anotaciones { flex: 1; font-size: 0.85rem; }
-.asistencia-anotaciones-blanco { height: 50px; border-top: 1px dashed #999; margin-top: 6px; }
-.asistencia-firma { margin-top: 14px; font-size: 0.9rem; }
-.asistencia-page-footer {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  font-size: 0.78rem;
-  color: #000;
-  z-index: 1;
-}
+/* Reportes individuales (asistencia diaria, detalle de incidente) se imprimen
+   en una ventana aparte generada por openPrintDoc()/PRINT_STYLES en app.js —
+   no dependen de estilos de esta hoja. */
 
 /* Estado "presionado" controlado por JS (no CSS :hover) — se activa justo antes de
    abrir un prompt()/confirm() y se apaga apenas el usuario responde, para dar

@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TERT">
-<link rel="stylesheet" href="css/style.css?v=20260830i">
+<link rel="stylesheet" href="css/style.css?v=20260904a">
 <link rel="preload" as="image" href="assets/tert-seal.jpg">
 <script>
 (function () {
@@ -356,6 +356,21 @@
             <tbody></tbody>
           </table>
         </div>
+
+        <h3 class="turno-historial-title">Nombres Guardados (Pasar Lista)</h3>
+        <p class="hint">Nombres y firmantes que se han escrito al menos una vez en "Pasar Lista Diaria" quedan aquí como sugerencias. Borra los que no quieras seguir viendo — no afecta los reportes ya guardados, solo las sugerencias futuras.</p>
+        <div class="form-row">
+          <label>Nombres (aliados/miembros escritos)
+            <select id="nombresConocidosSelect"></select>
+          </label>
+          <label>¿Quién pasa lista?
+            <select id="firmantesSelect"></select>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="danger-btn" id="btnEliminarNombreConocido">🗑️ Eliminar Nombre</button>
+          <button type="button" class="danger-btn" id="btnEliminarFirmante">🗑️ Eliminar Firmante</button>
+        </div>
       </div>
 
       <h2>Reportes de Incidentes</h2>
@@ -536,22 +551,6 @@
           </div>
           <div class="form-actions">
             <button type="button" class="primary-btn" id="btnGuardarConfigTiempos">💾 Guardar Configuración</button>
-          </div>
-        </div>
-        <div class="info-card full">
-          <h3>Nombres Guardados (Pasar Lista)</h3>
-          <p class="hint">Nombres y firmantes que se han escrito al menos una vez en "Pasar Lista Diaria" quedan aquí como sugerencias. Borra los que no quieras seguir viendo — no afecta los reportes ya guardados, solo las sugerencias futuras.</p>
-          <div class="form-row">
-            <label>Nombres (aliados/miembros escritos)
-              <select id="nombresConocidosSelect"></select>
-            </label>
-            <label>¿Quién pasa lista?
-              <select id="firmantesSelect"></select>
-            </label>
-          </div>
-          <div class="form-actions">
-            <button type="button" class="danger-btn" id="btnEliminarNombreConocido">🗑️ Eliminar Nombre</button>
-            <button type="button" class="danger-btn" id="btnEliminarFirmante">🗑️ Eliminar Firmante</button>
           </div>
         </div>
         <div class="info-card full">
@@ -890,6 +889,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=20260830i"></script>
+  <script src="js/app.js?v=20260904a"></script>
 </body>
 </html>

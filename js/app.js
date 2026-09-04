@@ -1491,9 +1491,16 @@ function printIncidentReport(folio) {
 // — se cambia justo antes de imprimir un reporte específico y se restaura
 // aquí, para no afectar el título de la pestaña/app el resto del tiempo.
 const ORIGINAL_DOCUMENT_TITLE = document.title;
+// En Android sin un servicio de impresora instalado (va directo a "Guardar
+// como PDF"), "afterprint" puede disparar ANTES de que el sistema termine de
+// capturar la página estilizada — si quitamos la clase de inmediato, el PDF
+// sale con la app completa visible en vez del reporte con logo/formato. Se
+// espera un momento antes de restaurar, para darle margen a esa captura tardía.
 window.addEventListener("afterprint", () => {
-  document.body.classList.remove("printing-single");
-  document.title = ORIGINAL_DOCUMENT_TITLE;
+  setTimeout(() => {
+    document.body.classList.remove("printing-single");
+    document.title = ORIGINAL_DOCUMENT_TITLE;
+  }, 1000);
 });
 
 onPressed("#btnFiltrar", renderReportTable);

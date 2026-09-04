@@ -814,7 +814,11 @@ function broadcastIncidente(codigo, descripcion, emergencia) {
   const cierre = emergencia
     ? "Proceda en 10-50 a la zona con precaucion."
     : "Proceda a la zona con precaucion de manera regular.";
-  sendBroadcast(`Unidades Disponibles: (${codigo}), ${direccion.trim()}. ${cierre} Reporte su participacion.`, true);
+  // 10-44 (Fuego) avisa que las coordenadas exactas llegan en un SMS aparte
+  // — el que se manda desde el modal de Alerta de Incendios (NASA FIRMS).
+  // Solo aplica a este código, es el único con esa fuente de coordenadas.
+  const aviso = codigo === "10-44" ? " Estamos enviando coordenadas." : "";
+  sendBroadcast(`Unidades Disponibles: (${codigo}), ${direccion.trim()}. ${cierre}${aviso} Reporte su participacion.`, true);
 }
 
 function broadcastCustom() {

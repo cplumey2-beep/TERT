@@ -211,6 +211,20 @@ body {
 }
 .backup-reminder.show { display: block; }
 
+/* Mismo estilo ámbar que .backup-reminder (color fijo, no var(--yellow), por
+   la misma razón: esa variable cambia con el Tema de Color) — pero siempre
+   visible, no depende de .show. */
+.fire-order-reminder {
+  background: rgba(244, 208, 63, 0.14);
+  color: #f4d03f;
+  border: 1px solid #f4d03f;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 14px;
+}
+
 .chart-box { overflow-x: auto; }
 .chart-box svg { display: block; min-width: 260px; }
 .chart-empty { color: var(--muted); font-size: 0.85rem; font-style: italic; }

@@ -828,7 +828,12 @@ function broadcastCustom() {
 }
 
 function broadcastPrueba() {
-  const mensaje = "🟡 >>> Esto es una prueba del nuevo sistema de difusión automatizada inteligente de despacho de TERT. Si recibe este mensaje, por favor conteste. Gracias. Mensaje de prueba enviado por Ing. Plumey. <<< 🟡";
+  // Firma dinamica: antes decia siempre "Ing. Plumey" sin importar quien
+  // realmente estuviera de turno (ej. Cap. Zapata enviando la prueba, pero
+  // llegaba firmada por Plumey) - ahora usa el Despachador en Turno real.
+  const nombreDespachador = (getTurnoActual() || {}).nombre;
+  const firma = nombreDespachador ? `enviado por ${nombreDespachador}` : "enviado por el equipo de despacho de TERT";
+  const mensaje = `🟡 >>> Esto es una prueba del nuevo sistema de difusión automatizada inteligente de despacho de TERT. Si recibe este mensaje, por favor conteste. Gracias. Mensaje de prueba ${firma}. <<< 🟡`;
   sendBroadcast(mensaje, false);
 }
 

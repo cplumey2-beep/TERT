@@ -1101,14 +1101,23 @@ function saveDiaAsistencia(dia) {
 function renderFirmantesDatalist() {
   $("#firmantesList").innerHTML = getFirmantes().map((n) => `<option value="${escapeHtml(n)}"></option>`).join("");
 }
-function renderNombresSugeridos() {
+function getNombresUnidadesActuales() {
   const labels = getUnitLabels();
-  const nombresUnidades = UNITS.map((u) => normalizeUnitOverride(labels[u.id]).label || u.label);
-  const nombres = [...new Set([...nombresUnidades, ...getNombresConocidos()])];
+  return UNITS.map((u) => normalizeUnitOverride(labels[u.id]).label || u.label);
+}
+function renderNombresSugeridos() {
+  const nombres = [...new Set([...getNombresUnidadesActuales(), ...getNombresConocidos()])];
   $("#listaNombresSugeridos").innerHTML = nombres.map((n) => `<option value="${escapeHtml(n)}"></option>`).join("");
 }
 function renderNombresAdmin() {
-  $("#nombresConocidosSelect").innerHTML = getNombresConocidos().map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join("");
+  // Solo aliados: un nombre que coincide EXACTO con un miembro actual del
+  // Tablero de Unidades no se muestra aqui (ni se deja "eliminar" desde
+  // aqui) - los miembros se editan en el Tablero, esto es solo para limpiar
+  // sugerencias de aliados escritos a mano. Filtra tambien entradas viejas
+  // que hayan quedado mezcladas de antes de este cambio.
+  const nombresUnidades = getNombresUnidadesActuales();
+  const aliados = getNombresConocidos().filter((n) => !nombresUnidades.includes(n));
+  $("#nombresConocidosSelect").innerHTML = aliados.map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join("");
   $("#firmantesSelect").innerHTML = getFirmantes().map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join("");
 }
 function renderAsistenciaTable() {
@@ -1155,9 +1164,7 @@ function initPasarLista() {
 }
 $("#listaFecha").addEventListener("change", renderAsistenciaTable);
 function esNombreDeUnidad(nombre) {
-  const labels = getUnitLabels();
-  const nombresUnidades = UNITS.map((u) => normalizeUnitOverride(labels[u.id]).label || u.label);
-  return nombresUnidades.includes(nombre);
+  return getNombresUnidadesActuales().includes(nombre);
 }
 $("#listaNombre").addEventListener("input", () => {
   $("#listaTipo").value = esNombreDeUnidad($("#listaNombre").value.trim()) ? "Miembro" : "Aliado";
@@ -1202,7 +1209,10 @@ onPressed("#btnAgregarAsistencia", () => {
   dia.entradas.push({ nombre, tipo, medio, hora });
   saveDiaAsistencia(dia);
   if (firmante) registrarFirmante(firmante);
-  registrarNombreConocido(nombre);
+  // Solo se guarda como "aliado sugerido" si NO es un miembro actual del
+  // Tablero de Unidades - los miembros ya salen siempre en las sugerencias
+  // via getNombresUnidadesActuales(), no hace falta duplicarlos aqui.
+  if (!esNombreDeUnidad(nombre)) registrarNombreConocido(nombre);
   renderFirmantesDatalist();
   renderNombresSugeridos();
   renderNombresAdmin();
@@ -1267,7 +1277,7 @@ $("#btnImprimirLista").addEventListener("click", () => {
 onPressed("#btnEliminarNombreConocido", () => {
   const nombre = $("#nombresConocidosSelect").value;
   if (!nombre) return;
-  if (!confirm(`¿Quitar "${nombre}" de las sugerencias de nombre? Los reportes ya guardados no cambian.`)) return;
+  if (!confirm(`¿Quitar "${nombre}" de las sugerencias de nombre aliado? Los reportes ya guardados no cambian.`)) return;
   saveNombresConocidos(getNombresConocidos().filter((n) => n !== nombre));
   renderNombresSugeridos();
   renderNombresAdmin();

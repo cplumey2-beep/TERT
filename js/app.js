@@ -786,14 +786,16 @@ onPressed("#btnResetAllUnits", () => {
 });
 
 // ===== Difusión a miembros (SMS) =====
-// Círculo de color al inicio del mensaje para identificar el tipo de un vistazo:
-// 🔴 = 10-50 emergencia (sirenas) · 🟢 = NO 10-50 (sin sirenas) · 🟡 = prueba del sistema
+// Mensajes optimizados para GSM-7 (sin emojis ni acentos) para garantizar
+// entrega en 1 solo fragmento y compatibilidad total con proveedores móviles.
 function sendSms(phones, body, emptyMsg) {
   if (!phones.length) {
     alert(emptyMsg);
     return;
   }
-  window.location.href = `sms:${phones.join(",")}?body=${encodeURIComponent(body)}`;
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const separator = isAndroid ? ";" : ",";
+  window.location.href = `sms:${phones.join(separator)}?body=${encodeURIComponent(body)}`;
 }
 function sendBroadcast(body, onlyDisponibles) {
   const phones = getMemberPhones(onlyDisponibles);
@@ -824,16 +826,16 @@ function broadcastIncidente(codigo, descripcion, emergencia) {
 function broadcastCustom() {
   const mensaje = prompt("Escribe el mensaje a difundir a las unidades Disponibles:", "");
   if (mensaje === null || !mensaje.trim()) return;
-  sendBroadcast(`⚪ A todas las unidades Disponibles: ${mensaje.trim()}`, true);
+  sendBroadcast(`A todas las unidades Disponibles: ${mensaje.trim()}`, true);
 }
 
 function broadcastPrueba() {
-  // Firma dinamica: antes decia siempre "Ing. Plumey" sin importar quien
-  // realmente estuviera de turno (ej. Cap. Zapata enviando la prueba, pero
-  // llegaba firmada por Plumey) - ahora usa el Despachador en Turno real.
+  // Firma dinamica con el Despachador en Turno real
   const nombreDespachador = (getTurnoActual() || {}).nombre;
   const firma = nombreDespachador ? `enviado por ${nombreDespachador}` : "enviado por el equipo de despacho de TERT";
-  const mensaje = `🟡 >>> Esto es una prueba del nuevo sistema de difusión automatizada inteligente de despacho de TERT. Si recibe este mensaje, por favor conteste. Gracias. Mensaje de prueba ${firma}. <<< 🟡`;
+  // Mensaje sin emojis ni acentos para mantener codificacion GSM-7 (1 fragmento / <160 caracteres)
+  // Evita que las proveedoras telefonicas rechacen envios grupales por codificacion Unicode o longitud excesiva.
+  const mensaje = `PRUEBA DE SISTEMA TERT: Si recibe este mensaje favor responder para confirmar recepcion. Mensaje de prueba ${firma}.`;
   sendBroadcast(mensaje, false);
 }
 
